@@ -839,6 +839,58 @@ body {
 }
 .spu-select-btn:hover { background: rgba(255,36,66,0.1); }
 
+/* ─── SPU 卡片（对话内嵌卡片式） ─── */
+.spu-cards-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0;
+}
+.spu-card {
+  background: #FFFFFF;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 10px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 160px;
+  max-width: 200px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  position: relative;
+}
+.spu-card:hover { border-color: #FF2442; background: rgba(255,36,66,0.04); transform: translateY(-1px); }
+.spu-card.selected {
+  border-color: #FF2442;
+  background: rgba(255,36,66,0.08);
+  box-shadow: 0 0 0 1px rgba(255,36,66,0.2);
+}
+.spu-card-check {
+  position: absolute;
+  top: 6px; right: 6px;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: #FF2442;
+  color: #fff;
+  font-size: 11px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.spu-card.selected .spu-card-check { display: flex; }
+.spu-card-icon {
+  width: 36px; height: 36px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  margin-bottom: 2px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+}
+.spu-card-name { font-size: 12.5px; font-weight: 600; color: #13131F; line-height: 1.35; }
+.spu-card-sub { font-size: 11px; color: #9CA3AF; }
+
 /* ─── Skill Cards: Before/After preview ─── */
 .ba-container {
   display: flex;
@@ -2264,9 +2316,13 @@ function showInputPhase(phase) {
     if (state.industry === '电商行业') {
       document.getElementById('bottomInput').classList.add('hidden-bar');
       buildSpuInChat();
-    } else {
+    } else if (state.industry === '线索行业') {
       document.getElementById('bottomInput').classList.add('hidden-bar');
       buildLeadInputInChat();
+    } else {
+      // 其他行业：保留原有纯手动输入
+      document.getElementById('bottomInput').classList.add('hidden-bar');
+      buildOtherIndustryInputInChat();
     }
   } else if (phase === 2) {
     document.getElementById('bottomInput').classList.add('hidden-bar');
@@ -2353,7 +2409,9 @@ function selectIndustry(industry, icon) {
     setTimeout(() => {
       removeThinking();
       const prompt1 = industry === '电商行业'
-        ? `好的！${industry} ✓ 接下来请选择要推广的商品（SPU）：`
+        ? `好的！电商行业 ✓ 请选择你要推广的商品 SPU：`
+        : industry === '线索行业'
+        ? `好的！线索行业 ✓ 请选择或输入你要推广的课程/服务：`
         : `好的！${industry} ✓ 接下来告诉我，你想推广什么产品或服务？`;
       addAIBubble(prompt1, () => {
         showInputPhase(1);
@@ -2381,22 +2439,46 @@ const SPU_DATA = [
     name: '秋季连衣裙-藏青色V领',
     price: '¥299',
     stock: '库存 1,234件',
-    grad: 'linear-gradient(135deg, #667eea, #764ba2)'
+    grad: 'linear-gradient(135deg, #667eea, #764ba2)',
+    color: '#667eea'
   },
   {
     id: 'SPU002',
     name: '玻尿酸精华液-舒缓保湿版',
     price: '¥199',
     stock: '库存 5,678件',
-    grad: 'linear-gradient(135deg, #11998e, #38ef7d)'
+    grad: 'linear-gradient(135deg, #11998e, #38ef7d)',
+    color: '#11998e'
   },
   {
     id: 'SPU003',
     name: '蛋白棒零食礼盒-混合口味',
     price: '¥89',
     stock: '库存 2,890件',
-    grad: 'linear-gradient(135deg, #f093fb, #f5576c)'
+    grad: 'linear-gradient(135deg, #f093fb, #f5576c)',
+    color: '#f093fb'
   }
+];
+
+// 电商 SPU mock 卡片数据
+const ECOM_SPU_CARDS = [
+  { id: 'E001', name: '雅诗兰黛小棕瓶精华 30ml', sub: '护肤/抗衰', icon: '✨', grad: 'linear-gradient(135deg,#f093fb,#f5576c)' },
+  { id: 'E002', name: 'lululemon Align 瑜伽裤', sub: '运动/女装', icon: '🧘', grad: 'linear-gradient(135deg,#4facfe,#00f2fe)' },
+  { id: 'E003', name: '戴森 V15 吸尘器', sub: '家电/清洁', icon: '🌀', grad: 'linear-gradient(135deg,#43e97b,#38f9d7)' },
+  { id: 'E004', name: '可复美胶原棒', sub: '护肤/修复', icon: '💎', grad: 'linear-gradient(135deg,#fa8231,#f7b731)' },
+  { id: 'E005', name: '苹果 iPhone 16 Pro', sub: '数码/手机', icon: '📱', grad: 'linear-gradient(135deg,#667eea,#764ba2)' },
+  { id: 'E006', name: '花西子蜜粉饼', sub: '彩妆/定妆', icon: '🌸', grad: 'linear-gradient(135deg,#fd79a8,#e84393)' },
+  { id: 'E007', name: '奥乐齐有机燕麦片', sub: '食品/健康', icon: '🌾', grad: 'linear-gradient(135deg,#11998e,#38ef7d)' },
+  { id: 'E008', name: 'SK-II 神仙水 230ml', sub: '护肤/精华', icon: '🫧', grad: 'linear-gradient(135deg,#6c5ce7,#a29bfe)' },
+];
+
+// 线索 SPU mock 卡片数据
+const LEAD_SPU_CARDS = [
+  { id: 'L001', name: '雅思口语冲刺班', sub: '语言培训/备考', icon: '🎤', grad: 'linear-gradient(135deg,#667eea,#764ba2)' },
+  { id: 'L002', name: '公务员笔试特训营', sub: '职业教育/考公', icon: '📋', grad: 'linear-gradient(135deg,#f093fb,#f5576c)' },
+  { id: 'L003', name: 'MBA 备考系列课', sub: '学历教育/提升', icon: '🎓', grad: 'linear-gradient(135deg,#4facfe,#00f2fe)' },
+  { id: 'L004', name: 'CPA 全科精讲班', sub: '财会考试/备考', icon: '📊', grad: 'linear-gradient(135deg,#43e97b,#38f9d7)' },
+  { id: 'L005', name: '少儿编程启蒙课', sub: '素质教育/少儿', icon: '💻', grad: 'linear-gradient(135deg,#fa8231,#f7b731)' },
 ];
 
 function buildSPUList(query) {
@@ -2855,36 +2937,94 @@ function goToSellingPoints() {
   }, 100);
 }
 
-/* 新版：SPU 选择注入 chatArea */
+/* 新版：线索行业 SPU 卡片 + 手动输入 */
 function buildLeadInputInChat() {
   const wrap = document.createElement('div');
   wrap.className = 'msg-row';
   wrap.id = 'leadChatRow';
+
+  const cardsHtml = LEAD_SPU_CARDS.map(spu => `
+    <div class="spu-card" id="leadSpuCard_${spu.id}" onclick="selectLeadSpu('${spu.id}','${spu.name.replace(/'/g,'&#39;')}')">
+      <div class="spu-card-check">✓</div>
+      <div class="spu-card-icon" style="background:${spu.grad};">${spu.icon}</div>
+      <div class="spu-card-name">${spu.name}</div>
+      <div class="spu-card-sub">${spu.sub}</div>
+    </div>
+  `).join('');
+
   wrap.innerHTML = `
-    <div style="max-width:600px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
-      <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">📝 请输入推广产品/服务名称</div>
-      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+    <div style="max-width:680px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+      <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">📚 方式一：选择课程 SPU（点击后自动填入）</div>
+      <div class="spu-cards-wrap" id="leadSpuCardsWrap" style="margin-bottom:14px;">
+        ${cardsHtml}
+      </div>
+      <div style="height:1px;background:#F3F4F6;margin-bottom:12px;"></div>
+      <div style="font-size:13px;color:#6B7280;margin-bottom:8px;">✏️ 方式二：手动输入产品/服务名称</div>
+      <div style="display:flex;gap:8px;align-items:center;">
         <input id="leadInputChat" type="text" placeholder="如：雅思口语冲刺班、公务员笔试特训..."
           style="flex:1;padding:9px 14px;border:1.5px solid #E5E7EB;border-radius:20px;font-size:13px;color:#13131F;outline:none;font-family:inherit;background:#F9FAFB;transition:border-color 0.15s;"
           onfocus="this.style.borderColor='#FF2442'" onblur="this.style.borderColor='#E5E7EB'" />
         <button onclick="openMaterialOverlay('text','leadInputChat','product')" title="从原料库选" style="padding:9px 12px;background:#F9FAFB;border:1.5px solid #E5E7EB;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap;color:#6B7280;transition:all 0.15s;" onmouseover="this.style.borderColor='#FF2442';this.style.color='#FF2442'" onmouseout="this.style.borderColor='#E5E7EB';this.style.color='#6B7280'">📦</button>
         <button onclick="confirmLeadInputChat()" style="padding:9px 18px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;white-space:nowrap;">确认 →</button>
       </div>
-      <div style="font-size:12px;color:#9CA3AF;margin-bottom:6px;">或从历史中选择：</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">
-        <button class="lead-history-chip" onclick="setLeadInputChat('雅思口语冲刺班')">雅思口语冲刺班</button>
-        <button class="lead-history-chip" onclick="setLeadInputChat('公务员笔试特训')">公务员笔试特训</button>
-        <button class="lead-history-chip" onclick="setLeadInputChat('MBA备考系列')">MBA备考系列</button>
+    </div>
+  `;
+  document.getElementById('chatArea').appendChild(wrap);
+  scrollChat();
+
+  // Enter 确认
+  document.getElementById('leadInputChat')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') confirmLeadInputChat();
+  });
+}
+
+/* 其他行业：保留原有纯手动输入 */
+function buildOtherIndustryInputInChat() {
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-row';
+  wrap.id = 'leadChatRow';
+  wrap.innerHTML = `
+    <div style="max-width:600px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+      <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">📝 请输入推广产品/服务名称</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input id="leadInputChat" type="text" placeholder="如：产品名称、服务名称..."
+          style="flex:1;padding:9px 14px;border:1.5px solid #E5E7EB;border-radius:20px;font-size:13px;color:#13131F;outline:none;font-family:inherit;background:#F9FAFB;transition:border-color 0.15s;"
+          onfocus="this.style.borderColor='#FF2442'" onblur="this.style.borderColor='#E5E7EB'" />
+        <button onclick="confirmLeadInputChat()" style="padding:9px 18px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;white-space:nowrap;">确认 →</button>
       </div>
     </div>
   `;
   document.getElementById('chatArea').appendChild(wrap);
   scrollChat();
-  setTimeout(() => document.getElementById('leadInputChat')?.focus(), 100);
-
   document.getElementById('leadInputChat')?.addEventListener('keydown', e => {
     if (e.key === 'Enter') confirmLeadInputChat();
   });
+}
+
+// 点击线索 SPU 卡片 → 自动填入输入框，可继续编辑
+let _selectedLeadSpuId = null;
+function selectLeadSpu(id, name) {
+  // 取消上一个选中
+  if (_selectedLeadSpuId) {
+    const prev = document.getElementById('leadSpuCard_' + _selectedLeadSpuId);
+    if (prev) prev.classList.remove('selected');
+  }
+  if (_selectedLeadSpuId === id) {
+    _selectedLeadSpuId = null;
+    const inp = document.getElementById('leadInputChat');
+    if (inp) inp.value = '';
+    return;
+  }
+  _selectedLeadSpuId = id;
+  const card = document.getElementById('leadSpuCard_' + id);
+  if (card) card.classList.add('selected');
+  // 自动填入输入框
+  const inp = document.getElementById('leadInputChat');
+  if (inp) {
+    inp.value = name;
+    inp.style.borderColor = '#FF2442';
+    inp.focus();
+  }
 }
 
 function setLeadInputChat(val) {
@@ -2894,32 +3034,81 @@ function setLeadInputChat(val) {
 
 function confirmLeadInputChat() {
   const val = document.getElementById('leadInputChat')?.value?.trim();
-  if (!val) { showToast('请输入产品或服务名称', 'error'); return; }
+  if (!val) { showToast('请选择课程或输入产品/服务名称', 'error'); return; }
   document.getElementById('leadChatRow')?.remove();
+  _selectedLeadSpuId = null;
   selectProduct(val);
 }
 
+let _selectedEcomSpuId = null;
+let _selectedEcomSpuName = null;
+
 function buildSpuInChat() {
+  _selectedEcomSpuId = null;
+  _selectedEcomSpuName = null;
+
   const wrap = document.createElement('div');
   wrap.className = 'msg-row';
   wrap.id = 'spuChatRow';
+
+  const cardsHtml = ECOM_SPU_CARDS.map(spu => `
+    <div class="spu-card" id="spuCard_${spu.id}" onclick="toggleEcomSpu('${spu.id}','${spu.name.replace(/'/g,'&#39;')}')">
+      <div class="spu-card-check">✓</div>
+      <div class="spu-card-icon" style="background:${spu.grad};">${spu.icon}</div>
+      <div class="spu-card-name">${spu.name}</div>
+      <div class="spu-card-sub">${spu.sub}</div>
+    </div>
+  `).join('');
+
   wrap.innerHTML = `
-    <div style="max-width:640px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
-      <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">🛍️ 请选择要推广的商品（SPU）</div>
-      <div style="position:relative;margin-bottom:10px;">
-        <input id="spuSearchChat" type="text" placeholder="搜索商品名称/ID..."
-          style="width:100%;box-sizing:border-box;padding:8px 12px 8px 32px;border:1px solid #E5E7EB;border-radius:8px;font-size:13px;color:#13131F;outline:none;font-family:inherit;background:#F9FAFB;"
-          oninput="filterSpuChat(this.value)" />
-        <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#9CA3AF;font-size:13px;">🔍</span>
+    <div style="max-width:680px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+      <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">🛍️ 请选择要推广的商品 SPU（必选）</div>
+      <div class="spu-cards-wrap" id="spuCardsWrap">
+        ${cardsHtml}
       </div>
-      <div id="spuListChat" style="display:flex;flex-direction:column;gap:1px;border:1px solid #E5E7EB;border-radius:8px;overflow:hidden;"></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;flex-wrap:wrap;gap:8px;">
+        <span id="spuSelectionHint" style="font-size:12px;color:#9CA3AF;">点击卡片选择商品</span>
+        <button onclick="confirmEcomSpu()" style="padding:9px 22px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;white-space:nowrap;">确认 →</button>
+      </div>
     </div>
   `;
   document.getElementById('chatArea').appendChild(wrap);
   scrollChat();
-  renderSpuList(SPU_DATA);
 }
 
+function toggleEcomSpu(id, name) {
+  // 取消上一个选中
+  if (_selectedEcomSpuId) {
+    const prev = document.getElementById('spuCard_' + _selectedEcomSpuId);
+    if (prev) prev.classList.remove('selected');
+  }
+  // 如果点击的是已选中的，则取消
+  if (_selectedEcomSpuId === id) {
+    _selectedEcomSpuId = null;
+    _selectedEcomSpuName = null;
+    const hint = document.getElementById('spuSelectionHint');
+    if (hint) hint.textContent = '点击卡片选择商品';
+    return;
+  }
+  // 选中新的
+  _selectedEcomSpuId = id;
+  _selectedEcomSpuName = name;
+  const card = document.getElementById('spuCard_' + id);
+  if (card) card.classList.add('selected');
+  const hint = document.getElementById('spuSelectionHint');
+  if (hint) { hint.textContent = '已选：' + name; hint.style.color = '#FF2442'; }
+}
+
+function confirmEcomSpu() {
+  if (!_selectedEcomSpuId) {
+    showToast('请先选择商品 SPU', 'error');
+    return;
+  }
+  document.getElementById('spuChatRow')?.remove();
+  selectProduct(_selectedEcomSpuName);
+}
+
+// 保留旧函数兼容性
 function renderSpuList(items) {
   const list = document.getElementById('spuListChat');
   if (!list) return;
@@ -2927,7 +3116,7 @@ function renderSpuList(items) {
     <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:#fff;cursor:pointer;border-bottom:${i < items.length-1 ? '1px solid #F3F4F6' : 'none'};transition:background 0.15s;"
       onmouseover="this.style.background='#FFF5F7'" onmouseout="this.style.background='#fff'"
       onclick="selectSpuChat('${spu.id}','${spu.name}')">
-      <div style="width:40px;height:40px;border-radius:8px;background:${spu.color};background:linear-gradient(135deg,${spu.color},${spu.color}99);flex-shrink:0;"></div>
+      <div style="width:40px;height:40px;border-radius:8px;background:${spu.grad||'#eee'};flex-shrink:0;"></div>
       <div style="flex:1;min-width:0;">
         <div style="font-size:13px;font-weight:500;color:#13131F;margin-bottom:2px;">${spu.name}</div>
         <div style="font-size:11px;color:#9CA3AF;">ID: ${spu.id} · ${spu.price} · ${spu.stock}</div>
@@ -3365,34 +3554,59 @@ function editSummaryField(field) {
     if (field === 'product') {
       const isEcom = state.industry === '电商行业';
       if (isEcom) {
-        // 电商：重新显示 SPU 列表（精简版）
+        // 电商：重新显示 SPU 卡片（精简版，可选+确认）
+        const reEditCardsHtml = ECOM_SPU_CARDS.map(spu => `
+          <div class="spu-card" id="reEditSpuCard_${spu.id}" onclick="toggleReEditSpu('${spu.id}','${spu.name.replace(/'/g,'&#39;')}')">
+            <div class="spu-card-check">✓</div>
+            <div class="spu-card-icon" style="background:${spu.grad};">${spu.icon}</div>
+            <div class="spu-card-name">${spu.name}</div>
+            <div class="spu-card-sub">${spu.sub}</div>
+          </div>
+        `).join('');
         wrap.innerHTML = `
-          <div style="max-width:600px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+          <div style="max-width:680px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
             <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">🛍️ 重新选择商品（SPU）</div>
-            <div style="display:flex;flex-direction:column;gap:1px;border:1px solid #E5E7EB;border-radius:8px;overflow:hidden;">
-              ${SPU_DATA.map(spu => `
-                <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff;cursor:pointer;border-bottom:1px solid #F3F4F6;"
-                  onclick="applyEditField('product','${spu.name}')">
-                  <div style="width:32px;height:32px;border-radius:6px;background:${spu.grad||'#eee'};flex-shrink:0;"></div>
-                  <div style="flex:1;font-size:13px;color:#13131F;">${spu.name}</div>
-                  <button style="padding:4px 12px;background:none;border:1.5px solid #FF2442;border-radius:16px;color:#FF2442;font-size:12px;cursor:pointer;font-family:inherit;">选择</button>
-                </div>
-              `).join('')}
+            <div class="spu-cards-wrap" id="reEditSpuCardsWrap">${reEditCardsHtml}</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;">
+              <span id="reEditSpuHint" style="font-size:12px;color:#9CA3AF;">点击选择商品</span>
+              <button onclick="confirmReEditSpu()" style="padding:8px 18px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;">确认 →</button>
             </div>
           </div>
         `;
+        document.getElementById('chatArea').appendChild(wrap);
+        scrollChat();
+        // 初始化临时选中变量
+        window._reEditSpuId = null;
+        window._reEditSpuName = null;
+        return;
       } else {
-        // 线索：重新输入
+        // 线索：SPU 卡片 + 手动输入
+        const reEditLeadCardsHtml = LEAD_SPU_CARDS.map(spu => `
+          <div class="spu-card" id="reEditLeadCard_${spu.id}" onclick="selectReEditLeadSpu('${spu.id}','${spu.name.replace(/'/g,'&#39;')}')">
+            <div class="spu-card-check">✓</div>
+            <div class="spu-card-icon" style="background:${spu.grad};">${spu.icon}</div>
+            <div class="spu-card-name">${spu.name}</div>
+            <div class="spu-card-sub">${spu.sub}</div>
+          </div>
+        `).join('');
         wrap.innerHTML = `
-          <div style="max-width:500px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+          <div style="max-width:680px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+            <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">📚 重新选择或输入课程/服务</div>
+            <div class="spu-cards-wrap" id="reEditLeadCardsWrap" style="margin-bottom:12px;">${reEditLeadCardsHtml}</div>
             <div style="display:flex;gap:8px;align-items:center;">
               <input id="editFieldInput_product" type="text" value="${state.product||''}"
-                style="flex:1;padding:8px 14px;border:1.5px solid #FF2442;border-radius:20px;font-size:13px;color:#13131F;outline:none;font-family:inherit;background:#fff;" />
-              <button onclick="applyEditField('product', document.getElementById('editFieldInput_product').value)"
+                placeholder="或手动输入..."
+                style="flex:1;padding:8px 14px;border:1.5px solid #E5E7EB;border-radius:20px;font-size:13px;color:#13131F;outline:none;font-family:inherit;background:#F9FAFB;" />
+              <button onclick="applyEditField('product', document.getElementById('editFieldInput_product').value.trim()||'${state.product||''}')"
                 style="padding:8px 16px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;">确认</button>
             </div>
           </div>
         `;
+        document.getElementById('chatArea').appendChild(wrap);
+        scrollChat();
+        window._reEditLeadSpuId = null;
+        // 绑定卡片点击填充输入框
+        return;
       }
     } else if (field === 'skill') {
       // 重新显示套路浮层
@@ -3461,6 +3675,49 @@ function editSummaryField(field) {
     document.getElementById('chatArea').appendChild(wrap);
     scrollChat();
   });
+}
+
+// 电商行业「修改商品」时的 SPU 卡片切换
+function toggleReEditSpu(id, name) {
+  if (window._reEditSpuId) {
+    const prev = document.getElementById('reEditSpuCard_' + window._reEditSpuId);
+    if (prev) prev.classList.remove('selected');
+  }
+  if (window._reEditSpuId === id) {
+    window._reEditSpuId = null; window._reEditSpuName = null;
+    const hint = document.getElementById('reEditSpuHint');
+    if (hint) hint.textContent = '点击选择商品';
+    return;
+  }
+  window._reEditSpuId = id; window._reEditSpuName = name;
+  const card = document.getElementById('reEditSpuCard_' + id);
+  if (card) card.classList.add('selected');
+  const hint = document.getElementById('reEditSpuHint');
+  if (hint) { hint.textContent = '已选：' + name; hint.style.color = '#FF2442'; }
+}
+
+function confirmReEditSpu() {
+  if (!window._reEditSpuId) { showToast('请先选择商品 SPU', 'error'); return; }
+  applyEditField('product', window._reEditSpuName);
+}
+
+// 线索行业「修改商品」时 SPU 卡片填充输入框
+function selectReEditLeadSpu(id, name) {
+  if (window._reEditLeadSpuId) {
+    const prev = document.getElementById('reEditLeadCard_' + window._reEditLeadSpuId);
+    if (prev) prev.classList.remove('selected');
+  }
+  if (window._reEditLeadSpuId === id) {
+    window._reEditLeadSpuId = null;
+    const inp = document.getElementById('editFieldInput_product');
+    if (inp) inp.value = '';
+    return;
+  }
+  window._reEditLeadSpuId = id;
+  const card = document.getElementById('reEditLeadCard_' + id);
+  if (card) card.classList.add('selected');
+  const inp = document.getElementById('editFieldInput_product');
+  if (inp) { inp.value = name; inp.style.borderColor = '#FF2442'; inp.focus(); }
 }
 
 function applyEditSelling() {
@@ -4699,6 +4956,9 @@ function startNewSession() {
   }
   // 重置 state
   state = { industry: null, product: null, skill: null, images: [], sellingPoints: [], style: null, phase: 0 };
+  // 重置 SPU 选择状态
+  _selectedEcomSpuId = null; _selectedEcomSpuName = null;
+  _selectedLeadSpuId = null;
   // 清空 chatArea
   const chatArea = document.getElementById('chatArea');
   chatArea.innerHTML = '';
