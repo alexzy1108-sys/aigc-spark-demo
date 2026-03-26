@@ -1,0 +1,4731 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🌸 生花 AI Spark · 创意生成工作台</title>
+<style>
+html, body { width: 100%; overflow: hidden; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  width: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+  background: #F7F7F9;
+  color: #13131F;
+  height: 100vh;
+  overflow: hidden;
+  font-size: 14px;
+}
+
+/* ══════════════════════════════════════════
+   LOGIN PAGE
+══════════════════════════════════════════ */
+#loginPage {
+  position: fixed;
+  inset: 0;
+  background: #F7F7F9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.login-card {
+  width: 380px;
+  background: #F0F0F4;
+  border: 1px solid #E5E7EB;
+  border-radius: 16px;
+  padding: 40px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px #F3F4F6;
+}
+.login-logo {
+  font-size: 36px;
+  margin-bottom: 8px;
+}
+.login-title {
+  font-size: 24px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #FF2442, #FF6B6B);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+.login-sub {
+  font-size: 13px;
+  color: #6B7280;
+  margin-bottom: 32px;
+}
+.login-field {
+  width: 100%;
+  margin-bottom: 12px;
+}
+.login-field input {
+  width: 100%;
+  padding: 12px 14px;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  color: #13131F;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+}
+.login-field input::placeholder { color: #555575; }
+.login-field input:focus { border-color: #FF2442; box-shadow: 0 0 0 3px rgba(255,36,66,0.12); }
+.login-btn {
+  width: 100%;
+  padding: 13px;
+  background: #FF2442;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  margin-bottom: 20px;
+  transition: background 0.2s, transform 0.1s;
+  font-family: inherit;
+  letter-spacing: 0.3px;
+}
+.login-btn:hover { background: #e01e39; }
+.login-btn:active { transform: scale(0.99); }
+.login-note {
+  font-size: 12px;
+  color: #555575;
+  text-align: center;
+}
+
+/* ══════════════════════════════════════════
+   MAIN PAGE
+══════════════════════════════════════════ */
+#mainPage {
+  display: none;
+  flex-direction: column;
+  align-items: stretch;
+  height: 100vh;
+  width: 100%;
+}
+
+/* ─── Header ─── */
+.header {
+  height: 52px;
+  background: #FFFFFF;
+  border-bottom: 1px solid #EBEBEB;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 12px;
+  flex-shrink: 0;
+  z-index: 100;
+  position: relative;
+}
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 240px;
+}
+.header-home {
+  color: #6B7280;
+  text-decoration: none;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.2s;
+  cursor: pointer;
+}
+.header-home:hover { color: #374151; }
+.header-divider { width: 1px; height: 16px; background: #E5E7EB; }
+.header-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #13131F;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.header-center { flex: 1; display: flex; justify-content: center; }
+.header-right {
+  min-width: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+.quota-badge {
+  font-size: 12px;
+  color: #6B7280;
+  background: #F3F4F6;
+  border: 1px solid #E5E7EB;
+  border-radius: 20px;
+  padding: 3px 10px;
+  white-space: nowrap;
+}
+.quota-badge span { color: #FF2442; font-weight: 700; }
+.history-btn {
+  font-size: 12px;
+  color: #374151;
+  background: #F3F4F6;
+  border: 1px solid #E5E7EB;
+  border-radius: 6px;
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  font-family: inherit;
+}
+.history-btn:hover { background: #E5E7EB; color: #13131F; }
+
+/* ─── Steps ─── */
+.steps { display: flex; align-items: center; }
+.step-item { display: flex; align-items: center; }
+.step-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1.5px solid #D1D5DB;
+  color: #9CA3AF;
+  background: transparent;
+  flex-shrink: 0;
+  transition: all 0.5s ease;
+}
+.step-circle.active {
+  border-color: transparent;
+  background: linear-gradient(135deg, #FF2442, #a855f7);
+  color: #fff;
+  box-shadow: 0 0 10px rgba(255,36,66,0.5);
+}
+.step-circle.done {
+  border-color: transparent;
+  background: linear-gradient(135deg, #FF2442, #a855f7);
+  color: #fff;
+}
+.step-label {
+  font-size: 12px;
+  color: #9CA3AF;
+  margin-left: 6px;
+  margin-right: 4px;
+  white-space: nowrap;
+  transition: color 0.5s;
+}
+.step-label.active { color: #13131F; font-weight: 600; }
+.step-label.done { color: rgba(255,36,66,0.7); }
+.step-line {
+  width: 28px;
+  height: 1.5px;
+  background: #E5E7EB;
+  margin: 0 4px;
+  transition: background 0.5s ease;
+}
+.step-line.done { background: linear-gradient(90deg, #FF2442, #a855f7); }
+
+/* ─── Main Body ─── */
+.main-body {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  height: calc(100vh - 52px);
+  overflow: hidden;
+}
+
+/* ─── Left Panel ─── */
+.left-panel {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: #FFFFFF;
+  border-right: 1px solid #EBEBEB;
+  overflow: hidden;
+  position: relative;
+}
+
+/* ─── Chat Area ─── */
+#chatArea {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 20px 160px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  scroll-behavior: smooth;
+}
+#chatArea::-webkit-scrollbar { width: 4px; }
+#chatArea::-webkit-scrollbar-thumb { background: #F3F4F6; border-radius: 2px; }
+
+/* ─── Message rows ─── */
+.msg-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  animation: fadeInUp 0.3s ease;
+}
+.msg-row.user { flex-direction: row-reverse; }
+
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+/* ── 原料库浮层 ── */
+#materialOverlay, #historyOverlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.45);
+  align-items: center; justify-content: center;
+}
+#materialOverlay.open, #historyOverlay.open { display: flex; }
+.material-panel, .history-panel {
+  background: #FFFFFF;
+  border-radius: 20px;
+  width: 780px; max-width: 96vw;
+  max-height: 86vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+  overflow: hidden;
+}
+.history-panel { width: 640px; }
+.overlay-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 24px 14px;
+  border-bottom: 1px solid #F3F4F6;
+  flex-shrink: 0;
+}
+.overlay-title { font-size: 16px; font-weight: 700; color: #13131F; }
+.overlay-close {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: #F3F4F6; border: none; cursor: pointer;
+  font-size: 16px; display: flex; align-items: center; justify-content: center;
+  color: #6B7280;
+}
+.overlay-body { flex: 1; overflow-y: auto; padding: 20px 24px; }
+
+/* 原料库 grid */
+.material-grid-full {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
+}
+.material-cell {
+  aspect-ratio: 3/4;
+  border-radius: 10px;
+  overflow: hidden;
+  position: relative;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border-color 0.15s;
+}
+.material-cell:hover { border-color: #FF2442; }
+.material-cell.selected { border-color: #FF2442; }
+.material-cell .material-check {
+  position: absolute; top: 6px; right: 6px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #FF2442; display: none;
+  align-items: center; justify-content: center;
+  color: #fff; font-size: 12px;
+}
+.material-cell.selected .material-check { display: flex; }
+.material-upload-cell {
+  aspect-ratio: 3/4;
+  border-radius: 10px;
+  border: 2px dashed #E5E7EB;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  cursor: pointer; background: #FAFAFA;
+  transition: border-color 0.15s;
+}
+.material-upload-cell:hover { border-color: #FF2442; }
+
+/* 历史任务列表 */
+.history-tabs { display: flex; gap: 4px; margin-bottom: 16px; }
+.history-tab {
+  padding: 6px 16px; border-radius: 20px;
+  font-size: 13px; cursor: pointer;
+  border: 1.5px solid #E5E7EB;
+  background: #F9FAFB; color: #6B7280;
+  transition: all 0.15s;
+}
+.history-tab.active {
+  background: #FFF0F3; border-color: #FF2442; color: #FF2442; font-weight: 500;
+}
+.history-task-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px; border-radius: 10px;
+  border: 1px solid #F3F4F6; cursor: pointer;
+  margin-bottom: 8px; transition: border-color 0.15s;
+}
+.history-task-row:hover { border-color: #FF2442; background: #FFF9FA; }
+.history-task-thumb {
+  width: 52px; height: 52px; border-radius: 8px; flex-shrink: 0;
+}
+.history-task-name { font-size: 13px; font-weight: 500; color: #13131F; margin-bottom: 3px; }
+.history-task-meta { font-size: 11px; color: #9CA3AF; }
+.history-task-status { font-size: 11px; color: #10B981; margin-left: auto; white-space: nowrap; }
+
+/* ── 套路浮层 ── */
+#skillOverlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(0,0,0,0.45);
+  align-items: center; justify-content: center;
+}
+#skillOverlay.open { display: flex; }
+.skill-overlay-panel {
+  background: #FFFFFF;
+  border-radius: 20px;
+  width: 900px; max-width: 96vw;
+  max-height: 86vh;
+  display: flex; flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.18);
+  overflow: hidden;
+}
+.skill-overlay-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 24px 14px;
+  border-bottom: 1px solid #F3F4F6;
+  flex-shrink: 0;
+}
+.skill-overlay-title { font-size: 16px; font-weight: 700; color: #13131F; }
+.skill-overlay-close {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: #F3F4F6; border: none; cursor: pointer;
+  font-size: 16px; display: flex; align-items: center; justify-content: center;
+  color: #6B7280; transition: background 0.15s;
+}
+.skill-overlay-close:hover { background: #E5E7EB; }
+.skill-overlay-body {
+  flex: 1; overflow-y: auto; padding: 20px 24px;
+}
+.skill-overlay-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.skill-overlay-card {
+  background: #F9FAFB;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.skill-overlay-card:hover {
+  border-color: #FF2442;
+  background: #FFF5F7;
+  transform: translateY(-1px);
+}
+.skill-overlay-card-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 6px;
+}
+.skill-overlay-card-name { font-size: 13px; font-weight: 600; color: #13131F; }
+.skill-overlay-card-ctr { font-size: 11px; color: #10B981; font-weight: 600; }
+.skill-overlay-card-desc { font-size: 11px; color: #6B7280; line-height: 1.5; }
+.skill-overlay-card-tags { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+.skill-overlay-card-tag {
+  font-size: 10px; color: #9CA3AF;
+  background: #F3F4F6; border-radius: 4px; padding: 2px 6px;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ai-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FF2442, #a855f7);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.msg-bubble {
+  max-width: 560px;
+  padding: 10px 13px;
+  font-size: 13.5px;
+  line-height: 1.65;
+  border-radius: 12px;
+}
+.msg-bubble.ai {
+  background: #F3F4F6;
+  border: 1px solid #E5E7EB;
+  border-top-left-radius: 3px;
+  color: #13131F;
+}
+.msg-bubble.user {
+  background: linear-gradient(135deg, #B06AB3, #4568DC);
+  color: #fff;
+  border-top-right-radius: 3px;
+}
+
+/* Prompt bubble */
+.msg-bubble.prompt {
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-top-left-radius: 3px;
+  color: #6B7280;
+  font-size: 12px;
+  font-style: italic;
+  max-width: 560px;
+}
+
+/* ─── Skill Cards in Chat ─── */
+.skill-cards-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-left: 36px;
+  max-width: 600px;
+  animation: fadeInUp 0.4s ease;
+}
+.skill-card-chat {
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  min-width: 220px;
+  max-width: 340px;
+  flex-shrink: 0;
+}
+.skill-card-chat:hover { border-color: #FF2442; background: rgba(255,36,66,0.05); }
+.skill-card-chat.selected { border-color: #FF2442; background: rgba(255,36,66,0.08); }
+.skill-card-chat.dimmed { opacity: 0.4; pointer-events: none; }
+.skill-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+.skill-card-name { font-size: 13px; font-weight: 600; color: #13131F; }
+.skill-ctr {
+  font-size: 11px;
+  color: #6B7280;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.skill-ctr .up { color: #22c55e; }
+.skill-card-desc { font-size: 12px; color: #6B7280; margin-bottom: 8px; line-height: 1.5; }
+.skill-card-tags { display: flex; gap: 4px; margin-bottom: 8px; flex-wrap: wrap; }
+.skill-tag {
+  font-size: 11px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: #F3F4F6;
+  border: 1px solid #E5E7EB;
+  color: #6B7280;
+}
+.skill-card-actions { display: flex; gap: 6px; }
+.skill-action-btn {
+  font-size: 11.5px;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid #E5E7EB;
+  background: #F9FAFB;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.skill-action-btn:hover { background: #F3F4F6; color: #13131F; }
+.skill-action-btn.primary {
+  background: #FF2442;
+  border-color: transparent;
+  color: #fff;
+}
+.skill-action-btn.primary:hover { background: #e01e39; }
+
+/* ─── Summary Card in Bubble ─── */
+.summary-card {
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  padding: 14px;
+  min-width: 280px;
+}
+.summary-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #13131F;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.summary-divider { height: 1px; background: #E5E7EB; margin: 8px 0; }
+.summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 0;
+  font-size: 12.5px;
+}
+.summary-label { color: #6B7280; width: 40px; flex-shrink: 0; }
+.summary-value { color: #13131F; flex: 1; margin-left: 8px; }
+.summary-edit {
+  font-size: 11px;
+  color: #9CA3AF;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.2s;
+  border: 1px solid transparent;
+}
+.summary-edit:hover { color: #FF2442; border-color: rgba(255,36,66,0.3); }
+.summary-taskname {
+  font-size: 11.5px;
+  color: #555575;
+  background: #F3F4F6;
+  border-radius: 6px;
+  padding: 6px 8px;
+  margin: 8px 0;
+  font-family: 'SF Mono', Monaco, monospace;
+}
+.start-gen-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #FF2442 0%, #FF6B35 100%);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  letter-spacing: 0.03em;
+  box-shadow: 0 4px 20px rgba(255,36,66,0.35);
+  animation: genBtnPulse 2s ease-in-out infinite;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+@keyframes genBtnPulse {
+  0%, 100% { box-shadow: 0 4px 20px rgba(255,36,66,0.35); }
+  50%       { box-shadow: 0 4px 32px rgba(255,36,66,0.6); }
+}
+.start-gen-btn:hover { opacity: 0.9; }
+.start-gen-btn:active { transform: scale(0.99); }
+
+/* ─── Bottom Input Area ─── */
+#bottomInput {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(to top, #FFFFFF 70%, transparent);
+  padding: 16px 20px 20px;
+  z-index: 10;
+}
+
+/* Industry chips */
+.industry-chips { display: flex; gap: 10px; }
+.industry-chip-inline {
+  background: #F9FAFB;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 14px 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 130px;
+  text-align: center;
+}
+.industry-chip-inline:hover {
+  border-color: #FF2442;
+  background: #FFF5F7;
+  transform: translateY(-1px);
+}
+.industry-chip {
+  flex: 1;
+  min-width: 0;
+  background: #F9FAFB;
+  border: 1.5px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 18px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+.industry-chip:hover { border-color: #FF2442; background: rgba(255,36,66,0.06); }
+.industry-chip-icon { font-size: 22px; }
+.industry-chip-name { font-size: 14px; font-weight: 600; color: #13131F; }
+.industry-chip-sub { font-size: 11.5px; color: #6B7280; }
+
+/* Product chips */
+.product-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.product-chip {
+  padding: 8px 14px;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 20px;
+  font-size: 13px;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.product-chip:hover { border-color: #FF2442; color: #fff; background: rgba(255,36,66,0.08); }
+.product-chip.manual { border-style: dashed; }
+.manual-input-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+.manual-input-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 12px;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  color: #13131F;
+  font-size: 13px;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+.manual-input-row input:focus { border-color: #FF2442; }
+.manual-input-row input::placeholder { color: #555575; }
+
+/* ─── Phase 1: 线索行业 – Product Name Input ─── */
+.lead-product-input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.lead-input-label {
+  font-size: 12px;
+  color: #6B7280;
+  font-weight: 500;
+}
+.lead-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.lead-input-row input {
+  flex: 1;
+  min-width: 0;
+  height: 44px;
+  padding: 0 14px;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  color: #13131F;
+  font-size: 13.5px;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+.lead-input-row input:focus { border-color: #FF2442; box-shadow: 0 0 0 3px rgba(255,36,66,0.1); }
+.lead-input-row input::placeholder { color: #555575; }
+.lead-history-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.lead-history-label {
+  font-size: 11.5px;
+  color: #555575;
+  flex-shrink: 0;
+}
+.lead-history-chip {
+  padding: 4px 10px;
+  background: #F3F4F6;
+  border: 1px solid #F9FAFB;
+  border-radius: 12px;
+  font-size: 11.5px;
+  color: #6B7280;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.lead-history-chip:hover { border-color: rgba(255,36,66,0.4); color: #13131F; }
+
+/* ─── Phase 1: 电商行业 – SPU Selector ─── */
+.spu-selector-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.spu-label {
+  font-size: 12px;
+  color: #6B7280;
+  font-weight: 500;
+}
+.spu-search-row {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+.spu-search-row input {
+  flex: 1;
+  min-width: 0;
+  height: 40px;
+  padding: 0 12px;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  color: #13131F;
+  font-size: 13px;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+.spu-search-row input:focus { border-color: #FF2442; }
+.spu-search-row input::placeholder { color: #555575; }
+.spu-list {
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+.spu-list::-webkit-scrollbar { width: 3px; }
+.spu-list::-webkit-scrollbar-thumb { background: #F3F4F6; border-radius: 2px; }
+.spu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #1A1A2E;
+  transition: background 0.15s;
+}
+.spu-item:last-child { border-bottom: none; }
+.spu-item:hover { background: rgba(0,0,0,0.02); }
+.spu-thumb {
+  width: 40px;
+  height: 40px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.spu-info { flex: 1; min-width: 0; }
+.spu-name { font-size: 12.5px; color: #13131F; font-weight: 500; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.spu-meta { font-size: 11px; color: #555575; }
+.spu-select-btn {
+  padding: 5px 12px;
+  background: transparent;
+  border: 1px solid rgba(255,36,66,0.4);
+  border-radius: 6px;
+  color: #FF2442;
+  font-size: 11.5px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.spu-select-btn:hover { background: rgba(255,36,66,0.1); }
+
+/* ─── Skill Cards: Before/After preview ─── */
+.ba-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 10px 0;
+  justify-content: center;
+}
+.ba-box {
+  width: 70px;
+  aspect-ratio: 3 / 4;
+  flex-shrink: 0;
+  background: #FFFFFF;
+  border-radius: 8px;
+  border: 1px solid #E5E7EB;
+  padding: 6px;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.ba-label {
+  font-size: 10px;
+  color: #9CA3AF;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+}
+.ba-arrow {
+  font-size: 12px;
+  color: #9CA3AF;
+  flex-shrink: 0;
+  align-self: center;
+}
+/* 文字横线模拟 */
+.ba-text-lines { display: flex; flex-direction: column; gap: 4px; }
+.ba-text-line { height: 7px; background: #E5E7EB; border-radius: 3px; }
+.ba-text-line.short { width: 60%; }
+.ba-text-line.med { width: 80%; }
+/* 课表对比型 After：模拟表格 */
+.skill-table-after { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px; }
+.skill-table-cell { height: 12px; background: #E5E7EB; border-radius: 2px; }
+/* 老师自述型 After：模拟头像+列表 */
+.skill-teacher-after { display: flex; gap: 6px; align-items: flex-start; }
+.skill-avatar { width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(135deg, #FF2442, #FF6B6B); flex-shrink: 0; }
+.skill-teacher-lines { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+/* 学员证言型 After：模拟聊天气泡 */
+.skill-chat-after { display: flex; flex-direction: column; gap: 4px; }
+.skill-bubble { height: 10px; background: #E5E7EB; border-radius: 8px; width: 80%; }
+.skill-bubble.right { align-self: flex-end; background: linear-gradient(135deg, rgba(176,106,179,0.5), rgba(69,104,220,0.5)); }
+/* 商品种草型 Before/After */
+.skill-ecom-before { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+.skill-ecom-before-cell { height: 28px; background: #E5E7EB; border-radius: 3px; }
+.skill-ecom-after { display: flex; flex-direction: column; gap: 3px; }
+.skill-ecom-after-img { height: 36px; background: linear-gradient(135deg, rgba(255,36,66,0.2), rgba(168,85,247,0.2)); border-radius: 3px; border: 1px solid rgba(255,36,66,0.3); }
+.skill-ecom-after-text { display: flex; flex-direction: column; gap: 2px; }
+.skill-ecom-after-line { height: 6px; background: #E5E7EB; border-radius: 3px; }
+/* 买家秀对比型 */
+.skill-buyer-before { display: flex; flex-direction: column; gap: 3px; }
+.skill-buyer-before-img { height: 44px; background: linear-gradient(135deg, #E5E7EB, #1A1A2E); border-radius: 3px; display: flex; align-items: center; justify-content: center; }
+.skill-buyer-after { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+.skill-buyer-after-cell { height: 46px; border-radius: 3px; }
+/* 爆款单品型 After */
+.skill-boom-after { display: flex; flex-direction: column; gap: 3px; }
+.skill-boom-title { height: 18px; background: linear-gradient(90deg, #FF2442, #FF6B6B); border-radius: 3px; }
+.skill-boom-sub { height: 8px; background: #E5E7EB; border-radius: 2px; width: 70%; }
+
+/* ─── Upgraded Skill Cards in Chat ─── */
+.skill-recommend-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #F59E0B;
+  background: rgba(245,158,11,0.1);
+  border: 1px solid rgba(245,158,11,0.25);
+  border-radius: 4px;
+  padding: 2px 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  margin-bottom: 8px;
+}
+.skill-card-chat.featured {
+  border-color: rgba(245,158,11,0.5);
+  background: rgba(245,158,11,0.04);
+  box-shadow: 0 0 0 1px rgba(245,158,11,0.15);
+}
+.skill-card-chat.featured:hover { border-color: #F59E0B; }
+.skill-meta-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+  font-size: 11px;
+  color: #555575;
+}
+.skill-expand-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: 36px;
+  padding: 7px 14px;
+  background: #F9FAFB;
+  border: 1px solid #E5E7EB;
+  border-radius: 20px;
+  color: #6B7280;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  margin-top: 4px;
+  width: fit-content;
+}
+.skill-expand-btn:hover { color: #13131F; border-color: #D1D5DB; background: #F3F4F6; }
+.skill-extra-cards {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-left: 36px;
+  margin-top: 6px;
+  animation: fadeInUp 0.3s ease;
+}
+
+/* ─── Right Panel: Skill preview after selection ─── */
+.right-skill-selected-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.right-skill-preview-ba {
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 16px;
+}
+.right-skill-preview-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #13131F;
+  margin-bottom: 12px;
+}
+.right-skill-preview-ba .ba-box {
+  height: 110px;
+}
+.right-skill-selected-name {
+  font-size: 13px;
+  color: #6B7280;
+  padding: 0 4px;
+}
+.right-change-skill-btn {
+  font-size: 12px;
+  color: #FF2442;
+  cursor: pointer;
+  background: none;
+  border: none;
+  font-family: inherit;
+  padding: 4px 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+.right-change-skill-btn:hover { opacity: 1; }
+.confirm-btn {
+  padding: 9px 16px;
+  background: #FF2442;
+  border: none;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  transition: background 0.2s;
+}
+.confirm-btn:hover { background: #e01e39; }
+
+/* Image upload area */
+.upload-area { display: flex; flex-direction: column; gap: 10px; }
+.upload-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 80px);
+  gap: 6px;
+}
+.upload-cell {
+  width: 80px;
+  height: 80px;
+  background: #FFFFFF;
+  border: 1px dashed #E5E7EB;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  overflow: hidden;
+  position: relative;
+  font-size: 20px;
+  color: #D1D5DB;
+}
+.upload-cell:hover { border-color: #FF2442; color: #FF2442; background: rgba(255,36,66,0.05); }
+.upload-cell img { width: 100%; height: 100%; object-fit: cover; }
+.upload-actions { display: flex; gap: 8px; align-items: center; justify-content: space-between; }
+.upload-hint { font-size: 11.5px; color: #555575; }
+.skip-btn {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  color: #6B7280;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.skip-btn:hover { border-color: #9CA3AF; color: #374151; }
+
+/* Selling points chips */
+.selling-area { display: flex; flex-direction: column; gap: 10px; }
+.selling-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.selling-chip {
+  padding: 7px 12px;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 20px;
+  font-size: 12.5px;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+  font-family: inherit;
+}
+.selling-chip:hover { border-color: rgba(255,36,66,0.4); color: #FF2442; }
+.selling-chip.selected {
+  background: rgba(255,36,66,0.12);
+  border-color: #FF2442;
+  color: #FF2442;
+}
+.selling-continue {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* Style input */
+.style-area { display: flex; flex-direction: column; gap: 8px; }
+.style-input-row {
+  display: flex;
+  gap: 8px;
+}
+.style-input-row input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  color: #13131F;
+  font-size: 13px;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+.style-input-row input:focus { border-color: #FF2442; }
+.style-input-row input::placeholder { color: #555575; }
+
+/* Phase indicator (when bottom is hidden) */
+.phase-hint {
+  font-size: 12.5px;
+  color: #555575;
+  text-align: center;
+  padding: 12px 0;
+}
+
+/* ══════════════════════════════════════════
+   RIGHT PANEL
+══════════════════════════════════════════ */
+.right-panel {
+  width: 240px;
+  flex-shrink: 0;
+  background: #F3F4F6;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  border-left: 1px solid #EBEBEB;
+  padding: 16px 14px;
+}
+.right-header {
+  padding: 16px 24px;
+  border-bottom: 1px solid #EBEBEB;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  min-height: 56px;
+}
+.right-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.right-content {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 24px;
+}
+.right-content::-webkit-scrollbar { width: 4px; }
+.right-content::-webkit-scrollbar-thumb { background: #F3F4F6; border-radius: 2px; }
+
+/* Empty state */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 16px;
+  opacity: 0.5;
+}
+.empty-state-icon { font-size: 52px; }
+.empty-state-text { font-size: 14px; color: #6B7280; text-align: center; line-height: 1.6; }
+
+/* Right skill cards (larger) */
+.right-skill-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.right-skill-card {
+  background: #FFFFFF;
+  border: 2px solid #E5E7EB;
+  border-radius: 12px;
+  padding: 18px 20px;
+  transition: all 0.3s ease;
+}
+.right-skill-card.selected { border-color: #FF2442; box-shadow: 0 0 20px rgba(255,36,66,0.15); }
+.right-skill-card.dimmed { opacity: 0.3; }
+.right-skill-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.right-skill-card-name { font-size: 15px; font-weight: 700; color: #13131F; }
+.right-skill-ctr { font-size: 12px; color: #6B7280; }
+.right-skill-ctr .up { color: #22c55e; }
+.right-skill-desc { font-size: 13px; color: #6B7280; line-height: 1.6; margin-bottom: 12px; }
+.right-skill-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.right-skill-tag {
+  font-size: 12px;
+  padding: 3px 9px;
+  border-radius: 4px;
+  background: #F3F4F6;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #6B7280;
+}
+
+/* Industry tag display */
+.industry-display {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.selected-tag-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.selected-tag {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 12.5px;
+  font-weight: 600;
+  background: rgba(255,36,66,0.12);
+  border: 1px solid rgba(255,36,66,0.35);
+  color: #FF2442;
+}
+.selected-label { font-size: 13px; color: #6B7280; }
+
+/* Skeleton loader */
+.skeleton-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.skeleton-card {
+  background: #FFFFFF;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #E5E7EB;
+}
+.skeleton-cover {
+  height: 160px;
+  background: linear-gradient(90deg, #1A1A2E 25%, #22223A 50%, #1A1A2E 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+.skeleton-body { padding: 12px; }
+.skeleton-line {
+  height: 10px;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #1A1A2E 25%, #22223A 50%, #1A1A2E 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  margin-bottom: 8px;
+}
+.skeleton-line.short { width: 60%; }
+.skeleton-line.med { width: 80%; }
+
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Progress steps */
+.progress-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 20px;
+}
+.progress-step {
+  font-size: 13px;
+  color: #6B7280;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.progress-step.done { color: #22c55e; }
+.progress-step.active { color: #13131F; }
+.progress-step-icon { font-size: 14px; width: 18px; text-align: center; }
+
+/* Result cards */
+.result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.result-card {
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  animation: fadeInUp 0.4s ease;
+}
+.result-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.4); }
+.result-cover {
+  height: 150px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+}
+.result-cover-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  text-align: center;
+  line-height: 1.5;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+  z-index: 1;
+  position: relative;
+}
+.result-body { padding: 12px; }
+.result-preview {
+  font-size: 11.5px;
+  color: #6B7280;
+  line-height: 1.6;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.result-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.result-action {
+  font-size: 11.5px;
+  padding: 5px 9px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: #F3F4F6;
+  color: rgba(255,255,255,0.55);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+.result-action:hover { background: #E5E7EB; color: #13131F; }
+.result-action.saved { background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.3); color: #22c55e; }
+
+/* Edit toolbar */
+.edit-toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 20px 0;
+}
+.edit-tool-btn {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  color: inherit;
+}
+.edit-tool-btn:hover { border-color: #FF2442; background: rgba(255,36,66,0.06); }
+.edit-tool-icon { font-size: 22px; }
+.edit-tool-info { text-align: left; }
+.edit-tool-name { font-size: 14px; font-weight: 600; color: #13131F; margin-bottom: 2px; }
+.edit-tool-desc { font-size: 12px; color: #6B7280; }
+
+/* Regen button */
+.regen-btn {
+  padding: 7px 14px;
+  background: transparent;
+  border: 1px solid #E5E7EB;
+  border-radius: 8px;
+  color: #6B7280;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+.regen-btn:hover { border-color: rgba(255,255,255,0.25); color: #374151; }
+
+/* ══════════════════════════════════════════
+   TOAST
+══════════════════════════════════════════ */
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-left: 4px solid #22c55e;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 13px;
+  color: #13131F;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+  z-index: 9999;
+  transform: translateX(120%);
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+  max-width: 300px;
+  white-space: nowrap;
+}
+.toast.show { transform: translateX(0); }
+.toast.error { border-left-color: #FF2442; }
+
+/* ══════════════════════════════════════════
+   MISC
+══════════════════════════════════════════ */
+.dot-pulse {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+}
+.dot-pulse span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+  animation: dotPulse 1.4s infinite;
+}
+.dot-pulse span:nth-child(2) { animation-delay: 0.2s; }
+.dot-pulse span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dotPulse {
+  0%,80%,100% { transform: scale(0.7); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+.hidden { display: none !important; }
+
+/* ─── Result Cards ─── */
+.result-cards-wrap {
+  margin-left: 0;
+  margin-top: 8px;
+  width: 100%;
+}
+.result-cards-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.result-count {
+  font-size: 14px;
+  font-weight: 600;
+  color: #13131F;
+}
+.result-header-actions { display: flex; gap: 8px; }
+.result-action-btn {
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid #E5E7EB;
+  background: #F9FAFB;
+  color: #374151;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.result-action-btn:hover { background: #F3F4F6; }
+.result-action-btn.primary { background: #FF2442; border-color: transparent; color: #fff; }
+.result-action-btn.primary:hover { background: #e01e39; }
+
+.result-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+}
+.result-card {
+  background: #FFFFFF;
+  border: 1px solid #E5E7EB;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.2s;
+}
+.result-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+.result-card-img { width: 100%; aspect-ratio: 3/4; overflow: hidden; }
+.result-img-mock {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  padding: 10px;
+  position: relative;
+}
+.result-img-tag {
+  font-size: 10px;
+  background: rgba(0,0,0,0.35);
+  color: #fff;
+  padding: 2px 7px;
+  border-radius: 10px;
+}
+.result-card-body {
+  padding: 10px 10px 6px;
+  flex: 1;
+}
+.result-card-title {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #13131F;
+  line-height: 1.4;
+  margin-bottom: 5px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.result-card-text {
+  font-size: 11px;
+  color: #6B7280;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.result-card-actions {
+  display: flex;
+  gap: 4px;
+  padding: 8px 8px;
+  border-top: 1px solid #F3F4F6;
+  flex-wrap: wrap;
+}
+.result-card-btn {
+  flex: 1;
+  font-size: 11px;
+  padding: 5px 4px;
+  border-radius: 6px;
+  border: 1px solid #E5E7EB;
+  background: #F9FAFB;
+  color: #374151;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  white-space: nowrap;
+  text-align: center;
+}
+.result-card-btn:hover { background: #F3F4F6; color: #13131F; }
+.result-card-btn.primary { background: #FF2442; border-color: transparent; color: #fff; }
+.result-card-btn.primary:hover { background: #e01e39; }
+.result-card-btn.push { background: #7C3AED; border-color: transparent; color: #fff; }
+.result-card-btn.push:hover { background: #6D28D9; }
+
+.result-regen {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  justify-content: center;
+}
+.result-regen-btn {
+  font-size: 12px;
+  padding: 7px 16px;
+  border-radius: 20px;
+  border: 1px solid #E5E7EB;
+  background: #F9FAFB;
+  color: #374151;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.result-regen-btn:hover { background: #F3F4F6; color: #13131F; }
+
+/* ═══════════════════════════════════════════
+   EDITOR MODAL
+═══════════════════════════════════════════ */
+#editorModal {
+  position: fixed; top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  z-index: 1000;
+  background: #F7F7F9;
+  display: none;
+  flex-direction: column;
+  font-family: -apple-system, 'PingFang SC', sans-serif;
+}
+.em-navbar {
+  height: 52px; background: #FFFFFF;
+  border-bottom: 1px solid #EBEBEB;
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 0 20px; flex-shrink: 0;
+}
+.em-back {
+  font-size: 13px; color: #6B7280; cursor: pointer;
+  display: flex; align-items: center; gap: 4px;
+  background: none; border: none; font-family: inherit;
+  transition: color 0.2s;
+}
+.em-back:hover { color: #13131F; }
+.em-title { font-size: 14px; font-weight: 600; color: #13131F; }
+.em-nav-actions { display: flex; gap: 8px; }
+.em-btn-cancel {
+  font-size: 13px; padding: 6px 14px; border-radius: 8px;
+  border: 1px solid #E5E7EB; background: #F9FAFB; color: #374151;
+  cursor: pointer; font-family: inherit; transition: all 0.2s;
+}
+.em-btn-cancel:hover { background: #F3F4F6; }
+.em-btn-save {
+  font-size: 13px; padding: 6px 16px; border-radius: 8px;
+  border: none; background: #FF2442; color: #fff;
+  cursor: pointer; font-family: inherit; transition: all 0.2s; font-weight: 500;
+}
+.em-btn-save:hover { background: #e01e39; }
+.em-body {
+  display: flex; flex: 1; overflow: hidden;
+}
+/* LEFT TOOLBAR */
+.em-left {
+  width: 220px; flex-shrink: 0;
+  background: #FFFFFF; border-right: 1px solid #EBEBEB;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.em-tabs {
+  display: flex; border-bottom: 1px solid #EBEBEB; flex-shrink: 0;
+}
+.em-tab {
+  flex: 1; padding: 12px 0; font-size: 13px; color: #6B7280;
+  text-align: center; cursor: pointer; border-bottom: 2px solid transparent;
+  transition: all 0.2s; background: none; border-top: none;
+  border-left: none; border-right: none; font-family: inherit;
+}
+.em-tab.active { color: #FF2442; border-bottom-color: #FF2442; font-weight: 500; }
+.em-tab-panel { padding: 14px; flex: 1; overflow-y: auto; }
+.em-tab-panel.hidden { display: none; }
+.em-section-title {
+  font-size: 11px; color: #9CA3AF; font-weight: 600;
+  letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 8px;
+}
+/* Thumbnails */
+.em-thumb-row {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px;
+}
+.em-thumb {
+  width: 52px; height: 70px; border-radius: 6px; overflow: hidden;
+  border: 2px solid transparent; cursor: pointer; flex-shrink: 0;
+  transition: border-color 0.2s;
+}
+.em-thumb.active { border-color: #FF2442; }
+.em-thumb-add {
+  width: 52px; height: 70px; border-radius: 6px;
+  border: 1.5px dashed #D1D5DB; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 18px; color: #D1D5DB; cursor: pointer;
+  transition: all 0.2s; flex-shrink: 0;
+}
+.em-thumb-add:hover { border-color: #FF2442; color: #FF2442; }
+/* Quick ops */
+.em-op-btn {
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; padding: 8px 10px; border-radius: 8px;
+  border: 1px solid #E5E7EB; background: #F9FAFB;
+  font-size: 12.5px; color: #374151; cursor: pointer;
+  font-family: inherit; transition: all 0.2s; margin-bottom: 6px;
+  text-align: left;
+}
+.em-op-btn:hover { background: #F3F4F6; border-color: #D1D5DB; }
+.em-op-btn.active { background: rgba(255,36,66,0.08); border-color: #FF2442; color: #FF2442; }
+/* Text fields */
+.em-field-label { font-size: 12px; color: #6B7280; margin-bottom: 4px; margin-top: 10px; }
+.em-textarea {
+  width: 100%; padding: 8px 10px; border: 1px solid #E5E7EB;
+  border-radius: 8px; font-size: 12.5px; color: #13131F;
+  font-family: inherit; resize: none; outline: none;
+  line-height: 1.5; transition: border-color 0.2s; background: #FFFFFF;
+}
+.em-textarea:focus { border-color: #FF2442; }
+.em-char-count { font-size: 11px; color: #9CA3AF; text-align: right; margin-top: 3px; }
+/* CENTER PREVIEW */
+.em-center {
+  flex: 1; display: flex; align-items: center;
+  justify-content: center; background: #F7F7F9;
+  position: relative; overflow: hidden;
+}
+.em-phone-frame {
+  width: 300px; background: #FFFFFF;
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  display: flex; flex-direction: column;
+}
+.em-phone-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px; border-bottom: 1px solid #F3F4F6;
+}
+.em-avatar {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: linear-gradient(135deg,#FF2442,#ff6b8a);
+  flex-shrink: 0;
+}
+.em-account-name { font-size: 12px; font-weight: 600; color: #13131F; flex: 1; }
+.em-follow-btn {
+  font-size: 11px; color: #FF2442; border: 1px solid #FF2442;
+  border-radius: 10px; padding: 2px 8px; background: none; cursor: pointer;
+}
+.em-preview-img {
+  width: 100%; aspect-ratio: 3/4; position: relative; overflow: hidden;
+  cursor: crosshair;
+}
+.em-preview-img-bg {
+  width: 100%; height: 100%; object-fit: cover;
+}
+.em-erase-overlay {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.25); display: none; align-items: center;
+  justify-content: center; color: #fff; font-size: 13px;
+  flex-direction: column; gap: 6px;
+}
+.em-erase-overlay.active { display: flex; }
+.em-erase-dot {
+  position: absolute; width: 32px; height: 32px;
+  border-radius: 50%; background: rgba(255,36,66,0.6);
+  border: 2px solid #FF2442; transform: translate(-50%,-50%);
+  display: none; align-items: center; justify-content: center;
+  font-size: 10px; color: #fff;
+}
+.em-inpaint-overlay {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  display: none; flex-direction: column;
+}
+.em-inpaint-overlay.active { display: flex; }
+.em-inpaint-canvas {
+  width: 100%; flex: 1; cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='8' fill='rgba(255,36,66,0.5)'/%3E%3C/svg%3E") 12 12, crosshair;
+}
+.em-inpaint-bar {
+  padding: 6px 8px; background: rgba(0,0,0,0.7);
+  display: flex; gap: 6px; align-items: center;
+}
+.em-inpaint-input {
+  flex: 1; padding: 4px 8px; border-radius: 6px;
+  border: none; background: rgba(255,255,255,0.15);
+  color: #fff; font-size: 11.5px; font-family: inherit; outline: none;
+}
+.em-inpaint-input::placeholder { color: rgba(255,255,255,0.5); }
+.em-inpaint-gen-btn {
+  padding: 4px 10px; border-radius: 6px; border: none;
+  background: #FF2442; color: #fff; font-size: 11.5px;
+  cursor: pointer; font-family: inherit; white-space: nowrap;
+}
+.em-preview-body { padding: 10px 12px; }
+.em-preview-title { font-size: 13px; font-weight: 600; color: #13131F; margin-bottom: 5px; line-height: 1.4; }
+.em-preview-text { font-size: 11.5px; color: #6B7280; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+/* RIGHT HISTORY */
+.em-right {
+  width: 180px; flex-shrink: 0;
+  background: #F9FAFB; border-left: 1px solid #EBEBEB;
+  padding: 14px 12px; overflow-y: auto;
+}
+.em-history-title { font-size: 11px; color: #9CA3AF; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 10px; }
+.em-ver-card {
+  background: #FFFFFF; border: 1px solid #E5E7EB; border-radius: 8px;
+  padding: 8px; margin-bottom: 8px; cursor: pointer; transition: all 0.2s;
+}
+.em-ver-card:hover { border-color: #FF2442; }
+.em-ver-card.active { border-color: #FF2442; background: rgba(255,36,66,0.04); }
+.em-ver-thumb {
+  width: 100%; aspect-ratio: 3/4; border-radius: 6px; margin-bottom: 6px;
+}
+.em-ver-label { font-size: 11px; color: #6B7280; }
+.em-ver-time { font-size: 10px; color: #9CA3AF; margin-top: 2px; }
+/* Inpaint brush strokes */
+.em-brush-stroke {
+  position: absolute; border-radius: 50%;
+  background: rgba(255,36,66,0.35); pointer-events: none;
+  transform: translate(-50%,-50%);
+}
+
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     LOGIN PAGE
+══════════════════════════════════════ -->
+<div id="loginPage">
+  <div class="login-card">
+    <div class="login-logo">🌸</div>
+    <div class="login-title">生花 AI Spark</div>
+    <div class="login-sub">小红书爆款广告创意平台</div>
+    <div class="login-field" style="margin-top:8px">
+      <input type="text" placeholder="请输入账号" id="loginUser" autocomplete="username" />
+    </div>
+    <div class="login-field">
+      <input type="password" placeholder="请输入密码" id="loginPass" autocomplete="current-password" />
+    </div>
+    <button class="login-btn" onclick="doLogin()">登录 →</button>
+    <div class="login-note">仅限白名单用户，如需申请请联系商务</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     MAIN PAGE
+══════════════════════════════════════ -->
+<div id="mainPage">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <span class="header-home" onclick="showToast('返回首页', 'info')">← 首页</span>
+      <div class="header-divider"></div>
+      <span class="header-title">🌸 生花 AI Spark · 创意生成工作台</span>
+    </div>
+    <div class="header-center">
+      <div class="steps" id="stepsBar">
+        <div class="step-item">
+          <div class="step-circle active" id="step1Circle">①</div>
+          <span class="step-label active" id="step1Label">需求理解</span>
+        </div>
+        <div class="step-line" id="stepLine12"></div>
+        <div class="step-item">
+          <div class="step-circle" id="step2Circle">②</div>
+          <span class="step-label" id="step2Label">灵感洞察</span>
+        </div>
+        <div class="step-line" id="stepLine23"></div>
+        <div class="step-item">
+          <div class="step-circle" id="step3Circle">③</div>
+          <span class="step-label" id="step3Label">创意规划</span>
+        </div>
+        <div class="step-line" id="stepLine34"></div>
+        <div class="step-item">
+          <div class="step-circle" id="step4Circle">④</div>
+          <span class="step-label" id="step4Label">内容生成</span>
+        </div>
+      </div>
+    </div>
+    <div class="header-right">
+      <button onclick="startNewSession()" style="padding:6px 14px;background:#F3F4F6;border:1px solid #E5E7EB;border-radius:20px;font-size:13px;color:#6B7280;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:5px;transition:all 0.15s;" onmouseover="this.style.borderColor='#FF2442';this.style.color='#FF2442'" onmouseout="this.style.borderColor='#E5E7EB';this.style.color='#6B7280'">
+        <span style="font-size:14px;">✏️</span> 新建对话
+      </button>
+      <div class="quota-badge">今日剩余 <span id="genQuota">47</span> 次</div>
+    </div>
+  </div>
+
+  <!-- Main Body -->
+  <div class="main-body">
+    <!-- Left Panel -->
+    <div class="left-panel">
+      <!-- Chat -->
+      <div id="chatArea"></div>
+      <!-- Bottom Input -->
+      <div id="bottomInput">
+        <!-- Phase 0: industry chips -->
+        <div id="inputPhase0" class="industry-chips" style="display:none;">
+          <button class="industry-chip" onclick="selectIndustry('线索行业', '📚')">
+            <div class="industry-chip-icon">📚</div>
+            <div class="industry-chip-name">线索行业</div>
+            <div class="industry-chip-sub">教育·金融·游戏</div>
+          </button>
+          <button class="industry-chip" onclick="selectIndustry('电商行业', '🛍️')">
+            <div class="industry-chip-icon">🛍️</div>
+            <div class="industry-chip-name">电商行业</div>
+            <div class="industry-chip-sub">服饰·美妆·食品</div>
+          </button>
+        </div>
+
+        <!-- Phase 1: product input (线索行业) -->
+        <div id="inputPhase1Lead" class="hidden">
+          <div class="lead-product-input-wrap">
+            <span class="lead-input-label">📝 请输入推广产品/服务名称</span>
+            <div class="lead-input-row">
+              <input type="text" id="leadProductInput" placeholder="如：雅思口语冲刺班、公务员笔试特训..." />
+              <button class="confirm-btn" onclick="confirmLeadProduct()">确认 →</button>
+            </div>
+            <div class="lead-history-row">
+              <span class="lead-history-label">或从历史中选择：</span>
+              <button class="lead-history-chip" onclick="fillLeadInput('雅思口语冲刺班')">雅思口语冲刺班</button>
+              <button class="lead-history-chip" onclick="fillLeadInput('公务员笔试特训')">公务员笔试特训</button>
+              <button class="lead-history-chip" onclick="fillLeadInput('MBA备考系列')">MBA备考系列</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phase 1: SPU selector (电商行业) -->
+        <div id="inputPhase1Ecom" class="hidden">
+          <div class="spu-selector-wrap">
+            <span class="spu-label">🛍️ 请选择推广商品（SPU）</span>
+            <div class="spu-search-row">
+              <input type="text" id="spuSearchInput" placeholder="搜索商品名称/ID..." oninput="filterSPU(this.value)" />
+            </div>
+            <div class="spu-list" id="spuList">
+              <!-- populated by buildSPUList() -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Phase 3: image upload -->
+        <div id="inputPhase3" class="hidden">
+          <div class="upload-area">
+            <div class="upload-grid" id="uploadGrid"></div>
+            <div class="upload-actions">
+              <button id="confirmUploadBtn" class="confirm-btn" onclick="handleUploadDone()" style="display:none;align-items:center;gap:6px;">✓ 确认上传，继续 →</button>
+              <span class="upload-hint">点击格子上传图片，最多9张</span>
+              <button onclick="openMaterialOverlay('img','uploadGrid')" style="font-size:12px;color:#FF2442;background:none;border:none;cursor:pointer;font-family:inherit;padding:0;white-space:nowrap;margin-left:8px;">📦 从原料库选图</button>
+              <button class="skip-btn" id="skipUploadBtn" onclick="skipImages()">跳过 →</button>
+            </div>
+          </div>
+          <input type="file" id="fileInput" accept="image/*" multiple style="display:none" onchange="handleFileUpload(this)" />
+        </div>
+
+        <!-- Phase 4: selling points -->
+        <div id="inputPhase4" class="hidden">
+          <div class="selling-area">
+            <div class="selling-chips" id="sellingChips"></div>
+            <div class="selling-continue">
+              <button class="confirm-btn" onclick="confirmSellingPoints()" style="width:100%">已选好，继续 →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phase 5: style input -->
+        <div id="inputPhase5" class="hidden">
+          <div class="style-area">
+            <div class="style-input-row">
+              <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;" id="styleChipsRow">
+                <button class="lead-history-chip" onclick="setStyleChip('活泼轻快')">活泼轻快</button>
+                <button class="lead-history-chip" onclick="setStyleChip('专业严谨')">专业严谨</button>
+                <button class="lead-history-chip" onclick="setStyleChip('种草感强')">种草感强</button>
+                <button class="lead-history-chip" onclick="setStyleChip('情感共鸣')">情感共鸣</button>
+                <button class="lead-history-chip" onclick="setStyleChip('干货分享')">干货分享</button>
+              </div>
+              <input type="text" id="styleInput" placeholder="例如：活泼轻快、专业严谨、种草感强..." />
+              <button class="confirm-btn" onclick="confirmStyle()">确认</button>
+            </div>
+            <div style="display:flex;justify-content:flex-end">
+              <button class="skip-btn" onclick="skipStyle()">跳过 →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Phase hint (2,6,7+) -->
+        <div id="inputPhaseHint" class="hidden phase-hint"></div>
+      </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="right-panel">
+
+      <!-- ① 商家信息 -->
+      <div style="margin-bottom:16px;">
+        <div style="font-size:11px;font-weight:600;color:#6B7280;letter-spacing:0.05em;margin-bottom:8px;">🏪 商家信息</div>
+        <div style="background:#FFFFFF;border-radius:10px;padding:12px;border:1px solid #E5E7EB;display:flex;align-items:center;gap:10px;">
+          <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#FF2442,#FF8C69);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">🌸</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-weight:600;font-size:13px;color:#13131F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" id="merchantName">雅思研究院</div>
+            <div style="font-size:11px;color:#9CA3AF;margin-top:1px;" id="merchantMeta">教育行业 · ID: 8823401</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ② 原料库 -->
+      <div style="margin-bottom:16px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div style="font-size:11px;font-weight:600;color:#6B7280;letter-spacing:0.05em;">📦 原料库</div>
+          <button onclick="openMaterialOverlay()" style="font-size:11px;color:#FF2442;background:none;border:none;cursor:pointer;font-family:inherit;padding:0;">查看全部 →</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;" id="materialGrid">
+          <!-- 3 张 mock 图 + 1 上传 -->
+          <div style="aspect-ratio:1;border-radius:6px;overflow:hidden;background:linear-gradient(135deg,#667eea,#764ba2);cursor:pointer;position:relative;" onclick="openMaterialOverlay()">
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:16px;">👗</div>
+          </div>
+          <div style="aspect-ratio:1;border-radius:6px;overflow:hidden;background:linear-gradient(135deg,#f093fb,#f5576c);cursor:pointer;position:relative;" onclick="openMaterialOverlay()">
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:16px;">📸</div>
+          </div>
+          <div style="aspect-ratio:1;border-radius:6px;overflow:hidden;background:linear-gradient(135deg,#4facfe,#00f2fe);cursor:pointer;position:relative;" onclick="openMaterialOverlay()">
+            <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:16px;">🎓</div>
+          </div>
+          <div onclick="document.getElementById('materialFileInput').click()" style="aspect-ratio:1;border-radius:6px;border:1.5px dashed #E5E7EB;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:#FAFAFA;transition:border-color 0.15s;" onmouseover="this.style.borderColor='#FF2442'" onmouseout="this.style.borderColor='#E5E7EB'">
+            <span style="font-size:16px;color:#9CA3AF;">+</span>
+          </div>
+        </div>
+        <input type="file" id="materialFileInput" accept="image/*" multiple style="display:none;" onchange="addMaterials(this)"/>
+      </div>
+
+      <!-- ③ 历史生成 -->
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div style="font-size:11px;font-weight:600;color:#6B7280;letter-spacing:0.05em;">🕐 历史生成</div>
+          <button onclick="openHistoryOverlay()" style="font-size:11px;color:#FF2442;background:none;border:none;cursor:pointer;font-family:inherit;padding:0;">查看全部 →</button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;" id="historyList">
+          <div onclick="loadHistoryTask('课表对比型_雅思口语_0325')" style="background:#FFFFFF;border-radius:8px;padding:8px 10px;border:1px solid #E5E7EB;cursor:pointer;display:flex;align-items:center;gap:8px;transition:border-color 0.15s;" onmouseover="this.style.borderColor='#FF2442'" onmouseout="this.style.borderColor='#E5E7EB'">
+            <div style="width:36px;height:36px;border-radius:6px;background:linear-gradient(135deg,#667eea,#764ba2);flex-shrink:0;"></div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:12px;font-weight:500;color:#13131F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">课表对比型_雅思_0325</div>
+              <div style="font-size:11px;color:#10B981;margin-top:1px;">✓ 已完成 · 4条</div>
+            </div>
+          </div>
+          <div onclick="loadHistoryTask('老师自述_公考_0323')" style="background:#FFFFFF;border-radius:8px;padding:8px 10px;border:1px solid #E5E7EB;cursor:pointer;display:flex;align-items:center;gap:8px;transition:border-color 0.15s;" onmouseover="this.style.borderColor='#FF2442'" onmouseout="this.style.borderColor='#E5E7EB'">
+            <div style="width:36px;height:36px;border-radius:6px;background:linear-gradient(135deg,#f093fb,#f5576c);flex-shrink:0;"></div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:12px;font-weight:500;color:#13131F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">老师自述_公考_0323</div>
+              <div style="font-size:11px;color:#10B981;margin-top:1px;">✓ 已完成 · 4条</div>
+            </div>
+          </div>
+          <div onclick="loadHistoryTask('学员证言_MBA_0322')" style="background:#FFFFFF;border-radius:8px;padding:8px 10px;border:1px solid #E5E7EB;cursor:pointer;display:flex;align-items:center;gap:8px;transition:border-color 0.15s;" onmouseover="this.style.borderColor='#FF2442'" onmouseout="this.style.borderColor='#E5E7EB'">
+            <div style="width:36px;height:36px;border-radius:6px;background:linear-gradient(135deg,#43e97b,#38f9d7);flex-shrink:0;"></div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:12px;font-weight:500;color:#13131F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">学员证言_MBA_0322</div>
+              <div style="font-size:11px;color:#10B981;margin-top:1px;">✓ 已完成 · 4条</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══════════════════════════════════════════
+   STATE
+══════════════════════════════════════════ */
+let state = {
+  industry: null,
+  product: null,
+  skill: null,
+  images: [],
+  sellingPoints: [],
+  style: null,
+  phase: 0
+};
+
+let uploadedImages = [];
+let chatTypingTimer = null;
+
+const SKILLS = {
+  '线索行业': [
+    {
+      icon: '📋',
+      name: '课表对比型',
+      ctr: '3.8%',
+      ctrUp: true,
+      desc: '多班型课程横向对比，直观呈现价格/效果差异',
+      minImages: 3,
+      tags: ['线索行业', '高跑量'],
+      previewTexts: ['雅思口语冲刺全价对比一目了然，5大班型横向评测，让你花每一分钱都值得！', '比较了市场上主流班型，从价格到效果全面分析，教你如何选择最适合自己的...']
+    },
+    {
+      icon: '🗣️',
+      name: '老师自述型',
+      ctr: '3.2%',
+      ctrUp: false,
+      desc: '第一人称「XX老师」声明师资，突出专业背书',
+      minImages: 1,
+      tags: ['线索行业', '师资背书'],
+      previewTexts: ['我是雅思口语名师张老师，从业12年，带出了超过3000名7分以上学员...', '作为深耕雅思领域十余年的老师，今天想和你聊聊那些备考路上的坑...']
+    },
+    {
+      icon: '⭐',
+      name: '学员证言型',
+      ctr: '2.9%',
+      ctrUp: false,
+      desc: '真实备考历程记录，情感共鸣种草效果强',
+      minImages: 1,
+      tags: ['线索行业', '种草'],
+      previewTexts: ['从4.5到7分，我用了3个月！真实备考日记分享，希望能帮到和我一样焦虑的你...', '曾经的口语学渣，如今已拿到雅思7分offer，这段经历我想记录下来...']
+    }
+  ],
+  '电商行业': [
+    {
+      icon: '🛒',
+      name: '商品种草型',
+      ctr: '4.1%',
+      ctrUp: true,
+      desc: '沉浸式产品体验描述，引发购买欲望，适合新品推广',
+      minImages: 3,
+      tags: ['电商行业', '种草'],
+      previewTexts: ['秋天第一件连衣裙终于找到了！面料超级好，上身显瘦还舒适...', '姐妹们种草一款宝藏连衣裙，质量真的绝了，穿上去感觉自己瘦了10斤...']
+    },
+    {
+      icon: '📸',
+      name: '买家秀对比型',
+      ctr: '3.5%',
+      ctrUp: false,
+      desc: '买家秀与官方图对比，真实感强，降低决策门槛',
+      minImages: 2,
+      tags: ['电商行业', '真实感'],
+      previewTexts: ['收到货了！买家秀vs官方图对比，差距还是蛮大的，但整体还是很满意...', '普通身材能穿吗？我来给大家做个真实买家秀测评...']
+    },
+    {
+      icon: '💥',
+      name: '爆款单品型',
+      ctr: '3.0%',
+      ctrUp: false,
+      desc: '聚焦单一爆款产品，强调热销数据与口碑积累',
+      minImages: 1,
+      tags: ['电商行业', '爆款'],
+      previewTexts: ['月销10万件的爆款连衣裙，到底好在哪里？我买了来告诉你...', '这条裙子凭什么卖爆了？深度测评让你搞清楚...']
+    }
+  ]
+};
+
+const SELLING_POINTS = {
+  '线索行业': ['性价比', '真实提分', '名师1对1', '小班精讲', '课程体系完善'],
+  '电商行业': ['质量超好', '颜值高', '性价比', '显瘦', '面料舒适']
+};
+
+const RESULT_CARDS = {
+  '线索行业': [
+    { grad: 'linear-gradient(135deg, #FF6B6B, #FF2442)', title: '📋 5大班型横向对比｜雅思口语哪家强？', preview: '花了一周时间对比了市面上主流的5大雅思口语冲刺班，从价格、师资、课时到真实提分效果，全面评测！' },
+    { grad: 'linear-gradient(135deg, #667eea, #764ba2)', title: '💡 从4.5到7分｜我用了这套课表对比法', preview: '三个月备考，我是如何一步步从4.5分到7分的？这套课表对比法真的太实用了，分享给同样在备考的你。' },
+    { grad: 'linear-gradient(135deg, #11998e, #38ef7d)', title: '⭐ 名师1对1+小班精讲 学员真实反馈', preview: '收集了100+学员真实反馈，名师1对1和小班精讲到底哪个更适合你？数据说话！' },
+    { grad: 'linear-gradient(135deg, #f093fb, #f5576c)', title: '🎯 雅思口语备考全攻略 性价比之选', preview: '性价比最高的雅思口语备考方案大公开！综合考量价格、效果、服务，这门课真的绝了。' }
+  ],
+  '电商行业': [
+    { grad: 'linear-gradient(135deg, #FF6B6B, #FF2442)', title: '🛒 秋季连衣裙种草｜质量超好显瘦神器', preview: '找了好久终于找到这件宝藏连衣裙，面料舒适颜值超高，穿上去真的显瘦，姐妹们快冲！' },
+    { grad: 'linear-gradient(135deg, #667eea, #764ba2)', title: '📸 买家秀实测｜这件裙子到底好不好看？', preview: '普通身材实测，附上真实买家秀照片，帮你判断这件秋季连衣裙到底适不适合你。' },
+    { grad: 'linear-gradient(135deg, #11998e, #38ef7d)', title: '⭐ 面料舒适+颜值高 真实穿搭分享', preview: '上身超舒适的秋季连衣裙！面料真的太好了，颜值也在线，搭配各种风格都好看。' },
+    { grad: 'linear-gradient(135deg, #f093fb, #f5576c)', title: '🎯 性价比之选｜秋季必入爆款单品', preview: '月销过万的爆款连衣裙，性价比超高，这个价位能买到这个品质真的赚到了！' }
+  ]
+};
+
+/* ══════════════════════════════════════════
+   LOGIN
+══════════════════════════════════════════ */
+function doLogin() {
+  const loginPage = document.getElementById('loginPage');
+  const mainPage = document.getElementById('mainPage');
+  loginPage.style.opacity = '0';
+  loginPage.style.transition = 'opacity 0.4s ease';
+  setTimeout(() => {
+    loginPage.style.display = 'none';
+    mainPage.style.display = 'flex';
+    // Force layout recalculation
+    document.body.offsetHeight;
+    const mb = document.querySelector('.main-body');
+    if(mb) mb.style.setProperty('width', '100vw', 'important');
+    startChat();
+  }, 400);
+}
+
+// Allow Enter key on login
+document.addEventListener('DOMContentLoaded', () => {
+  ['loginUser','loginPass'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin();
+    });
+  });
+
+  // Lead product input: Enter to confirm
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const leadInp = document.getElementById('leadProductInput');
+      if (leadInp && document.activeElement === leadInp) {
+        confirmLeadProduct();
+      }
+    }
+  });
+});
+
+/* ══════════════════════════════════════════
+   UTILITIES
+══════════════════════════════════════════ */
+function showToast(msg, type='success') {
+  const t = document.createElement('div');
+  t.className = 'toast' + (type === 'error' ? ' error' : '');
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.classList.add('show'), 10);
+  setTimeout(() => {
+    t.classList.remove('show');
+    setTimeout(() => t.remove(), 300);
+  }, 2500);
+}
+
+function typeText(element, text, callback, speed=18) {
+  let i = 0;
+  element.textContent = '';
+  const chat = document.getElementById('chatArea');
+  if (chatTypingTimer) clearInterval(chatTypingTimer);
+  chatTypingTimer = setInterval(() => {
+    if (i < text.length) {
+      element.textContent += text[i++];
+      if (chat) chat.scrollTop = chat.scrollHeight;
+    } else {
+      clearInterval(chatTypingTimer);
+      chatTypingTimer = null;
+      if (callback) callback();
+    }
+  }, speed);
+}
+
+function scrollChat() {
+  const chat = document.getElementById('chatArea');
+  if (chat) setTimeout(() => { chat.scrollTop = chat.scrollHeight; }, 50);
+}
+
+/* ══════════════════════════════════════════
+   ADD MESSAGES
+══════════════════════════════════════════ */
+function addAIBubble(text, callback, speed=18) {
+  const row = document.createElement('div');
+  row.className = 'msg-row';
+  row.innerHTML = `
+    <div class="ai-avatar">🌸</div>
+    <div class="msg-bubble ai typing-target"></div>
+  `;
+  document.getElementById('chatArea').appendChild(row);
+  scrollChat();
+  const bubble = row.querySelector('.typing-target');
+  typeText(bubble, text, callback, speed);
+}
+
+function addAIBubbleHTML(html) {
+  const row = document.createElement('div');
+  row.className = 'msg-row';
+  row.innerHTML = `
+    <div class="ai-avatar">🌸</div>
+    <div class="msg-bubble ai">${html}</div>
+  `;
+  document.getElementById('chatArea').appendChild(row);
+  scrollChat();
+  return row;
+}
+
+function addUserBubble(text) {
+  const row = document.createElement('div');
+  row.className = 'msg-row user';
+  row.innerHTML = `<div class="msg-bubble user">${text}</div>`;
+  document.getElementById('chatArea').appendChild(row);
+  scrollChat();
+}
+
+function addPromptBubble(text) {
+  const row = document.createElement('div');
+  row.className = 'msg-row';
+  row.innerHTML = `
+    <div class="ai-avatar" style="background:#F3F4F6;font-size:11px;color:#888">AI</div>
+    <div class="msg-bubble prompt">${text}</div>
+  `;
+  document.getElementById('chatArea').appendChild(row);
+  scrollChat();
+}
+
+function addThinkingBubble() {
+  const row = document.createElement('div');
+  row.className = 'msg-row';
+  row.id = 'thinkingRow';
+  row.innerHTML = `
+    <div class="ai-avatar">🌸</div>
+    <div class="msg-bubble ai">
+      <div class="dot-pulse"><span></span><span></span><span></span></div>
+    </div>
+  `;
+  document.getElementById('chatArea').appendChild(row);
+  scrollChat();
+}
+
+function removeThinking() {
+  const el = document.getElementById('thinkingRow');
+  if (el) el.remove();
+}
+
+/* ══════════════════════════════════════════
+   INPUT PHASE SWITCHER
+══════════════════════════════════════════ */
+function showInputPhase(phase) {
+  // Hide all
+  ['inputPhase0','inputPhase1Lead','inputPhase1Ecom','inputPhase3','inputPhase4','inputPhase5','inputPhaseHint'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('hidden');
+  });
+
+  if (phase === 0) {
+    document.getElementById('inputPhase0').classList.remove('hidden');
+  } else if (phase === 1) {
+    if (state.industry === '电商行业') {
+      document.getElementById('bottomInput').classList.add('hidden-bar');
+      buildSpuInChat();
+    } else {
+      document.getElementById('bottomInput').classList.add('hidden-bar');
+      buildLeadInputInChat();
+    }
+  } else if (phase === 2) {
+    document.getElementById('bottomInput').classList.add('hidden-bar');
+    const hint = document.getElementById('inputPhaseHint');
+    hint.textContent = '👆 请在上方对话中选择套路';
+    hint.classList.remove('hidden');
+  } else if (phase === 3) {
+    document.getElementById('bottomInput').classList.add('hidden-bar');
+    buildUploadInChat();
+  } else if (phase === 4) {
+    document.getElementById('bottomInput').classList.add('hidden-bar');
+    buildSellingChipsInChat();
+  } else if (phase === 5) {
+    document.getElementById('bottomInput').classList.add('hidden-bar');
+    buildStyleInChat();
+  } else {
+    // phases 6, 7, 8: hide all
+    document.getElementById('bottomInput').classList.add('hidden-bar');
+  }
+}
+
+/* 行业选择内嵌到对话流 */
+function buildIndustryInChat() {
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-row';
+  wrap.id = 'industryChatRow';
+  wrap.innerHTML = `
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin:4px 0;">
+      <button class="industry-chip-inline" onclick="selectIndustryChat('线索行业','📚')">
+        <span style="font-size:20px;">📚</span>
+        <div style="font-weight:600;font-size:13px;color:#13131F;margin-top:4px;">线索行业</div>
+        <div style="font-size:11px;color:#9CA3AF;margin-top:2px;">教育·金融·游戏</div>
+      </button>
+      <button class="industry-chip-inline" onclick="selectIndustryChat('电商行业','🛍️')">
+        <span style="font-size:20px;">🛍️</span>
+        <div style="font-weight:600;font-size:13px;color:#13131F;margin-top:4px;">电商行业</div>
+        <div style="font-size:11px;color:#9CA3AF;margin-top:2px;">服饰·美妆·食品</div>
+      </button>
+    </div>
+  `;
+  document.getElementById('chatArea').appendChild(wrap);
+  scrollChat();
+}
+
+function selectIndustryChat(name, emoji) {
+  document.getElementById('industryChatRow')?.remove();
+  selectIndustry(name, emoji);
+}
+
+/* ══════════════════════════════════════════
+   PHASE 0: START
+══════════════════════════════════════════ */
+function startChat() {
+  state = { industry: null, product: null, skill: null, images: [], sellingPoints: [], style: null, phase: 0 };
+  uploadedImages = [];
+  document.getElementById('chatArea').innerHTML = '';
+  setRightEmpty();
+  // 隐藏 bottomInput 的行业 chips，改为对话流内嵌
+  document.getElementById('bottomInput').classList.add('hidden-bar');
+
+  // Small delay then type greeting
+  setTimeout(() => {
+    addAIBubble('你好！我是生花 AI 助手 🌸 先告诉我，你是做哪个行业的推广？', () => {
+      buildIndustryInChat();
+    });
+  }, 300);
+}
+
+/* ══════════════════════════════════════════
+   PHASE 1: SELECT INDUSTRY
+══════════════════════════════════════════ */
+function selectIndustry(industry, icon) {
+  state.industry = industry;
+  state.phase = 1;
+
+  addUserBubble(`${icon} ${industry}`);
+  showInputPhase(-1); // hide all during AI typing
+
+  // Update right panel
+  setRightIndustryTag();
+
+  setTimeout(() => {
+    addThinkingBubble();
+    setTimeout(() => {
+      removeThinking();
+      const prompt1 = industry === '电商行业'
+        ? `好的！${industry} ✓ 接下来请选择要推广的商品（SPU）：`
+        : `好的！${industry} ✓ 接下来告诉我，你想推广什么产品或服务？`;
+      addAIBubble(prompt1, () => {
+        showInputPhase(1);
+      });
+    }, 600);
+  }, 100);
+}
+
+/* ─── 线索行业：产品名输入 ─── */
+function fillLeadInput(val) {
+  const inp = document.getElementById('leadProductInput');
+  if (inp) { inp.value = val; inp.focus(); }
+}
+
+function confirmLeadProduct() {
+  const val = document.getElementById('leadProductInput').value.trim();
+  if (!val) { showToast('请输入产品或服务名称', 'error'); return; }
+  selectProduct(val);
+}
+
+/* ─── 电商行业：SPU选择器 ─── */
+const SPU_DATA = [
+  {
+    id: 'SPU001',
+    name: '秋季连衣裙-藏青色V领',
+    price: '¥299',
+    stock: '库存 1,234件',
+    grad: 'linear-gradient(135deg, #667eea, #764ba2)'
+  },
+  {
+    id: 'SPU002',
+    name: '玻尿酸精华液-舒缓保湿版',
+    price: '¥199',
+    stock: '库存 5,678件',
+    grad: 'linear-gradient(135deg, #11998e, #38ef7d)'
+  },
+  {
+    id: 'SPU003',
+    name: '蛋白棒零食礼盒-混合口味',
+    price: '¥89',
+    stock: '库存 2,890件',
+    grad: 'linear-gradient(135deg, #f093fb, #f5576c)'
+  }
+];
+
+function buildSPUList(query) {
+  const list = document.getElementById('spuList');
+  if (!list) return;
+  const filtered = query
+    ? SPU_DATA.filter(s => s.name.includes(query) || s.id.toLowerCase().includes(query.toLowerCase()))
+    : SPU_DATA;
+
+  if (filtered.length === 0) {
+    list.innerHTML = '<div style="padding:16px;text-align:center;color:#555575;font-size:12px">未找到匹配商品</div>';
+    return;
+  }
+
+  list.innerHTML = filtered.map(s => `
+    <div class="spu-item">
+      <div class="spu-thumb" style="background:${s.grad}"></div>
+      <div class="spu-info">
+        <div class="spu-name">${s.name}</div>
+        <div class="spu-meta">ID: ${s.id} · ${s.price} · ${s.stock}</div>
+      </div>
+      <button class="spu-select-btn" onclick="selectSPU('${s.id}', '${s.name}')">选择</button>
+    </div>
+  `).join('');
+}
+
+function filterSPU(query) {
+  buildSPUList(query);
+}
+
+function selectSPU(id, name) {
+  selectProduct(`选择SPU：${name}`);
+}
+
+/* kept for legacy references – no longer used but safe to keep */
+function buildProductChips() {}
+function confirmManualProduct() {}
+
+/* ══════════════════════════════════════════
+   PHASE 2: SELECT PRODUCT → SHOW SKILLS
+══════════════════════════════════════════ */
+function selectProduct(product) {
+  state.product = product;
+  state.phase = 2;
+
+  addUserBubble(product);
+  showInputPhase(-1);
+
+  setTimeout(() => {
+    addThinkingBubble();
+    setTimeout(() => {
+      removeThinking();
+      addAIBubble(`${product} ✓ 根据你的商品，我为你推荐以下创意套路，请选择一个：`, () => {
+        showSkillCards();
+        showInputPhase(2);
+        setRightSkillCards();
+      });
+    }, 800);
+  }, 100);
+}
+
+/* ─── Before/After HTML builders ─── */
+function buildBAHtml(skillKey) {
+  const defs = {
+    '课表对比型': {
+      beforeHtml: `<div class="ba-text-lines">
+        <div class="ba-text-line"></div>
+        <div class="ba-text-line med"></div>
+        <div class="ba-text-line short"></div>
+        <div class="ba-text-line med"></div>
+      </div>`,
+      afterHtml: `<div class="skill-table-after">
+        ${Array(6).fill('<div class="skill-table-cell"></div>').join('')}
+      </div>`
+    },
+    '老师自述型': {
+      beforeHtml: `<div class="ba-text-lines">
+        <div class="ba-text-line"></div>
+        <div class="ba-text-line short"></div>
+        <div class="ba-text-line med"></div>
+      </div>`,
+      afterHtml: `<div class="skill-teacher-after">
+        <div class="skill-avatar"></div>
+        <div class="skill-teacher-lines">
+          <div class="ba-text-line med"></div>
+          <div class="ba-text-line short"></div>
+          <div class="ba-text-line med"></div>
+        </div>
+      </div>`
+    },
+    '学员证言型': {
+      beforeHtml: `<div class="ba-text-lines">
+        <div class="ba-text-line"></div>
+        <div class="ba-text-line short"></div>
+        <div class="ba-text-line"></div>
+      </div>`,
+      afterHtml: `<div class="skill-chat-after">
+        <div class="skill-bubble"></div>
+        <div class="skill-bubble right" style="width:65%"></div>
+        <div class="skill-bubble" style="width:55%"></div>
+      </div>`
+    },
+    '商品种草型': {
+      beforeHtml: `<div class="skill-ecom-before">
+        <div class="skill-ecom-before-cell"></div>
+        <div class="skill-ecom-before-cell"></div>
+        <div class="skill-ecom-before-cell"></div>
+        <div class="skill-ecom-before-cell"></div>
+      </div>`,
+      afterHtml: `<div class="skill-ecom-after">
+        <div class="skill-ecom-after-img"></div>
+        <div class="skill-ecom-after-text">
+          <div class="skill-ecom-after-line" style="width:90%"></div>
+          <div class="skill-ecom-after-line" style="width:70%"></div>
+        </div>
+      </div>`
+    },
+    '买家秀对比型': {
+      beforeHtml: `<div class="skill-buyer-before">
+        <div class="skill-buyer-before-img"><span style="font-size:10px;color:#555575">官方图</span></div>
+      </div>`,
+      afterHtml: `<div class="skill-buyer-after">
+        <div class="skill-buyer-after-cell" style="background:linear-gradient(135deg,#E5E7EB,#1A1A2E)"></div>
+        <div class="skill-buyer-after-cell" style="background:linear-gradient(135deg,rgba(255,36,66,0.15),rgba(168,85,247,0.15))"></div>
+      </div>`
+    },
+    '爆款单品型': {
+      beforeHtml: `<div class="ba-text-lines">
+        <div class="ba-text-line"></div>
+        <div class="ba-text-line med"></div>
+        <div class="ba-text-line short"></div>
+      </div>`,
+      afterHtml: `<div class="skill-boom-after">
+        <div class="skill-boom-title"></div>
+        <div class="skill-boom-sub"></div>
+        <div class="skill-boom-sub" style="width:55%;margin-top:2px"></div>
+      </div>`
+    }
+  };
+  return defs[skillKey] || { beforeHtml: `<div class="ba-text-lines"><div class="ba-text-line"></div><div class="ba-text-line med"></div></div>`, afterHtml: `<div class="ba-text-lines"><div class="ba-text-line"></div><div class="ba-text-line short"></div></div>` };
+}
+
+function buildSkillCardHtml(s, index, isFeatured, isSmall) {
+  const ba = buildBAHtml(s.name);
+  const ctrColor = s.ctrUp ? '#22c55e' : '#8888AA';
+  const cardClass = isFeatured ? 'skill-card-chat featured' : 'skill-card-chat';
+  const btnText = isFeatured ? '✓ 选择这个套路' : '选择这个套路';
+  return `
+    <div class="${cardClass}" id="chatSkill_${index}">
+      ${isFeatured ? '<div class="skill-recommend-label">⭐ 系统推荐</div>' : ''}
+      <div class="skill-card-header">
+        <span class="skill-card-name">${s.icon} ${s.name}</span>
+        <span class="skill-ctr" style="color:${ctrColor}">CTR ${s.ctr} ${s.ctrUp ? '<span class="up">↑高</span>' : ''}</span>
+      </div>
+      <div class="ba-container">
+        <div class="ba-box">
+          <div class="ba-label">Before</div>
+          ${ba.beforeHtml}
+        </div>
+        <div class="ba-arrow">→</div>
+        <div class="ba-box">
+          <div class="ba-label">After</div>
+          ${ba.afterHtml}
+        </div>
+      </div>
+      <div class="skill-card-desc">${s.desc}</div>
+      <div class="skill-meta-row">
+        ${s.tags.map(t => `<span>🏷️ ${t}</span>`).join('')}
+        <span>📊 历史跑量：${s.ctrUp ? '高' : '中'}</span>
+      </div>
+      <div class="skill-card-actions" style="margin-top:8px">
+        <button class="skill-action-btn primary" onclick="confirmSkill(${index})">${btnText}</button>
+      </div>
+    </div>
+  `;
+}
+
+function showSkillCards() {
+  const skills = SKILLS[state.industry] || [];
+  const chatArea = document.getElementById('chatArea');
+
+  // 3张横向并排（紧凑 small 模式）
+  const topWrap = document.createElement('div');
+  topWrap.className = 'msg-row';
+  topWrap.id = 'chatSkillCards';
+  topWrap.style.cssText = 'display:flex;gap:10px;flex-wrap:nowrap;';
+  topWrap.innerHTML = skills.slice(0,3).map((s,i) => buildSkillCardHtml(s, i, i===0, true)).join('');
+  chatArea.appendChild(topWrap);
+
+  // 「查看更多套路」按钮 → 打开浮层
+  const moreBtn = document.createElement('button');
+  moreBtn.className = 'skill-expand-btn';
+  moreBtn.id = 'skillExpandBtn';
+  moreBtn.innerHTML = '🔍 查看更多套路（共 50+ 个）';
+  moreBtn.onclick = () => openSkillOverlay();
+  chatArea.appendChild(moreBtn);
+
+  scrollChat();
+}
+
+function openSkillOverlay() {
+  const overlay = document.getElementById('skillOverlay');
+  const grid = document.getElementById('skillOverlayGrid');
+  if (!overlay || !grid) return;
+
+  // 生成 50 个 mock 套路
+  const mockSkills = generateMockSkills();
+  grid.innerHTML = mockSkills.map((s, i) => `
+    <div class="skill-overlay-card" onclick="selectSkillFromOverlay(${i})">
+      <div class="skill-overlay-card-header">
+        <span class="skill-overlay-card-name">${s.emoji} ${s.name}</span>
+        <span class="skill-overlay-card-ctr">CTR ${s.ctr}</span>
+      </div>
+      <div class="skill-overlay-card-desc">${s.desc}</div>
+      <div class="skill-overlay-card-tags">
+        ${s.tags.map(t => `<span class="skill-overlay-card-tag">${t}</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
+
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSkillOverlay(e, force) {
+  if (!force && e && e.target !== document.getElementById('skillOverlay')) return;
+  document.getElementById('skillOverlay')?.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function selectSkillFromOverlay(index) {
+  const s = generateMockSkills()[index];
+  state.skill = { name: s.name, emoji: s.emoji };
+  closeSkillOverlay(null, true);
+  addUserBubble(`选择套路：${s.emoji} ${s.name}`);
+  showInputPhase(-1);
+  setTimeout(() => {
+    addThinkingBubble();
+    setTimeout(() => {
+      removeThinking();
+      addAIBubble(`${s.name} ✓ 现在请上传商品素材图片${state.industry === '线索行业' ? '（可选）' : '（必填）'}`, () => {
+        showInputPhase(3);
+      });
+    }, 600);
+  }, 200);
+}
+
+function generateMockSkills() {
+  const industry = state.industry || '线索行业';
+  const baseSkills = industry === '线索行业' ? [
+    { name: '课表对比型', emoji: '📊', ctr: '3.8%', desc: '多班型课程横向对比，直观呈现价格/效果差异', tags: ['线索', '高跑量'] },
+    { name: '老师自述型', emoji: '👩‍🏫', ctr: '3.2%', desc: '第一人称「XX老师」声明师资，突出专业背书', tags: ['线索', '师资背书'] },
+    { name: '学员证言型', emoji: '🎓', ctr: '2.9%', desc: '真实备考历程记录，情感共鸣种草效果强', tags: ['线索', '种草'] },
+    { name: '效果承诺型', emoji: '🏆', ctr: '3.5%', desc: '明确承诺提分幅度，降低用户决策门槛', tags: ['线索', '转化'] },
+    { name: '痛点解决型', emoji: '💡', ctr: '3.1%', desc: '从备考痛点切入，展示产品如何解决问题', tags: ['线索', '痛点'] },
+    { name: '干货攻略型', emoji: '📝', ctr: '2.7%', desc: '实用备考攻略，建立专业权威感', tags: ['线索', '干货'] },
+    { name: '时间规划型', emoji: '⏰', ctr: '2.5%', desc: '以时间轴展示备考计划，让用户觉得可执行', tags: ['线索', '规划'] },
+    { name: '价格对比型', emoji: '💰', ctr: '2.8%', desc: '同行价格横向比较，凸显性价比优势', tags: ['线索', '价格'] },
+    { name: '场景代入型', emoji: '🎬', ctr: '3.0%', desc: '还原真实备考场景，引发用户情感共鸣', tags: ['线索', '场景'] },
+    { name: '数据背书型', emoji: '📈', ctr: '3.3%', desc: '用学员通过率/提分数据建立信任感', tags: ['线索', '数据'] },
+  ] : [
+    { name: '商品种草型', emoji: '🛒', ctr: '4.1%', desc: '沉浸式产品体验描述，引发购买欲望', tags: ['电商', '种草'] },
+    { name: '买家秀对比型', emoji: '📸', ctr: '3.5%', desc: '买家秀与官方图对比，真实感降低决策门槛', tags: ['电商', '真实感'] },
+    { name: '爆款单品型', emoji: '🔥', ctr: '3.0%', desc: '单品聚焦展示，制造爆款氛围感', tags: ['电商', '爆款'] },
+    { name: '穿搭搭配型', emoji: '👗', ctr: '3.8%', desc: '多种场景穿搭示范，扩大使用想象空间', tags: ['电商', '搭配'] },
+    { name: '成分解析型', emoji: '🔬', ctr: '3.2%', desc: '深度解析产品成分，建立专业权威感', tags: ['电商', '专业'] },
+    { name: '使用教程型', emoji: '📹', ctr: '2.8%', desc: '手把手展示使用方法，降低上手门槛', tags: ['电商', '教程'] },
+    { name: '限时促销型', emoji: '⚡', ctr: '4.5%', desc: '制造紧迫感，加速用户转化决策', tags: ['电商', '促销'] },
+    { name: '明星同款型', emoji: '⭐', ctr: '3.6%', desc: '借势明星/达人影响力，提升品牌形象', tags: ['电商', '明星'] },
+    { name: '场景应用型', emoji: '🏠', ctr: '3.1%', desc: '展示产品在不同生活场景中的使用', tags: ['电商', '场景'] },
+    { name: '口碑汇总型', emoji: '💬', ctr: '2.9%', desc: '汇总真实用户评价，建立社会信任证明', tags: ['电商', '口碑'] },
+  ];
+
+  // 扩展到50个
+  const extended = [...baseSkills];
+  const extraNames = ['故事引入型','问答互动型','测评对比型','新品首发型','节日礼品型','健康功效型','环保理念型','联名合作型','DIY创意型','复古怀旧型','极简主义型','高颜值展示型','用户共创型','会员专属型','系列套装型','跨界混搭型','地域特色型','职场通勤型','亲子互动型','宠物周边型','运动健身型','旅行必备型','居家生活型','办公效率型','美食搭档型','艺术设计型','科技感型','手作温度型','国风传统型','未来感型','轻奢品质型','实用主义型','趣味测评型','好物清单型','素人实测型','专家推荐型','网红同款型','平价替代型','高端对标型','学生党优选型'];
+  extraNames.forEach((name, i) => {
+    extended.push({
+      name, emoji: ['✨','🎯','💎','🌟','🎪','🎨','🌈','🦋','🍀','🎭'][i%10],
+      ctr: (2.0 + Math.random() * 2.5).toFixed(1) + '%',
+      desc: `${name}风格，适合${state.industry === '线索行业' ? '教育培训' : '电商'}类广告投放`,
+      tags: [state.industry === '线索行业' ? '线索' : '电商', ['高CTR','稳定','新兴','爆款','口碑'][i%5]]
+    });
+  });
+  return extended.slice(0, 50);
+}
+
+/* ══════════════════════════════════════════
+   PHASE 3: CONFIRM SKILL
+══════════════════════════════════════════ */
+function getSkillImageHint(skill) {
+  const n = skill.minImages || 0;
+  if (!n) return '';
+  if (n === 1) return '此套路建议至少上传 <strong>1 张</strong>素材图，效果更佳';
+  return `此套路建议上传 <strong>${n} 张</strong>素材图，才能充分展示对比效果`;
+}
+
+function confirmSkill(index) {
+  const s = SKILLS[state.industry][index];
+  state.skill = s;
+  state.phase = 3;
+
+  // Dim all skill cards in chat
+  const chatSkills = document.querySelectorAll('.skill-card-chat');
+  chatSkills.forEach((el, i) => {
+    if (i === index) el.classList.add('selected');
+    else el.classList.add('dimmed');
+  });
+  // Also hide expand button + extra if expanded
+  const eb = document.getElementById('skillExpandBtn');
+  if (eb) eb.style.display = 'none';
+
+  addUserBubble(`确认使用：${s.icon} ${s.name}`);
+  showInputPhase(-1);
+
+  // Advance step bar: ① done → ② active (灵感洞察)
+  const s1c = document.getElementById('step1Circle');
+  const s1l = document.getElementById('step1Label');
+  const s2c = document.getElementById('step2Circle');
+  const s2l = document.getElementById('step2Label');
+  const sl12 = document.getElementById('stepLine12');
+  if (s1c) { s1c.classList.remove('active'); s1c.classList.add('done'); }
+  if (s1l) { s1l.classList.remove('active'); s1l.classList.add('done'); }
+  if (sl12) sl12.classList.add('done');
+  if (s2c) s2c.classList.add('active');
+  if (s2l) s2l.classList.add('active');
+
+  // Update right panel with selected skill preview
+  setRightSkillSelected(index);
+
+  const optional = state.industry === '线索行业' ? '（可选）' : '（必填）';
+  setTimeout(() => {
+    addThinkingBubble();
+    setTimeout(() => {
+      removeThinking();
+      addAIBubble(`${s.icon} ${s.name} ✓ 现在请上传商品素材图片${optional}`, () => {
+        // 图片数量建议提示
+        const imgHintText = getSkillImageHint(s);
+        if (imgHintText) {
+          const hintBubble = document.createElement('div');
+          hintBubble.className = 'msg-row';
+          hintBubble.innerHTML = `<div style="display:inline-flex;align-items:center;gap:6px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:8px 12px;font-size:12px;color:#92400E;max-width:500px;">
+            <span style="font-size:14px;">📸</span>
+            <span>${imgHintText}</span>
+          </div>`;
+          document.getElementById('chatArea').appendChild(hintBubble);
+        }
+        showInputPhase(3);
+        if (state.industry === '电商行业') {
+          document.getElementById('skipUploadBtn').classList.add('hidden');
+        } else {
+          document.getElementById('skipUploadBtn').classList.remove('hidden');
+        }
+      });
+    }, 500);
+  }, 100);
+}
+
+/* ══════════════════════════════════════════
+   IMAGE UPLOAD
+══════════════════════════════════════════ */
+function buildUploadGrid() {
+  const grid = document.getElementById('uploadGrid');
+  grid.innerHTML = '';
+  uploadedImages = [];
+
+  for (let i = 0; i < 5; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'upload-cell';
+    cell.dataset.index = i;
+    cell.textContent = '+';
+    cell.onclick = () => triggerUpload(i);
+    grid.appendChild(cell);
+  }
+}
+
+function triggerUpload(index) {
+  const fi = document.getElementById('fileInput');
+  fi.dataset.targetIndex = index;
+  fi.click();
+}
+
+function handleFileUpload(input) {
+  const files = Array.from(input.files);
+  const maxSlots = 5;
+  const available = maxSlots - uploadedImages.filter(Boolean).length;
+
+  if (files.length > available) {
+    showToast(`最多还能上传 ${available} 张图片`, 'error');
+  }
+
+  const toAdd = files.slice(0, available);
+  let loaded = 0;
+  toAdd.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const grid = document.getElementById('uploadGrid');
+      const cells = grid.querySelectorAll('.upload-cell');
+      let emptyIdx = -1;
+      cells.forEach((c, i) => { if (emptyIdx === -1 && !c.querySelector('img')) emptyIdx = i; });
+      if (emptyIdx >= 0) {
+        const cell = cells[emptyIdx];
+        cell.innerHTML = `<img src="${e.target.result}" alt="uploaded" style="width:100%;height:100%;object-fit:cover;border-radius:7px;" />`;
+        uploadedImages.push(e.target.result);
+      }
+      loaded++;
+      if (loaded === toAdd.length) {
+        // Show confirm button after upload
+        const confirmBtn = document.getElementById('confirmUploadBtn');
+        if (confirmBtn) confirmBtn.style.display = 'inline-flex';
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+
+  input.value = '';
+}
+
+function skipImages() {
+  state.images = [];
+  state.phase = 4;
+  addUserBubble('跳过素材');
+  goToSellingPoints();
+
+  setTimeout(() => {
+    addAIBubble('没关系！请选择核心卖点（可多选，最多5个）', () => {
+      showInputPhase(4);
+    });
+  }, 500);
+}
+
+function handleUploadDone() {
+  if (uploadedImages.length === 0) {
+    showToast('请上传至少一张图片，或点击跳过', 'error');
+    return;
+  }
+  state.images = [...uploadedImages];
+  state.phase = 4;
+  addUserBubble(`已上传 ${uploadedImages.length} 张图片`);
+  goToSellingPoints();
+}
+
+/* ══════════════════════════════════════════
+   PHASE 4: SELLING POINTS
+══════════════════════════════════════════ */
+function goToSellingPoints() {
+  showInputPhase(-1);
+  setTimeout(() => {
+    addThinkingBubble();
+    setTimeout(() => {
+      removeThinking();
+      addAIBubble('素材 ✓ 请选择核心卖点（可多选，最多5个）', () => {
+        showInputPhase(4);
+      });
+    }, 500);
+  }, 100);
+}
+
+/* 新版：SPU 选择注入 chatArea */
+function buildLeadInputInChat() {
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-row';
+  wrap.id = 'leadChatRow';
+  wrap.innerHTML = `
+    <div style="max-width:600px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+      <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">📝 请输入推广产品/服务名称</div>
+      <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
+        <input id="leadInputChat" type="text" placeholder="如：雅思口语冲刺班、公务员笔试特训..."
+          style="flex:1;padding:9px 14px;border:1.5px solid #E5E7EB;border-radius:20px;font-size:13px;color:#13131F;outline:none;font-family:inherit;background:#F9FAFB;transition:border-color 0.15s;"
+          onfocus="this.style.borderColor='#FF2442'" onblur="this.style.borderColor='#E5E7EB'" />
+        <button onclick="openMaterialOverlay('text','leadInputChat','product')" title="从原料库选" style="padding:9px 12px;background:#F9FAFB;border:1.5px solid #E5E7EB;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap;color:#6B7280;transition:all 0.15s;" onmouseover="this.style.borderColor='#FF2442';this.style.color='#FF2442'" onmouseout="this.style.borderColor='#E5E7EB';this.style.color='#6B7280'">📦</button>
+        <button onclick="confirmLeadInputChat()" style="padding:9px 18px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;white-space:nowrap;">确认 →</button>
+      </div>
+      <div style="font-size:12px;color:#9CA3AF;margin-bottom:6px;">或从历史中选择：</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="lead-history-chip" onclick="setLeadInputChat('雅思口语冲刺班')">雅思口语冲刺班</button>
+        <button class="lead-history-chip" onclick="setLeadInputChat('公务员笔试特训')">公务员笔试特训</button>
+        <button class="lead-history-chip" onclick="setLeadInputChat('MBA备考系列')">MBA备考系列</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('chatArea').appendChild(wrap);
+  scrollChat();
+  setTimeout(() => document.getElementById('leadInputChat')?.focus(), 100);
+
+  document.getElementById('leadInputChat')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') confirmLeadInputChat();
+  });
+}
+
+function setLeadInputChat(val) {
+  const inp = document.getElementById('leadInputChat');
+  if (inp) { inp.value = val; inp.focus(); }
+}
+
+function confirmLeadInputChat() {
+  const val = document.getElementById('leadInputChat')?.value?.trim();
+  if (!val) { showToast('请输入产品或服务名称', 'error'); return; }
+  document.getElementById('leadChatRow')?.remove();
+  selectProduct(val);
+}
+
+function buildSpuInChat() {
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-row';
+  wrap.id = 'spuChatRow';
+  wrap.innerHTML = `
+    <div style="max-width:640px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+      <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">🛍️ 请选择要推广的商品（SPU）</div>
+      <div style="position:relative;margin-bottom:10px;">
+        <input id="spuSearchChat" type="text" placeholder="搜索商品名称/ID..."
+          style="width:100%;box-sizing:border-box;padding:8px 12px 8px 32px;border:1px solid #E5E7EB;border-radius:8px;font-size:13px;color:#13131F;outline:none;font-family:inherit;background:#F9FAFB;"
+          oninput="filterSpuChat(this.value)" />
+        <span style="position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#9CA3AF;font-size:13px;">🔍</span>
+      </div>
+      <div id="spuListChat" style="display:flex;flex-direction:column;gap:1px;border:1px solid #E5E7EB;border-radius:8px;overflow:hidden;"></div>
+    </div>
+  `;
+  document.getElementById('chatArea').appendChild(wrap);
+  scrollChat();
+  renderSpuList(SPU_DATA);
+}
+
+function renderSpuList(items) {
+  const list = document.getElementById('spuListChat');
+  if (!list) return;
+  list.innerHTML = items.map((spu, i) => `
+    <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:#fff;cursor:pointer;border-bottom:${i < items.length-1 ? '1px solid #F3F4F6' : 'none'};transition:background 0.15s;"
+      onmouseover="this.style.background='#FFF5F7'" onmouseout="this.style.background='#fff'"
+      onclick="selectSpuChat('${spu.id}','${spu.name}')">
+      <div style="width:40px;height:40px;border-radius:8px;background:${spu.color};background:linear-gradient(135deg,${spu.color},${spu.color}99);flex-shrink:0;"></div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:500;color:#13131F;margin-bottom:2px;">${spu.name}</div>
+        <div style="font-size:11px;color:#9CA3AF;">ID: ${spu.id} · ${spu.price} · ${spu.stock}</div>
+      </div>
+      <button onclick="event.stopPropagation();selectSpuChat('${spu.id}','${spu.name}')"
+        style="padding:5px 14px;background:none;border:1.5px solid #FF2442;border-radius:20px;color:#FF2442;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap;font-weight:500;">选择</button>
+    </div>
+  `).join('');
+}
+
+function filterSpuChat(val) {
+  const q = val.trim().toLowerCase();
+  const filtered = q ? SPU_DATA.filter(s => s.name.toLowerCase().includes(q) || s.id.toLowerCase().includes(q)) : SPU_DATA;
+  renderSpuList(filtered);
+}
+
+function selectSpuChat(id, name) {
+  document.getElementById('spuChatRow')?.remove();
+  selectProduct(name);
+}
+
+/* 新版：图片上传注入 chatArea */
+function buildUploadInChat() {
+  const isLead = state.industry === '线索行业';
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-row';
+  wrap.id = 'uploadChatRow';
+  wrap.innerHTML = `
+    <div style="max-width:600px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="font-size:13px;color:#6B7280;">${isLead ? '📷 上传商品素材图（可选）' : '📷 请上传商品素材图（必填）'}</div>
+        <button onclick="openMaterialOverlay('img','uploadGrid')" style="font-size:12px;color:#FF2442;background:none;border:none;cursor:pointer;font-family:inherit;padding:0;white-space:nowrap;">📦 从原料库选图</button>
+      </div>
+      <div class="upload-grid" id="uploadGridChat" style="margin-bottom:10px;"></div>
+      <input type="file" id="fileInputChat" accept="image/*" multiple style="display:none" onchange="handleFileUploadChat(this)" />
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <button id="confirmUploadChatBtn" class="confirm-btn" onclick="handleUploadDoneChat()" style="display:none;">✓ 确认上传，继续 →</button>
+        <span style="font-size:12px;color:#9CA3AF;">点击格子上传，最多9张</span>
+        ${isLead ? '<button class="skip-btn" onclick="skipImagesChat()">跳过 →</button>' : ''}
+      </div>
+    </div>
+  `;
+  document.getElementById('chatArea').appendChild(wrap);
+  scrollChat();
+  buildUploadGridChat();
+}
+
+function buildUploadGridChat() {
+  const grid = document.getElementById('uploadGridChat');
+  if (!grid) return;
+  grid.innerHTML = '';
+  for (let i = 0; i < 3; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'upload-cell';
+    cell.innerHTML = '<span class="upload-plus">+</span>';
+    cell.onclick = () => document.getElementById('fileInputChat').click();
+    grid.appendChild(cell);
+  }
+}
+
+function handleFileUploadChat(input) {
+  const files = Array.from(input.files);
+  if (!files.length) return;
+  const grid = document.getElementById('uploadGridChat');
+  if (!grid) return;
+  grid.innerHTML = '';
+  files.slice(0, 9).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      state.images.push(e.target.result);
+      const cell = document.createElement('div');
+      cell.className = 'upload-cell has-img';
+      cell.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`;
+      grid.appendChild(cell);
+      if (grid.children.length < 9) {
+        const addCell = document.createElement('div');
+        addCell.className = 'upload-cell';
+        addCell.innerHTML = '<span class="upload-plus">+</span>';
+        addCell.onclick = () => document.getElementById('fileInputChat').click();
+        grid.appendChild(addCell);
+      }
+      const btn = document.getElementById('confirmUploadChatBtn');
+      if (btn) btn.style.display = 'flex';
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function handleUploadDoneChat() {
+  document.getElementById('uploadChatRow')?.remove();
+  addUserBubble(`已上传 ${state.images.length} 张素材图`);
+  goToSellingPoints();
+}
+
+function skipImagesChat() {
+  document.getElementById('uploadChatRow')?.remove();
+  addUserBubble('跳过素材');
+  goToSellingPoints();
+}
+
+/* 新版：把卖点选择注入 chatArea（对话流内部） */
+function buildSellingChipsInChat() {
+  state.sellingPoints = [];
+  const points = SELLING_POINTS[state.industry] || [];
+
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-row';
+  wrap.id = 'sellingChatRow';
+  wrap.innerHTML = `
+    <div style="max-width:600px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div style="font-size:13px;color:#6B7280;">请选择核心卖点（可多选，最多5个）</div>
+        <button onclick="openMaterialOverlay('text','selling','selling')" style="font-size:11px;color:#FF2442;background:none;border:none;cursor:pointer;font-family:inherit;padding:0;">📦 从原料库选</button>
+      </div>
+      <div class="selling-chips" id="sellingChips" style="margin-bottom:10px;"></div>
+      <div id="customSellingRowChat" style="display:none;margin-bottom:10px;">
+        <div style="display:flex;gap:6px;">
+          <input id="customSellingInputChat" type="text" placeholder="输入自定义卖点..."
+            style="flex:1;padding:6px 10px;border:1.5px solid #FF2442;border-radius:20px;font-size:12.5px;color:#13131F;outline:none;font-family:inherit;background:#fff;" />
+          <button onclick="addCustomSellingChat()" style="padding:6px 12px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap;">确认</button>
+        </div>
+      </div>
+      <button class="confirm-btn" style="width:100%;" onclick="confirmSellingPoints()">已选好，继续 →</button>
+    </div>
+  `;
+  document.getElementById('chatArea').appendChild(wrap);
+  scrollChat();
+
+  // 填充 chips
+  const container = document.getElementById('sellingChips');
+  points.forEach(p => {
+    const chip = document.createElement('button');
+    chip.className = 'selling-chip';
+    chip.textContent = p;
+    chip.dataset.value = p;
+    chip.onclick = () => toggleSellingPoint(chip, p);
+    container.appendChild(chip);
+  });
+  // 自定义 chip
+  const customChip = document.createElement('button');
+  customChip.className = 'selling-chip manual';
+  customChip.textContent = '✏️ 自定义';
+  customChip.onclick = () => {
+    const row = document.getElementById('customSellingRowChat');
+    if (row.style.display === 'none') {
+      row.style.display = 'block';
+      document.getElementById('customSellingInputChat').focus();
+    } else {
+      row.style.display = 'none';
+    }
+  };
+  container.appendChild(customChip);
+
+  document.getElementById('customSellingInputChat')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') addCustomSellingChat();
+  });
+}
+
+function addCustomSellingChat() {
+  const input = document.getElementById('customSellingInputChat');
+  if (!input) return;
+  const val = input.value.trim();
+  if (!val) return;
+  if (state.sellingPoints.length >= 5) { showToast('最多选5个卖点', 'error'); return; }
+  const container = document.getElementById('sellingChips');
+  const customChip = container.querySelector('.selling-chip.manual');
+  const newChip = document.createElement('button');
+  newChip.className = 'selling-chip selected';
+  newChip.textContent = val;
+  newChip.dataset.value = val;
+  newChip.onclick = () => toggleSellingPoint(newChip, val);
+  container.insertBefore(newChip, customChip);
+  state.sellingPoints.push(val);
+  input.value = '';
+  document.getElementById('customSellingRowChat').style.display = 'none';
+}
+
+/* 新版：把文风选择注入 chatArea */
+function buildStyleInChat() {
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-row';
+  wrap.id = 'styleChatRow';
+  wrap.innerHTML = `
+    <div style="max-width:600px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+      <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">有什么文风偏好吗？（可跳过）</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
+        <button class="lead-history-chip" onclick="setStyleChipChat('活泼轻快')">活泼轻快</button>
+        <button class="lead-history-chip" onclick="setStyleChipChat('专业严谨')">专业严谨</button>
+        <button class="lead-history-chip" onclick="setStyleChipChat('种草感强')">种草感强</button>
+        <button class="lead-history-chip" onclick="setStyleChipChat('情感共鸣')">情感共鸣</button>
+        <button class="lead-history-chip" onclick="setStyleChipChat('干货分享')">干货分享</button>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <input type="text" id="styleInputChat" placeholder="或自由输入文风要求..."
+          style="flex:1;padding:8px 12px;border:1.5px solid #E5E7EB;border-radius:20px;font-size:13px;color:#13131F;outline:none;font-family:inherit;background:#F9FAFB;" />
+        <button onclick="confirmStyleChat()" style="padding:8px 16px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;white-space:nowrap;">确认</button>
+        <button onclick="skipStyleChat()" style="padding:8px 12px;background:none;border:1px solid #E5E7EB;border-radius:20px;font-size:13px;color:#6B7280;cursor:pointer;font-family:inherit;white-space:nowrap;">跳过</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('chatArea').appendChild(wrap);
+  scrollChat();
+  setTimeout(() => document.getElementById('styleInputChat')?.focus(), 100);
+}
+
+function setStyleChipChat(val) {
+  const input = document.getElementById('styleInputChat');
+  if (input) input.value = val;
+  // highlight chip
+  document.querySelectorAll('#styleChatRow .lead-history-chip').forEach(c => {
+    c.style.background = c.textContent === val ? '#FFF0F3' : '';
+    c.style.color = c.textContent === val ? '#FF2442' : '';
+    c.style.borderColor = c.textContent === val ? '#FF2442' : '';
+  });
+}
+
+function confirmStyleChat() {
+  const input = document.getElementById('styleInputChat');
+  const val = input ? input.value.trim() : '';
+  state.style = val || '种草感强';
+  addUserBubble(`文风：${state.style}`);
+  document.getElementById('styleChatRow')?.remove();
+  goToSummary();
+}
+
+function skipStyleChat() {
+  state.style = '种草感强';
+  addUserBubble('跳过文风');
+  document.getElementById('styleChatRow')?.remove();
+  goToSummary();
+}
+
+function buildSellingChips() {
+  const points = SELLING_POINTS[state.industry] || [];
+  const container = document.getElementById('sellingChips');
+  if (!container) return;
+  container.innerHTML = '';
+  state.sellingPoints = [];
+
+  points.forEach(p => {
+    const chip = document.createElement('button');
+    chip.className = 'selling-chip';
+    chip.textContent = p;
+    chip.dataset.value = p;
+    chip.onclick = () => toggleSellingPoint(chip, p);
+    container.appendChild(chip);
+  });
+
+  // Custom chip — inline input (no prompt dialog)
+  const customChip = document.createElement('button');
+  customChip.className = 'selling-chip manual';
+  customChip.textContent = '✏️ 自定义';
+  customChip.onclick = () => {
+    // Toggle inline input row
+    const existing = document.getElementById('customSellingRow');
+    if (existing) { existing.remove(); return; }
+    const row = document.createElement('div');
+    row.id = 'customSellingRow';
+    row.style.cssText = 'display:flex;gap:6px;align-items:center;margin-top:6px;width:100%;';
+    row.innerHTML = `
+      <input id="customSellingInput" type="text" placeholder="输入自定义卖点..."
+        style="flex:1;padding:6px 10px;border:1.5px solid #FF2442;border-radius:20px;font-size:12.5px;color:#13131F;outline:none;font-family:inherit;background:#fff;"
+      />
+      <button onclick="addCustomSelling()" style="padding:6px 12px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap;">确认</button>
+    `;
+    container.parentNode.insertBefore(row, container.nextSibling);
+    document.getElementById('customSellingInput').focus();
+    document.getElementById('customSellingInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') addCustomSelling();
+    });
+  };
+  container.appendChild(customChip);
+}
+
+function addCustomSelling() {
+  const input = document.getElementById('customSellingInput');
+  if (!input) return;
+  const val = input.value.trim();
+  if (!val) return;
+  if (state.sellingPoints.length >= 5) { showToast('最多选5个卖点', 'error'); return; }
+  const container = document.getElementById('sellingChips');
+  const customChip = container.querySelector('.selling-chip.manual');
+  const newChip = document.createElement('button');
+  newChip.className = 'selling-chip selected';
+  newChip.textContent = val;
+  newChip.dataset.value = val;
+  newChip.onclick = () => toggleSellingPoint(newChip, val);
+  container.insertBefore(newChip, customChip);
+  state.sellingPoints.push(val);
+  document.getElementById('customSellingRow')?.remove();
+}
+
+function toggleSellingPoint(chip, value) {
+  if (chip.classList.contains('selected')) {
+    chip.classList.remove('selected');
+    state.sellingPoints = state.sellingPoints.filter(p => p !== value);
+  } else {
+    if (state.sellingPoints.length >= 5) { showToast('最多选5个卖点', 'error'); return; }
+    chip.classList.add('selected');
+    state.sellingPoints.push(value);
+  }
+}
+
+function confirmSellingPoints() {
+  if (state.sellingPoints.length === 0) { showToast('请至少选择一个卖点', 'error'); return; }
+  state.phase = 5;
+  addUserBubble(`卖点：${state.sellingPoints.join('、')}`);
+  showInputPhase(-1);
+
+  setTimeout(() => {
+    addThinkingBubble();
+    setTimeout(() => {
+      removeThinking();
+      addAIBubble('卖点 ✓ 最后，有什么特别的文风要求或偏好吗？（可跳过）', () => {
+        showInputPhase(5); // 5 = buildStyleInChat
+      });
+    }, 500);
+  }, 100);
+}
+
+/* ══════════════════════════════════════════
+   PHASE 5: STYLE
+══════════════════════════════════════════ */
+function setStyleChip(val) {
+  const input = document.getElementById('styleInput');
+  if(input) input.value = val;
+}
+
+function confirmStyle() {
+  // Advance step bar: ② done → ③ active (创意规划)
+  ['step2Circle','step2Label'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el){el.classList.remove('active');el.classList.add('done');}
+  });
+  const sl23 = document.getElementById('stepLine23');
+  if(sl23) sl23.classList.add('done');
+  ['step3Circle','step3Label'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.classList.add('active');
+  });
+
+  const val = document.getElementById('styleInput').value.trim();
+  state.style = val || null;
+  state.phase = 6;
+  addUserBubble(val || '无特定文风要求');
+  goToSummary();
+}
+
+function skipStyle() {
+  state.style = null;
+  state.phase = 6;
+  addUserBubble('跳过文风');
+  goToSummary();
+}
+
+/* ══════════════════════════════════════════
+   PHASE 6: SUMMARY
+══════════════════════════════════════════ */
+function goToSummary() {
+  showInputPhase(-1);
+  setTimeout(() => {
+    addThinkingBubble();
+    setTimeout(() => {
+      removeThinking();
+      // Add AI bubble with summary card inside
+      const today = new Date();
+      const mm = String(today.getMonth()+1).padStart(2,'0');
+      const dd = String(today.getDate()).padStart(2,'0');
+      const taskName = `${state.skill.name}_${state.product.slice(0,4)}_${mm}${dd}`;
+
+      const summaryHTML = `
+        <div class="summary-card">
+          <div class="summary-title">📋 创意参数已就绪</div>
+          <div class="summary-divider"></div>
+          <div class="summary-row" id="summaryRow_product">
+            <span class="summary-label">商品</span>
+            <span class="summary-value" id="summaryVal_product">${state.product}</span>
+            <span class="summary-edit" onclick="editSummaryField('product')">修改</span>
+          </div>
+          <div class="summary-row" id="summaryRow_skill">
+            <span class="summary-label">套路</span>
+            <span class="summary-value" id="summaryVal_skill">${state.skill.icon} ${state.skill.name}</span>
+            <span class="summary-edit" onclick="editSummaryField('skill')">修改</span>
+          </div>
+          <div class="summary-row" id="summaryRow_selling">
+            <span class="summary-label">卖点</span>
+            <span class="summary-value" id="summaryVal_selling">${state.sellingPoints.join(' · ')}</span>
+            <span class="summary-edit" onclick="editSummaryField('selling')">修改</span>
+          </div>
+          <div class="summary-row" id="summaryRow_style">
+            <span class="summary-label">文风</span>
+            <span class="summary-value" id="summaryVal_style">${state.style || '（未填写）'}</span>
+            <span class="summary-edit" onclick="editSummaryField('style')">修改</span>
+          </div>
+          <div class="summary-divider"></div>
+          <div class="summary-taskname">📁 ${taskName}</div>
+          <button class="start-gen-btn" onclick="startGeneration()">✨ 开始生成</button>
+        </div>
+      `;
+      addAIBubbleHTML(summaryHTML);
+    }, 600);
+  }, 100);
+}
+
+/* ── 汇总卡「修改」：Lovart 风格 —— AI 追加新消息+输入组件 ── */
+function editSummaryField(field) {
+  const fieldLabels = { product:'商品', skill:'套路', selling:'卖点', style:'文风' };
+  const label = fieldLabels[field] || field;
+
+  // 未生成（phase < 7）：滚动到对应输入卡并高亮
+  if (state.phase < 7) {
+    const rowMap = {
+      product: state.industry === '电商行业' ? 'spuChatRow' : 'leadChatRow',
+      skill:   'chatSkillCards',
+      selling: 'sellingChatRow',
+      style:   'styleChatRow',
+    };
+    const targetId = rowMap[field];
+    const el = targetId ? document.getElementById(targetId) : null;
+    if (el) {
+      el.scrollIntoView({ behavior:'smooth', block:'center' });
+      el.style.transition = 'box-shadow 0.4s';
+      el.style.boxShadow = '0 0 0 2.5px #FF2442, 0 4px 20px rgba(255,36,66,0.15)';
+      setTimeout(() => { el.style.boxShadow = ''; }, 1800);
+    }
+    return;
+  }
+
+  // 已生成（phase >= 7）：AI 在对话底部追加新消息+输入组件
+  addAIBubble(`好的，你想修改「${label}」，请重新选择：`, () => {
+    const wrap = document.createElement('div');
+    wrap.className = 'msg-row';
+    wrap.id = `editFieldRow_${field}`;
+
+    if (field === 'product') {
+      const isEcom = state.industry === '电商行业';
+      if (isEcom) {
+        // 电商：重新显示 SPU 列表（精简版）
+        wrap.innerHTML = `
+          <div style="max-width:600px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+            <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">🛍️ 重新选择商品（SPU）</div>
+            <div style="display:flex;flex-direction:column;gap:1px;border:1px solid #E5E7EB;border-radius:8px;overflow:hidden;">
+              ${SPU_DATA.map(spu => `
+                <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff;cursor:pointer;border-bottom:1px solid #F3F4F6;"
+                  onclick="applyEditField('product','${spu.name}')">
+                  <div style="width:32px;height:32px;border-radius:6px;background:${spu.grad||'#eee'};flex-shrink:0;"></div>
+                  <div style="flex:1;font-size:13px;color:#13131F;">${spu.name}</div>
+                  <button style="padding:4px 12px;background:none;border:1.5px solid #FF2442;border-radius:16px;color:#FF2442;font-size:12px;cursor:pointer;font-family:inherit;">选择</button>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      } else {
+        // 线索：重新输入
+        wrap.innerHTML = `
+          <div style="max-width:500px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input id="editFieldInput_product" type="text" value="${state.product||''}"
+                style="flex:1;padding:8px 14px;border:1.5px solid #FF2442;border-radius:20px;font-size:13px;color:#13131F;outline:none;font-family:inherit;background:#fff;" />
+              <button onclick="applyEditField('product', document.getElementById('editFieldInput_product').value)"
+                style="padding:8px 16px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;">确认</button>
+            </div>
+          </div>
+        `;
+      }
+    } else if (field === 'skill') {
+      // 重新显示套路浮层
+      wrap.innerHTML = `
+        <div style="max-width:500px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+          <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">重新选择或查看套路：</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            ${(SKILLS[state.industry]||[]).slice(0,3).map((s) => {
+              const ico = s.icon||s.emoji||'📋';
+              return `<button onclick="applyEditField('skill','${s.name}','${ico}')"
+                style="padding:8px 14px;border:1.5px solid #E5E7EB;border-radius:10px;background:#F9FAFB;cursor:pointer;font-size:12px;color:#13131F;font-family:inherit;text-align:left;">
+                ${ico} ${s.name}<br><span style="color:#10B981;font-size:11px;">CTR ${s.ctr}</span>
+              </button>`;
+            }).join('')}
+            <button onclick="openSkillOverlay()"
+              style="padding:8px 14px;border:1.5px solid #E5E7EB;border-radius:10px;background:#F9FAFB;cursor:pointer;font-size:12px;color:#6B7280;font-family:inherit;">
+              🔍 更多套路
+            </button>
+          </div>
+        </div>
+      `;
+    } else if (field === 'selling') {
+      // 重新显示卖点 chips
+      const points = SELLING_POINTS[state.industry] || [];
+      wrap.innerHTML = `
+        <div style="max-width:580px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+          <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">重新选择卖点（当前：${state.sellingPoints.join('、')}）</div>
+          <div class="selling-chips" id="editSellingChips" style="margin-bottom:10px;"></div>
+          <button onclick="applyEditSelling()"
+            style="padding:8px 18px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;">确认卖点</button>
+        </div>
+      `;
+      document.getElementById('chatArea').appendChild(wrap);
+      scrollChat();
+      // 填充 chips
+      const container = document.getElementById('editSellingChips');
+      const tempSelected = [...state.sellingPoints];
+      points.forEach(p => {
+        const chip = document.createElement('button');
+        chip.className = 'selling-chip' + (tempSelected.includes(p) ? ' selected' : '');
+        chip.textContent = p;
+        chip.dataset.value = p;
+        chip.onclick = () => {
+          chip.classList.toggle('selected');
+        };
+        container.appendChild(chip);
+      });
+      return; // 已手动 appendChild
+    } else if (field === 'style') {
+      wrap.innerHTML = `
+        <div style="max-width:520px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
+            ${['活泼轻快','专业严谨','种草感强','情感共鸣','干货分享'].map(s => `
+              <button class="lead-history-chip" onclick="this.dataset.sel='1';Array.from(this.parentNode.children).forEach(b=>b.style.background='');this.style.background='#FFF0F3';this.style.color='#FF2442';this.style.borderColor='#FF2442';document.getElementById('editStyleInput').value='${s}'">${s}</button>
+            `).join('')}
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input id="editStyleInput" type="text" value="${state.style||''}" placeholder="或自由输入..."
+              style="flex:1;padding:8px 14px;border:1.5px solid #E5E7EB;border-radius:20px;font-size:13px;color:#13131F;outline:none;font-family:inherit;background:#F9FAFB;" />
+            <button onclick="applyEditField('style', document.getElementById('editStyleInput').value||'种草感强')"
+              style="padding:8px 16px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;">确认</button>
+          </div>
+        </div>
+      `;
+    }
+    document.getElementById('chatArea').appendChild(wrap);
+    scrollChat();
+  });
+}
+
+function applyEditSelling() {
+  const chips = document.querySelectorAll('#editSellingChips .selling-chip.selected');
+  const newPoints = Array.from(chips).map(c => c.dataset.value);
+  if (!newPoints.length) { showToast('请至少选一个卖点', 'error'); return; }
+  applyEditField('selling', newPoints.join(' · '), null, newPoints);
+}
+
+function applyEditField(field, value, extra, arrValue) {
+  // 移除修改输入行
+  document.getElementById(`editFieldRow_${field}`)?.remove();
+
+  // 更新 state
+  if (field === 'product') {
+    state.product = value;
+    document.getElementById('summaryVal_product').textContent = value;
+    addUserBubble(`商品改为：${value}`);
+  } else if (field === 'skill') {
+    state.skill = { name: value, icon: extra||'📋', emoji: extra||'📋' };
+    document.getElementById('summaryVal_skill').textContent = `${extra||'📋'} ${value}`;
+    addUserBubble(`套路改为：${extra||''} ${value}`);
+  } else if (field === 'selling') {
+    state.sellingPoints = arrValue || value.split(' · ');
+    document.getElementById('summaryVal_selling').textContent = state.sellingPoints.join(' · ');
+    addUserBubble(`卖点改为：${state.sellingPoints.join('、')}`);
+  } else if (field === 'style') {
+    state.style = value;
+    document.getElementById('summaryVal_style').textContent = value;
+    addUserBubble(`文风改为：${value}`);
+  }
+
+  // AI 确认
+  setTimeout(() => {
+    addAIBubble(`好的，「${field === 'product' ? '商品' : field === 'skill' ? '套路' : field === 'selling' ? '卖点' : '文风'}」已更新 ✓ 其他参数不变，点「开始生成」继续`);
+  }, 300);
+}
+
+/* ══════════════════════════════════════════
+   PHASE 7: GENERATING
+══════════════════════════════════════════ */
+function startGeneration() {
+  state.phase = 7;
+  showInputPhase(-1);
+
+  // Update steps: all → done, step4 active
+  ['step1Circle','step2Circle','step3Circle'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el){el.classList.remove('active');el.classList.add('done');}
+  });
+  ['step1Label','step2Label','step3Label'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el){el.classList.remove('active');el.classList.add('done');}
+  });
+  ['stepLine12','stepLine23','stepLine34'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.classList.add('done');
+  });
+  const s4c = document.getElementById('step4Circle');
+  const s4l = document.getElementById('step4Label');
+  if(s4c) s4c.classList.add('active');
+  if(s4l) s4l.classList.add('active');
+
+  addAIBubble('正在生成，请稍候... ⏳');
+  setTimeout(() => {
+    addPromptBubble(`帮我生成一条关于「${state.product}」的爆款笔记，核心卖点是「${state.sellingPoints.join('、')}」，套路：${state.skill.name}`);
+    setRightGenerating();
+  }, 400);
+
+  // After 3.5s show results
+  setTimeout(() => {
+    showResults();
+  }, 3500);
+}
+
+/* ══════════════════════════════════════════
+   PHASE 8: RESULTS
+══════════════════════════════════════════ */
+/* ── Mock note content per skill ── */
+const NOTE_MOCK = {
+  '课表对比型': [
+    { title: '这一张图让我决定报名雅思班！', body: '左边是我自己摸索的备考计划，右边是老师帮我制定的高效课表。差距一眼就出来了……报名第一周就感觉完全不一样！#雅思备考 #课程对比', tag: '课表对比', ctr: '3.8%' },
+    { title: '备考3个月 vs 系统学习3个月，差距在哪？', body: '自学：买了6本书，刷了200道题，分数没涨。跟课：精准攻克薄弱项，口语从5.5提到7.0。一张课表的差距，不是努力不努力的问题。#雅思 #学习方法', tag: '对比', ctr: '3.5%' },
+    { title: '为什么我报了三次班才报对这一家', body: '第一家：课表乱，跟不上进度。第二家：老师照本宣科。第三家：个性化课表+全程跟踪，终于出分了！来看看我的课表长什么样→ #雅思冲刺', tag: '真实经历', ctr: '3.2%' },
+    { title: '同样是备考6个月，为什么她先出分了？', body: '秘密就在课表上。高效学习不是时间堆叠，是结构化安排。我把她的课表分享给你，照着来一遍试试→ #雅思备考攻略 #学习规划', tag: '攻略', ctr: '2.9%' },
+  ],
+  '老师自述型': [
+    { title: '我教了8年雅思，最常见的误区是这个', body: '很多学生把大量时间花在背单词上，却忽略了语感训练。口语不是背出来的，是说出来的。我有一套方法，帮助300+学生突破口语瓶颈→ #雅思老师 #备考干货', tag: '干货', ctr: '3.2%' },
+    { title: '作为雅思老师，我不会推荐你这样备考', body: '刷题式备考 = 低效。我见过太多学生考了5次还是6分。正确方法：精准定位失分点+针对性强化。我的学生平均提分1.5分→ #雅思 #老师建议', tag: '避坑', ctr: '3.0%' },
+    { title: '我的学生从5.0到7.5只用了4个月', body: '她不是天才，她只是用对了方法。口语：每天15分钟跟读。写作：模板+实例反复拆解。今天把她的完整学习路径分享给你→ #雅思成功案例', tag: '案例', ctr: '2.8%' },
+    { title: '教了十年雅思，我总结出一套万能口语框架', body: '不管考什么话题，这套框架都适用：观点+理由+举例+升华。今天用「科技与生活」话题给你示范一遍→ #雅思口语 #备考技巧', tag: '方法', ctr: '2.6%' },
+  ],
+  '学员证言型': [
+    { title: '我用这个方法，口语从5.5考到7.0', body: '真的没想到三个月能提这么多！老师说我的问题是"说得快但没逻辑"，专项训练两个月后，考官说我"表达清晰有说服力"。分享我的完整备考记录→ #雅思口语 #真实经历', tag: '学员证言', ctr: '2.9%' },
+    { title: '三次雅思失败后，我终于找到了正确方法', body: '前两次自学，越考越心慌。第三次跟了系统课程，老师帮我找到核心问题：逻辑不清。针对性训练6周后，成绩从6.0到7.5。#雅思逆袭 #真实案例', tag: '逆袭', ctr: '2.7%' },
+    { title: '工作党备考雅思，我是怎么做到的', body: '每天只有2小时备考时间，工作1年后决定出国。老师帮我做了专属计划：通勤听力+午休口语+睡前写作。4个月出分，7.0！#上班族雅思 #时间管理', tag: '工作党', ctr: '2.5%' },
+    { title: '从放弃到7分，我想告诉你备考路上那些弯路', body: '曾经以为自己没有语言天赋，考了两次5.5后想放弃。直到遇到这个课程，老师说：你不是没天赋，你只是没有方向。现在想把这份信心传递给你→', tag: '励志', ctr: '2.3%' },
+  ],
+  '商品种草型': [
+    { title: '用了这件连衣裙我才明白什么叫显瘦神器', body: '藏青色V领的力量真的被低估了！上身秒显锁骨，腰线自然提高5cm，拍照不需要任何滤镜！身高162体重110斤穿的S码，已经回购第二件了→ #连衣裙 #秋季穿搭', tag: '种草', ctr: '4.1%' },
+    { title: '找了半年的秋季通勤裙，就是它了！', body: '要求：不挑场合、显瘦、好打理。找了无数条裙子，终于被这件藏青色V领击中！面料垂感好，不起皱，下班直接去约会没压力。#通勤穿搭 #秋装推荐', tag: '推荐', ctr: '3.8%' },
+    { title: '同事问了我三次这条裙子在哪买的', body: '那就分享给大家吧！藏青色+V领这个组合真的太经典了，上班穿显专业，约会穿显气质。价格也不贵，¥299入手不心疼→ #穿搭分享 #好物推荐', tag: '口碑', ctr: '3.5%' },
+    { title: '这条裙子救了我的秋季衣橱', body: '每年秋天都在纠结买什么裙子，今年果断选了这件藏青色V领。搭小白鞋休闲风，配尖头跟鞋职场风，一条裙子两种穿法→ #穿搭技巧 #秋冬必备', tag: '搭配', ctr: '3.2%' },
+  ],
+  '买家秀对比型': [
+    { title: '官方图vs买家秀，差距竟然是这样的！', body: '我以为官方图都是过度修图的，结果实物比图片更好看！V领比例刚刚好，藏青色比屏幕上显的更有质感。这次真的没踩雷！#买家秀 #真实测评', tag: '买家秀', ctr: '3.5%' },
+    { title: '买之前我也怀疑过，买了之后真香！', body: '看到官方图有点担心颜色会不会过深，实物拿到手：颜色正、质感好、剪裁合身。身高165穿M码，腰线正好，强烈推荐！#测评 #连衣裙推荐', tag: '真实', ctr: '3.2%' },
+    { title: '不信邪买了，现在后悔没多买一件', body: '朋友说网购裙子容易翻车，我还是买了。结果：面料比想象中好，颜色比屏幕更正，版型显瘦程度超预期。下次还买这家！#购物分享', tag: '真实体验', ctr: '3.0%' },
+    { title: '这条裙子的买家秀比官图还好看', body: '我拍了10张对比照，每张都赢了官图。不是在开玩笑——实物颜色更饱和，V领比例更好看，腰线更显细。分享给同样在纠结的你→ #买家秀对比', tag: '对比', ctr: '2.8%' },
+  ],
+  '爆款单品型': [
+    { title: '月销5000+的连衣裙到底好在哪？我来告诉你', body: '藏青色V领，经典配色。A字版型，遮肉显瘦。坠感面料，不起皱不变形。¥299的价格，穿出¥999的质感。这就是它爆款的理由→ #爆款单品 #秋季穿搭', tag: '爆款', ctr: '3.0%' },
+    { title: '这条裙子凭什么卖爆？穿了才知道', body: '数据说话：月销5000+，好评率98%，回购率超30%。我也是怀疑者，穿了才信——显瘦、显高、显气质，三个维度同时赢→ #穿搭 #爆款测评', tag: '数据', ctr: '2.8%' },
+    { title: '被种草3次终于下单，值吗？', body: '答案：超值。不光是质量好，更重要是版型太聪明了——A字遮胯，V领提气色，藏青色百搭不挑人。下单不纠结，穿上不后悔→ #种草变现', tag: '种草', ctr: '2.6%' },
+    { title: '秋季爆款连衣裙，¥299能买到什么程度', body: '坦白说：比我预期高出一个档次。面料有垂感，不是廉价化纤；颜色正，不是色差重灾区；剪裁精准，不是随意宽松。这价格，真的值→ #性价比 #好物分享', tag: '性价比', ctr: '2.4%' },
+  ],
+};
+
+function getNoteContent(skillName) {
+  const notes = NOTE_MOCK[skillName];
+  if (notes) return notes;
+  // fallback
+  return [1,2,3,4].map(i => ({
+    title: `${skillName} · 创意笔记 ${i}`,
+    body: `基于「${state.product}」生成的第${i}条创意内容，核心卖点：${state.sellingPoints.join('、')}。文风：${state.style || '自然'}。`,
+    tag: skillName,
+    ctr: (Math.random()*2+2).toFixed(1)+'%'
+  }));
+}
+
+/* ── 真实图像生成 ── */
+const ASTRA_API = 'https://astra.sit.xiaohongshu.com/api/aigc/image/generate/v2';
+
+function buildImagePrompt(note, index) {
+  const industry = state.industry || '线索行业';
+  const product = state.product || '';
+  const skill = state.skill ? state.skill.name : '';
+  const points = state.sellingPoints.join('、') || '';
+  const styleMap = {
+    '活泼轻快': '明亮活泼，色彩鲜艳，年轻化',
+    '专业严谨': '简洁专业，商务感，高级质感',
+    '种草感强': '生活化，真实感，带场景感',
+    '情感共鸣': '温暖治愈，情绪化，细腻',
+    '干货分享': '信息清晰，排版整洁，干净',
+  };
+  const styleHint = styleMap[state.style] || '小红书种草风格';
+
+  const prompts = [
+    `小红书笔记封面图，${product}，${skill}风格，${styleHint}，核心卖点${points}，高质量竖版图片，3:4比例，中文文字排版`,
+    `小红书爆款封面，展示${product}的效果对比，before after风格，${styleHint}，精美排版`,
+    `${industry.replace('行业','')}广告创意图，${product}产品展示，${styleHint}，小红书风格竖版`,
+    `${product}种草图，真实场景，用户视角，${styleHint}，小红书封面尺寸`,
+  ];
+  return prompts[index % prompts.length];
+}
+
+async function generateRealImages() {
+  const count = 4;
+  const promises = Array.from({length: count}, (_, i) => {
+    const hasUpload = state.images && state.images.length > 0;
+    const body = hasUpload ? {
+      mode: 'IMAGE_TO_IMAGE',
+      provider: 'seedream40',
+      prompt: buildImagePrompt(null, i),
+      sourceImageUrl: state.images[0],
+      count: 1,
+    } : {
+      mode: 'TEXT_TO_IMAGE',
+      provider: 'seedream40',
+      prompt: buildImagePrompt(null, i),
+      count: 1,
+    };
+    return fetch(ASTRA_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+    .then(r => r.json())
+    .then(d => d.success && d.imageUrls && d.imageUrls[0] ? d.imageUrls[0] : null)
+    .catch(() => null);
+  });
+  return Promise.all(promises);
+}
+
+function showResults() {
+  state.phase = 8;
+  const skillName = state.skill ? state.skill.name : '课表对比型';
+  const notes = getNoteContent(skillName);
+
+  // 先渲染带 loading 的骨架
+  const skeletonHtml = `
+    <div class="result-cards-wrap" id="resultCardsWrap">
+      <div class="result-cards-header">
+        <span class="result-count">🎉 生成完成 · 共 4 条笔记</span>
+        <div class="result-header-actions">
+          <button class="result-action-btn" onclick="downloadAll()">⬇ 全部下载</button>
+          <button class="result-action-btn primary" onclick="saveAll()">💾 全部保存到资产库</button>
+        </div>
+      </div>
+      <div class="result-cards-grid" id="realResultGrid">
+        ${[0,1,2,3].map(i => `
+          <div class="result-card" id="resultCard_${i}">
+            <div class="result-card-img">
+              <div class="result-img-mock" style="background:#F3F4F6;display:flex;align-items:center;justify-content:center;">
+                <span style="font-size:24px;animation:spin 1s linear infinite">⏳</span>
+              </div>
+            </div>
+            <div class="result-card-body">
+              <div class="result-card-title">${notes[i].title}</div>
+              <div class="result-card-text">${notes[i].body}</div>
+            </div>
+            <div class="result-card-actions">
+              <button class="result-card-btn" onclick="editNote(${i})">✏️ 编辑</button>
+              <button class="result-card-btn" onclick="downloadNote(${i})">⬇ 下载</button>
+              <button class="result-card-btn primary" onclick="saveNote(${i})">💾 保存</button>
+              <button class="result-card-btn push" onclick="pushNote(${i})">🚀 去投放</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="result-regen">
+        <button class="result-regen-btn" onclick="regenAll()">🔄 重新生成一批</button>
+        <button class="result-regen-btn" onclick="tweakAndRegen()">✨ 调整参数再生成</button>
+      </div>
+    </div>
+  `;
+
+  const skeletonRow = document.createElement('div');
+  skeletonRow.className = 'msg-row';
+  skeletonRow.innerHTML = skeletonHtml;
+  document.getElementById('chatArea').appendChild(skeletonRow);
+  scrollChat();
+
+  // 异步调真实图像 API
+  generateRealImages().then(imageUrls => {
+    imageUrls.forEach((url, i) => {
+      const card = document.getElementById('resultCard_' + i);
+      if (!card) return;
+      const imgWrap = card.querySelector('.result-img-mock');
+      if (!imgWrap) return;
+      if (url) {
+        imgWrap.innerHTML = '';
+        imgWrap.style.background = 'none';
+        imgWrap.style.padding = '0';
+        const img = document.createElement('img');
+        img.src = url;
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;';
+        img.onerror = () => {
+          imgWrap.style.background = ['linear-gradient(135deg,#667eea,#764ba2)','linear-gradient(135deg,#f093fb,#f5576c)','linear-gradient(135deg,#4facfe,#00f2fe)','linear-gradient(135deg,#43e97b,#38f9d7)'][i%4];
+          imgWrap.innerHTML = '<span class="result-img-tag">' + (notes[i]?.tag||'') + '</span>';
+        };
+        imgWrap.appendChild(img);
+      } else {
+        // fallback
+        imgWrap.style.background = ['linear-gradient(135deg,#667eea,#764ba2)','linear-gradient(135deg,#f093fb,#f5576c)','linear-gradient(135deg,#4facfe,#00f2fe)','linear-gradient(135deg,#43e97b,#38f9d7)'][i%4];
+        imgWrap.innerHTML = '<span class="result-img-tag">' + (notes[i]?.tag||'') + '</span>';
+      }
+    });
+  });
+  return; // 下面的旧代码不再执行
+
+  const resultHtml = `
+    <div class="result-cards-wrap" id="resultCardsWrap">
+      <div class="result-cards-header">
+        <span class="result-count">🎉 生成完成 · 共 ${notes.length} 条笔记</span>
+        <div class="result-header-actions">
+          <button class="result-action-btn" onclick="downloadAll()">⬇ 全部下载</button>
+          <button class="result-action-btn primary" onclick="saveAll()">💾 全部保存到资产库</button>
+        </div>
+      </div>
+      <div class="result-cards-grid">
+        ${notes.map((n, i) => `
+          <div class="result-card" id="resultCard_${i}">
+            <div class="result-card-img">
+              <div class="result-img-mock" style="background:${['linear-gradient(135deg,#667eea,#764ba2)','linear-gradient(135deg,#f093fb,#f5576c)','linear-gradient(135deg,#4facfe,#00f2fe)','linear-gradient(135deg,#43e97b,#38f9d7)'][i%4]}">
+                <span class="result-img-tag">${n.tag}</span>
+              </div>
+            </div>
+            <div class="result-card-body">
+              <div class="result-card-title">${n.title}</div>
+              <div class="result-card-text">${n.body}</div>
+            </div>
+            <div class="result-card-actions">
+              <button class="result-card-btn" onclick="editNote(${i})" title="微编辑">✏️ 编辑</button>
+              <button class="result-card-btn" onclick="downloadNote(${i})" title="下载">⬇ 下载</button>
+              <button class="result-card-btn primary" onclick="saveNote(${i})" title="保存">💾 保存</button>
+              <button class="result-card-btn push" onclick="pushNote(${i})" title="推送投放">🚀 去投放</button>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="result-regen">
+        <button class="result-regen-btn" onclick="regenAll()">🔄 重新生成一批</button>
+        <button class="result-regen-btn" onclick="tweakAndRegen()">✨ 调整参数再生成</button>
+      </div>
+    </div>
+  `;
+
+  const row = document.createElement('div');
+  row.className = 'msg-row';
+  row.innerHTML = resultHtml;
+  document.getElementById('chatArea').appendChild(row);
+  scrollChat();
+}
+
+function editNote(i) { openEditorModal(i); }
+function downloadNote(i) { showToast('已开始下载笔记 ' + (i+1), 'success'); }
+function saveNote(i) { showToast('已保存到资产库', 'success'); }
+function pushNote(i) { showToast('已加入投放队列，请在聚光/乘风中查看', 'success'); }
+function downloadAll() { showToast('正在打包下载全部4条笔记...', 'info'); }
+function saveAll() { showToast('全部4条已保存到资产库', 'success'); }
+function regenAll() { showToast('正在重新生成...', 'info'); setTimeout(() => showResults(), 2000); }
+function tweakAndRegen() {
+  // 滚到对话底部
+  const chatArea = document.getElementById('chatArea');
+  // AI 追加参数选择卡
+  addAIBubble('好的，你想调整哪个参数？选择后我会帮你重新生成 ✨', () => {
+    const wrap = document.createElement('div');
+    wrap.className = 'msg-row';
+    wrap.id = 'tweakParamRow';
+    const params = [
+      { field:'product', icon:'🛍️', label:'商品/产品', value: state.product || '未设置' },
+      { field:'skill',   icon:'📋', label:'创意套路', value: (state.skill && state.skill.name) || '未设置' },
+      { field:'selling', icon:'✅', label:'核心卖点', value: (state.sellingPoints && state.sellingPoints.length) ? state.sellingPoints.slice(0,2).join('、') + (state.sellingPoints.length > 2 ? '...' : '') : '未设置' },
+      { field:'style',   icon:'✍️', label:'文风偏好', value: state.style || '未设置' },
+    ];
+    wrap.innerHTML = `
+      <div style="max-width:600px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+        <div style="font-size:12px;color:#9CA3AF;margin-bottom:10px;">点击参数卡片可修改，修改完成后重新生成</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          ${params.map(p => `
+            <div onclick="editSummaryField('${p.field}')" style="display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid #E5E7EB;border-radius:10px;cursor:pointer;transition:all 0.15s;background:#F9FAFB;"
+              onmouseover="this.style.borderColor='#FF2442';this.style.background='#FFF9FA'"
+              onmouseout="this.style.borderColor='#E5E7EB';this.style.background='#F9FAFB'">
+              <span style="font-size:20px;">${p.icon}</span>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:11px;color:#9CA3AF;">${p.label}</div>
+                <div style="font-size:13px;color:#13131F;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.value}</div>
+              </div>
+              <span style="font-size:12px;color:#FF2442;flex-shrink:0;">修改 →</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+    chatArea.appendChild(wrap);
+    chatArea.scrollTop = chatArea.scrollHeight;
+  });
+}
+
+/* ══════════════════════════════════════════
+   RIGHT PANEL STATES
+══════════════════════════════════════════ */
+function setRightEmpty() { /* right panel is now a fixed sidebar */ }
+
+function setRightIndustryTag() { /* right panel is now a fixed sidebar */ }
+
+function setRightSkillCards() {
+  const skills = SKILLS[state.industry];
+  document.getElementById('rightTitle').innerHTML = `<span>🎯</span> <span>推荐创意套路</span>`;
+  document.getElementById('rightHeaderActions').innerHTML = '';
+
+  // Show a visual preview summary on the right (larger format)
+  const html = `
+    <div class="right-skill-cards" id="rightSkillCards">
+      ${skills.map((s, i) => {
+        const ba = buildBAHtml(s.name);
+        return `
+        <div class="right-skill-card" id="rightSkill_${i}" style="${i === 0 ? 'border-color:rgba(245,158,11,0.4);' : ''}">
+          <div class="right-skill-card-header">
+            <span class="right-skill-card-name">${s.icon} ${s.name}</span>
+            <span class="right-skill-ctr">CTR ${s.ctr} ${s.ctrUp ? '<span class="up">↑</span>' : ''}</span>
+          </div>
+          <div class="ba-container" style="margin:8px 0">
+            <div class="ba-box"><div class="ba-label">Before</div>${ba.beforeHtml}</div>
+            <div class="ba-arrow">→</div>
+            <div class="ba-box"><div class="ba-label">After</div>${ba.afterHtml}</div>
+          </div>
+          <div class="right-skill-desc">${s.desc}</div>
+          <div class="right-skill-tags">${s.tags.map(t => `<span class="right-skill-tag">${t}</span>`).join('')}</div>
+        </div>
+      `}).join('')}
+    </div>
+  `;
+  document.getElementById('rightContent').innerHTML = html;
+}
+
+function updateRightSkillHighlight(selectedIndex) {
+  const cards = document.querySelectorAll('.right-skill-card');
+  cards.forEach((c, i) => {
+    if (i === selectedIndex) c.classList.add('selected');
+    else c.classList.add('dimmed');
+  });
+}
+
+function setRightSkillSelected(index) {
+  /* right panel is now a fixed sidebar — no dynamic content */
+}
+
+function changeSkill() {
+  showToast('请在左侧对话中重新选择套路');
+}
+
+function setRightGenerating() { /* right panel is now a fixed sidebar */ }
+
+function setRightResults() { /* right panel is now a fixed sidebar */ }
+
+function saveCard(i) {
+  const btn = document.getElementById(`saveBtn_${i}`);
+  if (btn) {
+    btn.textContent = '✓ 已保存';
+    btn.classList.add('saved');
+    btn.onclick = null;
+  }
+  showToast('已保存到资产库');
+}
+
+function deliverCard(i) {
+  showToast('已推送到聚光账户');
+}
+
+function downloadCard(i) {
+  showToast('下载功能开发中');
+}
+
+function editCard(i) {
+  const rightTitle = document.getElementById('rightTitle');
+  rightTitle.innerHTML = `<span>✏️</span> <span>编辑工具</span>`;
+  document.getElementById('rightHeaderActions').innerHTML = `
+    <button class="regen-btn" onclick="setRightResults()">← 返回结果</button>
+  `;
+  document.getElementById('rightContent').innerHTML = `
+    <div class="edit-toolbar">
+      <button class="edit-tool-btn" onclick="showToast('AI消除功能开发中')">
+        <span class="edit-tool-icon">✨</span>
+        <div class="edit-tool-info">
+          <div class="edit-tool-name">AI 消除</div>
+          <div class="edit-tool-desc">智能识别并消除图片中的杂乱元素</div>
+        </div>
+      </button>
+      <button class="edit-tool-btn" onclick="showToast('文字重绘功能开发中')">
+        <span class="edit-tool-icon">🖊️</span>
+        <div class="edit-tool-info">
+          <div class="edit-tool-name">文字重绘</div>
+          <div class="edit-tool-desc">AI 重新生成标题或正文，一键替换</div>
+        </div>
+      </button>
+      <button class="edit-tool-btn" onclick="showToast('局部重绘功能开发中')">
+        <span class="edit-tool-icon">🎨</span>
+        <div class="edit-tool-info">
+          <div class="edit-tool-name">局部重绘</div>
+          <div class="edit-tool-desc">选择区域进行局部 AI 图像重绘</div>
+        </div>
+      </button>
+    </div>
+  `;
+}
+
+function regenContent() {
+  state.phase = 7;
+  showToast('正在重新生成...');
+  addAIBubble('好的，正在重新生成... ⏳');
+  setTimeout(() => {
+    addPromptBubble(`[重新生成] 关于「${state.product}」的爆款笔记，套路：${state.skill.name}`);
+    setRightGenerating();
+    setTimeout(() => { showResults(); }, 3500);
+  }, 500);
+}
+
+/* ══════════════════════════════════════════
+   ALSO: allow upload done by clicking a filled cell (to remove it)
+   and allow upload via the whole grid as a drop zone
+══════════════════════════════════════════ */
+document.addEventListener('click', (e) => {
+  const cell = e.target.closest('.upload-cell');
+  if (!cell) return;
+  // If already has image, remove it
+  if (cell.querySelector('img')) {
+    const grid = document.getElementById('uploadGrid');
+    const cells = grid.querySelectorAll('.upload-cell');
+    let cellIdx = -1;
+    cells.forEach((c, i) => { if (c === cell) cellIdx = i; });
+    cell.innerHTML = '+';
+    // Remove from uploadedImages by rebuilding
+    uploadedImages = [];
+    cells.forEach(c => {
+      if (c.querySelector('img')) uploadedImages.push(c.querySelector('img').src);
+    });
+  }
+});
+
+/* ═══ EDITOR MODAL JS ═══ */
+let currentEditIndex = 0;
+let emActiveTool = null;
+let emBrushing = false;
+
+function openEditorModal(i) {
+  currentEditIndex = i;
+  const modal = document.getElementById('editorModal');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  const skillName = state.skill ? state.skill.name : '课表对比型';
+  const notes = getNoteContent(skillName);
+  const note = notes[i] || notes[0];
+  document.getElementById('emTitleInput').value = note.title || '';
+  document.getElementById('emBodyInput').value = note.body || '';
+  document.getElementById('emTagInput').value = '#雅思备考 #课程对比';
+  updateEmPreview();
+  deactivateEmTool();
+  // set preview bg color to match card
+  const grads = ['linear-gradient(135deg,#667eea,#764ba2)','linear-gradient(135deg,#f093fb,#f5576c)','linear-gradient(135deg,#4facfe,#00f2fe)','linear-gradient(135deg,#43e97b,#38f9d7)'];
+  document.getElementById('emPreviewBg').style.background = grads[i % 4];
+}
+
+function closeEditorModal() {
+  document.getElementById('editorModal').style.display = 'none';
+  document.body.style.overflow = '';
+  deactivateEmTool();
+}
+
+function saveFromEditor() {
+  showToast('已保存到资产库', 'success');
+  closeEditorModal();
+}
+
+function switchEmTab(idx) {
+  [0,1].forEach(i => {
+    document.getElementById('emTab'+i).classList.toggle('active', i===idx);
+    document.getElementById('emPanel'+i).classList.toggle('hidden', i!==idx);
+  });
+}
+
+function updateEmPreview() {
+  const title = document.getElementById('emTitleInput')?.value || '';
+  const body = document.getElementById('emBodyInput')?.value || '';
+  const el1 = document.getElementById('emPreviewTitle');
+  const el2 = document.getElementById('emPreviewText');
+  const el3 = document.getElementById('emCharCount');
+  if(el1) el1.textContent = title;
+  if(el2) el2.textContent = body;
+  if(el3) el3.textContent = body.length + '字';
+}
+
+function selectEmThumb(idx) {
+  const grads = ['linear-gradient(135deg,#667eea,#764ba2)','linear-gradient(135deg,#f093fb,#f5576c)','linear-gradient(135deg,#4facfe,#00f2fe)'];
+  document.querySelectorAll('.em-thumb').forEach((t,i) => t.classList.toggle('active',i===idx));
+  const bg = document.getElementById('emPreviewBg');
+  if(bg) bg.style.background = grads[idx] || grads[0];
+}
+
+function selectEmVer(idx) {
+  [0,1,2].forEach(i => {
+    const el = document.getElementById('emVer'+i);
+    if(el) el.classList.toggle('active', i===idx);
+  });
+  const grads = ['linear-gradient(135deg,#667eea,#764ba2)','linear-gradient(135deg,#f093fb,#f5576c)','linear-gradient(135deg,#4facfe,#00f2fe)'];
+  const bg = document.getElementById('emPreviewBg');
+  if(bg) bg.style.background = grads[idx];
+  showToast('已切换到版本 '+(idx+1), 'info');
+}
+
+function activateEmTool(tool) {
+  if (emActiveTool === tool) { deactivateEmTool(); return; }
+  deactivateEmTool();
+  emActiveTool = tool;
+  const b1 = document.getElementById('emBtnErase');
+  const b2 = document.getElementById('emBtnInpaint');
+  const b3 = document.getElementById('emBtnText');
+  if(b1) b1.classList.toggle('active', tool==='erase');
+  if(b2) b2.classList.toggle('active', tool==='inpaint');
+  if(b3) b3.classList.toggle('active', tool==='text');
+  if (tool === 'erase') {
+    const ov = document.getElementById('emEraseOverlay');
+    if(ov) ov.classList.add('active');
+  } else if (tool === 'inpaint') {
+    const ov = document.getElementById('emInpaintOverlay');
+    if(ov) ov.classList.add('active');
+    // 在左侧面板插入 prompt 输入
+    const extArea = document.getElementById('emToolExtArea');
+    if (extArea && !document.getElementById('emInpaintSidePanel')) {
+      const sp = document.createElement('div');
+      sp.id = 'emInpaintSidePanel';
+      sp.innerHTML = `
+        <div style="font-size:12px;color:#6B7280;margin-bottom:6px;margin-top:4px;">描述涂抹区域想改成什么：</div>
+        <textarea id="emInpaintInput" rows="3" placeholder="如：换成白色背景、去掉水印、替换成蓝天..."
+          style="width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid #E5E7EB;border-radius:8px;font-size:12px;color:#13131F;resize:none;font-family:inherit;background:#F9FAFB;outline:none;"></textarea>
+        <button onclick="runInpaint()" style="width:100%;margin-top:6px;padding:8px;background:#FF2442;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;">✨ 开始重绘</button>
+      `;
+      extArea.appendChild(sp);
+    }
+  } else if (tool === 'text') {
+    startOcrFlow();
+  }
+}
+
+/* OCR + 文字重绘流程 */
+function startOcrFlow() {
+  // 模拟 OCR 识别图片上的文字
+  const mockOcrTexts = [
+    { id: 0, text: '备考3个月 vs 系统学习3个月，差距在哪？', type: '标题' },
+    { id: 1, text: '精准攻克薄弱项，口语从5.5提到7.0', type: '正文' },
+    { id: 2, text: '#雅思 #学习方法', type: '标签' },
+  ];
+
+  let ocrPanel = document.getElementById('emOcrPanel');
+  if (!ocrPanel) {
+    ocrPanel = document.createElement('div');
+    ocrPanel.id = 'emOcrPanel';
+    ocrPanel.style.cssText = 'margin-top:12px;';
+    document.getElementById('emToolExtArea')?.appendChild(ocrPanel);
+  }
+
+  // 第一步：识别中
+  ocrPanel.style.display = 'block';
+  ocrPanel.innerHTML = `
+    <div style="font-size:12px;color:#6B7280;margin-bottom:8px;">🔍 正在识别图片文字...</div>
+    <div style="height:4px;background:#F3F4F6;border-radius:2px;overflow:hidden;">
+      <div style="height:100%;width:0;background:#FF2442;border-radius:2px;transition:width 1.2s ease;" id="ocrProgress"></div>
+    </div>
+  `;
+  setTimeout(() => {
+    const bar = document.getElementById('ocrProgress');
+    if (bar) bar.style.width = '100%';
+  }, 50);
+
+  setTimeout(() => {
+    // 第二步：展示识别结果，让用户选择要修改的文字
+    ocrPanel.innerHTML = `
+      <div style="font-size:12px;color:#6B7280;margin-bottom:8px;">✓ 识别完成，选择要修改的文字：</div>
+      <div id="ocrTextList" style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">
+        ${mockOcrTexts.map(t => `
+          <div class="ocr-text-item" data-id="${t.id}" onclick="selectOcrText(${t.id})"
+            style="padding:7px 10px;border:1.5px solid #E5E7EB;border-radius:8px;cursor:pointer;background:#F9FAFB;transition:all 0.15s;">
+            <div style="font-size:10px;color:#9CA3AF;margin-bottom:2px;">${t.type}</div>
+            <div style="font-size:12px;color:#13131F;line-height:1.4;">${t.text}</div>
+          </div>
+        `).join('')}
+      </div>
+      <div id="ocrEditArea" style="display:none;">
+        <div style="font-size:12px;color:#6B7280;margin-bottom:4px;">改成：</div>
+        <textarea id="ocrNewText" rows="2"
+          style="width:100%;box-sizing:border-box;padding:8px 10px;border:1.5px solid #FF2442;border-radius:8px;font-size:12px;color:#13131F;resize:none;font-family:inherit;background:#FFF;outline:none;"></textarea>
+        <button onclick="applyOcrEdit()" style="width:100%;margin-top:6px;padding:8px;background:#FF2442;color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;">✨ 应用修改</button>
+      </div>
+    `;
+  }, 1300);
+}
+
+window._selectedOcrId = null;
+function selectOcrText(id) {
+  window._selectedOcrId = id;
+  document.querySelectorAll('.ocr-text-item').forEach(el => {
+    if (parseInt(el.dataset.id) === id) {
+      el.style.borderColor = '#FF2442';
+      el.style.background = '#FFF0F3';
+    } else {
+      el.style.borderColor = '#E5E7EB';
+      el.style.background = '#F9FAFB';
+    }
+  });
+  const editArea = document.getElementById('ocrEditArea');
+  if (editArea) editArea.style.display = 'block';
+  const textarea = document.getElementById('ocrNewText');
+  if (textarea) {
+    const mockTexts = ['备考3个月 vs 系统学习3个月，差距在哪？','精准攻克薄弱项，口语从5.5提到7.0','#雅思 #学习方法'];
+    textarea.value = mockTexts[id] || '';
+    textarea.focus();
+    textarea.select();
+  }
+}
+
+function applyOcrEdit() {
+  const newText = document.getElementById('ocrNewText')?.value?.trim();
+  if (!newText) return;
+  showToast('文字重绘中...', 'info');
+  setTimeout(() => {
+    showToast('✓ 文字已更新', 'success');
+    // 更新预览区文字（简化模拟）
+    const preview = document.getElementById('emPreviewTitle');
+    if (preview && window._selectedOcrId === 0) preview.textContent = newText;
+    const previewText = document.getElementById('emPreviewText');
+    if (previewText && window._selectedOcrId === 1) previewText.textContent = newText;
+    document.getElementById('emOcrPanel').style.display = 'none';
+    deactivateEmTool();
+  }, 1500);
+}
+
+function deactivateEmTool() {
+  emActiveTool = null;
+  const eo = document.getElementById('emEraseOverlay');
+  const io = document.getElementById('emInpaintOverlay');
+  if(eo) eo.classList.remove('active');
+  if(io) io.classList.remove('active');
+  ['emBtnErase','emBtnInpaint','emBtnText'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.classList.remove('active');
+  });
+  document.querySelectorAll('.em-brush-stroke').forEach(el => el.remove());
+  const dot = document.getElementById('emEraseDot');
+  if(dot) dot.style.display = 'none';
+}
+
+function handleEmImgClick(e) {
+  if (emActiveTool !== 'erase') return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  const dot = document.getElementById('emEraseDot');
+  if(!dot) return;
+  dot.style.left = x+'px';
+  dot.style.top = y+'px';
+  dot.style.display = 'flex';
+  dot.textContent = '⏳';
+  setTimeout(() => {
+    dot.style.display = 'none';
+    showToast('AI消除成功 ✓', 'success');
+  }, 1500);
+}
+
+function startBrush(e) { if (emActiveTool !== 'inpaint') return; emBrushing = true; paintBrush(e); }
+function moveBrush(e) { if (!emBrushing || emActiveTool !== 'inpaint') return; paintBrush(e); }
+function stopBrush() { emBrushing = false; }
+function paintBrush(e) {
+  const canvas = document.getElementById('emInpaintCanvas');
+  if(!canvas) return;
+  const rect = canvas.getBoundingClientRect();
+  const dot = document.createElement('div');
+  dot.className = 'em-brush-stroke';
+  dot.style.cssText = 'left:'+(e.clientX-rect.left)+'px;top:'+(e.clientY-rect.top)+'px;width:28px;height:28px;position:absolute;';
+  canvas.style.position = 'relative';
+  canvas.appendChild(dot);
+}
+function runInpaint() {
+  const desc = (document.getElementById('emInpaintInput') || document.getElementById('emInpaintDesc'))?.value?.trim();
+  if (!desc) { showToast('请先描述要改成什么', 'error'); return; }
+  showToast('正在局部重绘...', 'info');
+  setTimeout(() => {
+    document.querySelectorAll('.em-brush-stroke').forEach(el => el.remove());
+    deactivateEmTool();
+    showToast('局部重绘完成 ✓', 'success');
+  }, 1800);
+}
+
+</script>
+
+<!-- ═══ EDITOR MODAL ═══ -->
+<div id="editorModal">
+  <div class="em-navbar">
+    <button class="em-back" onclick="closeEditorModal()">← 返回笔记生成页</button>
+    <span class="em-title">✏️ 微编辑工作台</span>
+    <div class="em-nav-actions">
+      <button class="em-btn-cancel" onclick="closeEditorModal()">取消</button>
+      <button class="em-btn-save" onclick="saveFromEditor()">保存</button>
+    </div>
+  </div>
+  <div class="em-body">
+    <!-- LEFT -->
+    <div class="em-left">
+      <div class="em-tabs">
+        <button class="em-tab active" id="emTab0" onclick="switchEmTab(0)">图片调整</button>
+        <button class="em-tab" id="emTab1" onclick="switchEmTab(1)">正文调整</button>
+      </div>
+      <div class="em-tab-panel" id="emPanel0">
+        <div class="em-section-title">展示图片</div>
+        <div class="em-thumb-row" id="emThumbRow">
+          <div class="em-thumb active" id="emThumb0" onclick="selectEmThumb(0)" style="background:linear-gradient(135deg,#667eea,#764ba2)"></div>
+          <div class="em-thumb" id="emThumb1" onclick="selectEmThumb(1)" style="background:linear-gradient(135deg,#f093fb,#f5576c)"></div>
+          <div class="em-thumb" id="emThumb2" onclick="selectEmThumb(2)" style="background:linear-gradient(135deg,#4facfe,#00f2fe)"></div>
+          <div class="em-thumb-add" onclick="showToast('添加图片', 'info')">+</div>
+        </div>
+        <div class="em-section-title">快捷操作</div>
+        <button class="em-op-btn" id="emBtnErase" onclick="activateEmTool('erase')">🪄 AI消除</button>
+        <button class="em-op-btn" id="emBtnInpaint" onclick="activateEmTool('inpaint')">🖌 局部重绘</button>
+        <button class="em-op-btn" id="emBtnText" onclick="activateEmTool('text')">✍️ 文字重组</button>
+        <div id="emToolExtArea" style="margin-top:8px;"></div>
+      </div>
+      <div class="em-tab-panel hidden" id="emPanel1">
+        <div class="em-field-label">笔记标题</div>
+        <textarea class="em-textarea" id="emTitleInput" rows="2" oninput="updateEmPreview()"></textarea>
+        <div class="em-field-label">正文内容</div>
+        <textarea class="em-textarea" id="emBodyInput" rows="7" oninput="updateEmPreview()"></textarea>
+        <div class="em-char-count" id="emCharCount">0字</div>
+        <div class="em-field-label">话题标签</div>
+        <textarea class="em-textarea" id="emTagInput" rows="2" oninput="updateEmPreview()"></textarea>
+      </div>
+    </div>
+
+    <!-- CENTER PREVIEW -->
+    <div class="em-center">
+      <div class="em-phone-frame">
+        <div class="em-phone-header">
+          <div class="em-avatar"></div>
+          <span class="em-account-name" id="emAccountName">雅思研究院</span>
+          <button class="em-follow-btn">关注</button>
+        </div>
+        <div class="em-preview-img" id="emPreviewImg" onclick="handleEmImgClick(event)">
+          <div class="em-preview-img-bg" id="emPreviewBg" style="background:linear-gradient(135deg,#667eea,#764ba2);width:100%;height:100%;"></div>
+          <!-- AI消除 overlay -->
+          <div class="em-erase-overlay" id="emEraseOverlay">
+            <span>🪄 点击要消除的区域</span>
+            <span style="font-size:11px;opacity:0.7">AI将自动填充背景</span>
+          </div>
+          <div class="em-erase-dot" id="emEraseDot"></div>
+          <!-- 局部重绘 overlay -->
+          <div class="em-inpaint-overlay" id="emInpaintOverlay">
+            <div class="em-inpaint-canvas" id="emInpaintCanvas" onmousedown="startBrush(event)" onmousemove="moveBrush(event)" onmouseup="stopBrush()"></div>
+            <div class="em-inpaint-bar" style="display:none;">
+              <input class="em-inpaint-input" id="emInpaintDesc" placeholder="描述想改成什么，如：换成白色背景..."/>
+              <button class="em-inpaint-gen-btn" onclick="runInpaint()">生成</button>
+            </div>
+          </div>
+        </div>
+        <div class="em-preview-body">
+          <div class="em-preview-title" id="emPreviewTitle">笔记标题</div>
+          <div class="em-preview-text" id="emPreviewText">正文内容预览</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT HISTORY -->
+    <div class="em-right">
+      <div class="em-history-title">历史版本</div>
+      <div class="em-ver-card active" id="emVer0" onclick="selectEmVer(0)">
+        <div class="em-ver-thumb" style="background:linear-gradient(135deg,#667eea,#764ba2)"></div>
+        <div class="em-ver-label">当前版本</div>
+        <div class="em-ver-time">刚刚</div>
+      </div>
+      <div class="em-ver-card" id="emVer1" onclick="selectEmVer(1)">
+        <div class="em-ver-thumb" style="background:linear-gradient(135deg,#f093fb,#f5576c)"></div>
+        <div class="em-ver-label">版本 2</div>
+        <div class="em-ver-time">2分钟前</div>
+      </div>
+      <div class="em-ver-card" id="emVer2" onclick="selectEmVer(2)">
+        <div class="em-ver-thumb" style="background:linear-gradient(135deg,#4facfe,#00f2fe)"></div>
+        <div class="em-ver-label">版本 3</div>
+        <div class="em-ver-time">5分钟前</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 原料库浮层 -->
+<div id="materialOverlay" onclick="closeMaterialOverlay(event)">
+  <div class="material-panel">
+    <div class="overlay-header">
+      <span class="overlay-title">📦 原料库</span>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div id="matTabBtns" style="display:flex;gap:4px;">
+          <button class="history-tab active" id="matTabImg" onclick="switchMatTab('img')">🖼️ 图片</button>
+          <button class="history-tab" id="matTabText" onclick="switchMatTab('text')">📝 文字</button>
+        </div>
+        <button id="matUploadBtn" onclick="document.getElementById('materialFileInput').click()" style="padding:7px 16px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;">+ 上传图片</button>
+        <button class="overlay-close" onclick="closeMaterialOverlay(null,true)">✕</button>
+      </div>
+    </div>
+    <div class="overlay-body">
+      <div style="font-size:12px;color:#9CA3AF;margin-bottom:14px;" id="matTabHint">已上传的图片会自动保存，下次生成可直接复用</div>
+      <div class="material-grid-full" id="materialGridFull"></div>
+      <div id="materialTextList" style="display:none;flex-direction:column;gap:8px;"></div>
+    </div>
+    <div id="matFooter" style="padding:14px 24px;border-top:1px solid #F3F4F6;display:none;justify-content:space-between;align-items:center;">
+      <span style="font-size:12px;color:#6B7280;" id="materialSelectCount">已选择 0 张</span>
+      <div style="display:flex;gap:8px;">
+        <button onclick="closeMaterialOverlay(null,true)" style="padding:8px 20px;border:1px solid #E5E7EB;border-radius:20px;background:none;font-size:13px;color:#6B7280;cursor:pointer;font-family:inherit;">取消</button>
+        <button onclick="confirmMaterialSelect()" id="matConfirmBtn" style="padding:8px 20px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;">确认选择</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 历史任务浮层 -->
+<div id="historyOverlay" onclick="closeHistoryOverlay(event)">
+  <div class="history-panel">
+    <div class="overlay-header">
+      <span class="overlay-title">🕐 历史生成记录</span>
+      <button class="overlay-close" onclick="closeHistoryOverlay(null,true)">✕</button>
+    </div>
+    <div class="overlay-body">
+      <div class="history-tabs">
+        <button class="history-tab active" id="histTabRecent" onclick="switchHistTab('recent')">近期任务</button>
+        <button class="history-tab" id="histTabAll" onclick="switchHistTab('all')">全部任务</button>
+      </div>
+      <div id="historyTaskList"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 套路浮层 -->
+<div id="skillOverlay" onclick="closeSkillOverlay(event)">
+  <div class="skill-overlay-panel">
+    <div class="skill-overlay-header">
+      <span class="skill-overlay-title">🧠 全部创意套路</span>
+      <button class="skill-overlay-close" onclick="closeSkillOverlay(null, true)">✕</button>
+    </div>
+    <div class="skill-overlay-body">
+      <div class="skill-overlay-grid" id="skillOverlayGrid"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══ 原料库 ══ */
+const TEXT_STORE = [
+  { id:'t1', cat:'brand',   tag:'品牌信息', content:'雅思研究院——深耕雅思教学12年，累计服务学员超10万人，口语平均提分1.5分', date:'03/25' },
+  { id:'t2', cat:'selling', tag:'核心卖点', content:'一对一定制学习计划，精准攻克薄弱项，口语从5.5提升到7.0只需3个月', date:'03/24' },
+  { id:'t3', cat:'selling', tag:'核心卖点', content:'大班精讲+小班陪练+1v1答疑三合一，全程老师跟进，备考不迷路', date:'03/23' },
+  { id:'t4', cat:'product', tag:'商品名称', content:'雅思口语冲刺班', date:'03/20' },
+  { id:'t5', cat:'product', tag:'商品名称', content:'公务员笔试特训营', date:'03/18' },
+  { id:'t6', cat:'product', tag:'商品名称', content:'MBA备考系列课', date:'03/15' },
+  { id:'t7', cat:'style',   tag:'文风偏好', content:'轻松活泼，贴近年轻人语气，多用emoji和口语化表达', date:'03/24' },
+  { id:'t8', cat:'style',   tag:'文风偏好', content:'专业权威，数据支撑，体现师资实力和成果', date:'03/22' },
+  { id:'t9', cat:'brand',   tag:'品牌信息', content:'师资团队：30+外籍教师+100+国内名师，持证上岗率100%', date:'03/15' },
+];
+// 文字分类配置
+const TEXT_CATS = [
+  { key:'all',     label:'全部' },
+  { key:'product', label:'商品名称' },
+  { key:'selling', label:'核心卖点' },
+  { key:'style',   label:'文风偏好' },
+  { key:'brand',   label:'品牌信息' },
+];
+let _matTextCat = 'all'; // 当前激活的文字分类
+
+const MATERIAL_STORE = [
+  { id:1, emoji:'👗', grad:'linear-gradient(135deg,#667eea,#764ba2)', name:'连衣裙主图.jpg', date:'03/25' },
+  { id:2, emoji:'📸', grad:'linear-gradient(135deg,#f093fb,#f5576c)', name:'买家秀对比图.jpg', date:'03/24' },
+  { id:3, emoji:'🎓', grad:'linear-gradient(135deg,#4facfe,#00f2fe)', name:'课程封面.jpg', date:'03/23' },
+  { id:4, emoji:'🌸', grad:'linear-gradient(135deg,#43e97b,#38f9d7)', name:'品牌logo.png', date:'03/20' },
+  { id:5, emoji:'✨', grad:'linear-gradient(135deg,#fa8231,#f7b731)', name:'产品细节图.jpg', date:'03/18' },
+  { id:6, emoji:'🏆', grad:'linear-gradient(135deg,#6c5ce7,#a29bfe)', name:'效果展示.jpg', date:'03/15' },
+];
+let selectedMaterials = new Set();
+
+let _matTargetField = null;
+let _matInitTab = 'img';
+let _currentMatTab = 'img';
+let selectedTextId = null;
+let _matMode = 'manage'; // 'manage' | 'select'
+
+function openMaterialOverlay(initTab, targetField, textCat) {
+  _matMode = targetField ? 'select' : 'manage';
+  _matInitTab = initTab || 'img';
+  _matTargetField = targetField || null;
+  _matTextCat = textCat || 'all';
+  const overlay = document.getElementById('materialOverlay');
+  const grid = document.getElementById('materialGridFull');
+  if (!overlay || !grid) return;
+  selectedMaterials.clear();
+  selectedTextId = null;
+  grid.innerHTML = MATERIAL_STORE.map(m => `
+    <div class="material-cell" id="mat_${m.id}" onclick="_matMode==='manage'?null:toggleMaterial(${m.id})" style="${_matMode==='manage'?'cursor:default':''}">
+      <div style="width:100%;height:100%;background:${m.grad};display:flex;align-items:center;justify-content:center;font-size:28px;">${m.emoji}</div>
+      <div class="material-check">✓</div>
+      ${_matMode==='manage' ? `<div onclick="event.stopPropagation();deleteMaterial(${m.id})" style="position:absolute;top:5px;right:5px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:11px;color:#fff;">✕</div>` : ''}
+      <div style="position:absolute;bottom:0;left:0;right:0;padding:6px;background:linear-gradient(to top,rgba(0,0,0,0.5),transparent);">
+        <div style="font-size:10px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.name}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.7);">${m.date}</div>
+      </div>
+    </div>
+  `).join('') + `
+    <div class="material-upload-cell" onclick="document.getElementById('materialFileInput').click()">
+      <span style="font-size:24px;color:#D1D5DB;">📁</span>
+      <span style="font-size:11px;color:#9CA3AF;margin-top:4px;">上传图片</span>
+    </div>
+  `;
+  switchMatTab(_matInitTab);
+  // 管理模式隐藏底部选择区，选择模式显示
+  const footer = document.getElementById('matFooter');
+  if (footer) footer.style.display = _matMode === 'select' ? '' : 'none';
+  // hint 由 switchMatTab 处理
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function switchMatTab(tab) {
+  _currentMatTab = tab;
+  document.getElementById('matTabImg')?.classList.toggle('active', tab === 'img');
+  document.getElementById('matTabText')?.classList.toggle('active', tab === 'text');
+
+  const grid = document.getElementById('materialGridFull');
+  const textList = document.getElementById('materialTextList');
+  const hint = document.getElementById('matTabHint');
+  const uploadBtn = document.getElementById('matUploadBtn');
+
+  // footer 由 mode 控制，tab 切换时保持
+  const footer = document.getElementById('matFooter');
+  if (footer) footer.style.display = _matMode === 'select' ? 'flex' : 'none';
+
+  if (tab === 'img') {
+    if (grid) grid.style.display = 'grid';
+    if (textList) textList.style.display = 'none';
+    if (hint) hint.textContent = _matMode === 'manage' ? '管理你的原料库：上传新素材或删除不需要的内容' : '已上传的图片会自动保存，下次生成可直接复用';
+    if (uploadBtn) uploadBtn.style.display = '';
+    if (_matMode === 'select') updateMaterialCount();
+  } else {
+    if (grid) grid.style.display = 'none';
+    if (textList) {
+      textList.style.display = 'flex';
+      renderTextList();
+    }
+    if (hint) hint.textContent = '保存的文字素材可直接填充到输入框';
+    if (uploadBtn) uploadBtn.style.display = 'none';
+    const countEl = document.getElementById('materialSelectCount');
+    if (countEl) countEl.textContent = '点击选择文字素材';
+  }
+}
+
+function renderTextList() {
+  const textList = document.getElementById('materialTextList');
+  if (!textList) return;
+
+  // 分类 Tab 栏（用 DOM 操作避免 HTML 属性字符串嵌套问题）
+  const catBar = document.createElement('div');
+  catBar.style.cssText = 'display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;';
+  TEXT_CATS.forEach(c => {
+    const btn = document.createElement('button');
+    btn.textContent = c.label;
+    const active = _matTextCat === c.key;
+    btn.style.cssText = 'padding:5px 14px;border-radius:20px;font-size:12px;cursor:pointer;font-family:inherit;transition:all 0.15s;' +
+      'border:1.5px solid ' + (active ? '#FF2442' : '#E5E7EB') + ';' +
+      'background:' + (active ? '#FFF0F3' : '#F9FAFB') + ';' +
+      'color:' + (active ? '#FF2442' : '#6B7280') + ';';
+    btn.onclick = () => switchTextCat(c.key);
+    catBar.appendChild(btn);
+  });
+
+  // 过滤数据
+  const items = _matTextCat === 'all' ? TEXT_STORE : TEXT_STORE.filter(t => t.cat === _matTextCat);
+
+  // 卡片列表
+  const cardList = document.createElement('div');
+  cardList.style.cssText = 'display:flex;flex-direction:column;gap:8px;';
+  if (!items.length) {
+    cardList.innerHTML = '<div style="font-size:13px;color:#9CA3AF;text-align:center;padding:24px 0;">暂无素材</div>';
+  } else {
+    items.forEach(t => {
+      const card = document.createElement('div');
+      card.id = 'tmat_' + t.id;
+      const isSelected = selectedTextId === t.id;
+      card.style.cssText = 'padding:12px 14px;border:1.5px solid ' + (isSelected ? '#FF2442' : '#E5E7EB') + ';' +
+        'border-radius:10px;cursor:' + (_matMode === 'select' ? 'pointer' : 'default') + ';' +
+        'transition:all 0.15s;background:' + (isSelected ? '#FFF0F3' : '#F9FAFB') + ';position:relative;';
+      if (_matMode === 'select') card.onclick = () => toggleTextMaterial(t.id);
+
+      const header = document.createElement('div');
+      header.style.cssText = 'display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;';
+      const tagEl = document.createElement('span');
+      tagEl.textContent = t.tag;
+      tagEl.style.cssText = 'font-size:11px;background:#F3F4F6;color:#6B7280;padding:2px 8px;border-radius:10px;';
+      const right = document.createElement('div');
+      right.style.cssText = 'display:flex;align-items:center;gap:8px;';
+      const dateEl = document.createElement('span');
+      dateEl.textContent = t.date;
+      dateEl.style.cssText = 'font-size:11px;color:#9CA3AF;';
+      right.appendChild(dateEl);
+      if (_matMode === 'manage') {
+        const del = document.createElement('button');
+        del.textContent = '删除';
+        del.style.cssText = 'padding:2px 8px;border:1px solid #FECACA;border-radius:10px;background:#FFF5F5;color:#EF4444;font-size:11px;cursor:pointer;font-family:inherit;';
+        del.onclick = (e) => { e.stopPropagation(); deleteTextMaterial(t.id); };
+        right.appendChild(del);
+      }
+      header.appendChild(tagEl);
+      header.appendChild(right);
+      const content = document.createElement('div');
+      content.textContent = t.content;
+      content.style.cssText = 'font-size:13px;color:#13131F;line-height:1.6;';
+      card.appendChild(header);
+      card.appendChild(content);
+      cardList.appendChild(card);
+    });
+  }
+
+  textList.innerHTML = '';
+  textList.appendChild(catBar);
+  textList.appendChild(cardList);
+}
+
+function switchTextCat(cat) {
+  _matTextCat = cat;
+  renderTextList();
+}
+
+function toggleTextMaterial(id) {
+  selectedTextId = selectedTextId === id ? null : id;
+  TEXT_STORE.forEach(t => {
+    const el = document.getElementById('tmat_' + t.id);
+    if (!el) return;
+    const selected = t.id === selectedTextId;
+    el.style.borderColor = selected ? '#FF2442' : '#E5E7EB';
+    el.style.background = selected ? '#FFF0F3' : '#F9FAFB';
+  });
+  const countEl = document.getElementById('materialSelectCount');
+  if (countEl) countEl.textContent = selectedTextId ? '已选择 1 条文字素材' : '点击选择文字素材';
+}
+
+function toggleMaterial(id) {
+  const el = document.getElementById('mat_' + id);
+  if (!el) return;
+  if (selectedMaterials.has(id)) { selectedMaterials.delete(id); el.classList.remove('selected'); }
+  else { selectedMaterials.add(id); el.classList.add('selected'); }
+  updateMaterialCount();
+}
+
+function updateMaterialCount() {
+  const el = document.getElementById('materialSelectCount');
+  if (el) el.textContent = '已选择 ' + selectedMaterials.size + ' 张';
+}
+
+function confirmMaterialSelect() {
+  if (_currentMatTab === 'text') {
+    if (!selectedTextId) { showToast('请先选择文字素材', 'error'); return; }
+    const item = TEXT_STORE.find(t => t.id === selectedTextId);
+    if (item && _matTargetField) {
+      if (_matTargetField === 'selling') {
+        // 填到卖点输入框（如果 custom 输入框存在就填进去，否则 toast）
+        const inp = document.getElementById('customSellingInputChat');
+        if (inp) {
+          inp.value = item.content.slice(0, 30); // 截取前30字
+          const row = document.getElementById('customSellingRowChat');
+          if (row) row.style.display = 'block';
+          inp.focus();
+        } else {
+          showToast('已选：' + item.content.slice(0,20) + '...', 'success');
+        }
+      } else {
+        // 填到输入框（leadInputChat 或其他 id）
+        const inp = document.getElementById(_matTargetField);
+        if (inp) { inp.value = item.content; inp.focus(); }
+      }
+      showToast('已填充文字素材', 'success');
+    }
+    closeMaterialOverlay(null, true);
+    return;
+  }
+  if (!selectedMaterials.size) { showToast('请先选择图片', 'error'); return; }
+  // 把选中的图填到上传区
+  if (_matTargetField === 'uploadGrid') {
+    const selected = MATERIAL_STORE.filter(m => selectedMaterials.has(m.id));
+    const grid = document.getElementById('uploadGridChat');
+    if (grid && selected.length) {
+      if (!state.images) state.images = [];
+      selected.forEach(m => {
+        // 找第一个「空格子」（class=upload-cell 且没有 has-img）
+        const emptyCell = grid.querySelector('.upload-cell:not(.has-img)');
+        if (emptyCell) {
+          // 把这个空格子替换成图片预览
+          emptyCell.classList.add('has-img');
+          emptyCell.onclick = null;
+          emptyCell.style.background = m.grad;
+          emptyCell.style.border = 'none';
+          emptyCell.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;border-radius:8px;">' + m.emoji + '</div>';
+        } else {
+          // 没有空格子就追加
+          const cell = document.createElement('div');
+          cell.className = 'upload-cell has-img';
+          cell.style.cssText = 'background:' + m.grad + ';border:none;';
+          cell.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px;border-radius:8px;">' + m.emoji + '</div>';
+          grid.appendChild(cell);
+        }
+        state.images.push({ name: m.name, url: null, fromLibrary: true, grad: m.grad, emoji: m.emoji });
+      });
+      // 显示「确认上传」按钮
+      const btn = document.getElementById('confirmUploadChatBtn');
+      if (btn) btn.style.display = '';
+    }
+    showToast('已从原料库添加 ' + selected.length + ' 张图片', 'success');
+  } else {
+    showToast('已添加 ' + selectedMaterials.size + ' 张素材到当前生成', 'success');
+  }
+  closeMaterialOverlay(null, true);
+}
+
+function closeMaterialOverlay(e, force) {
+  if (!force && e && e.target !== document.getElementById('materialOverlay')) return;
+  document.getElementById('materialOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function addMaterials(input) {
+  const files = Array.from(input.files);
+  if (!files.length) return;
+  showToast('已上传 ' + files.length + ' 张图片到原料库', 'success');
+}
+
+/* ══ 历史任务 ══ */
+const HISTORY_ALL = [
+  { name:'课表对比型_雅思口语_0325', date:'2026.03.25 15:42', status:'生成成功', count:4, grad:'linear-gradient(135deg,#667eea,#764ba2)' },
+  { name:'老师自述_公考_0323', date:'2026.03.23 10:18', status:'生成成功', count:4, grad:'linear-gradient(135deg,#f093fb,#f5576c)' },
+  { name:'学员证言_MBA_0322', date:'2026.03.22 16:05', status:'生成成功', count:4, grad:'linear-gradient(135deg,#43e97b,#38f9d7)' },
+  { name:'商品种草型_连衣裙_0320', date:'2026.03.20 11:30', status:'生成成功', count:4, grad:'linear-gradient(135deg,#4facfe,#00f2fe)' },
+  { name:'买家秀对比_玻尿酸_0318', date:'2026.03.18 09:22', status:'生成成功', count:4, grad:'linear-gradient(135deg,#fa8231,#f7b731)' },
+  { name:'爆款单品型_蛋白棒_0315', date:'2026.03.15 14:55', status:'生成成功', count:3, grad:'linear-gradient(135deg,#6c5ce7,#a29bfe)' },
+  { name:'课表对比型_考研_0312', date:'2026.03.12 17:10', status:'生成成功', count:4, grad:'linear-gradient(135deg,#fd79a8,#e84393)' },
+  { name:'老师自述_雅思写作_0308', date:'2026.03.08 10:00', status:'生成成功', count:4, grad:'linear-gradient(135deg,#00b894,#00cec9)' },
+];
+
+function openHistoryOverlay() {
+  const overlay = document.getElementById('historyOverlay');
+  if (!overlay) return;
+  switchHistTab('recent');
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeHistoryOverlay(e, force) {
+  if (!force && e && e.target !== document.getElementById('historyOverlay')) return;
+  document.getElementById('historyOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function switchHistTab(tab) {
+  document.getElementById('histTabRecent').classList.toggle('active', tab === 'recent');
+  document.getElementById('histTabAll').classList.toggle('active', tab === 'all');
+  const list = tab === 'recent' ? HISTORY_ALL.slice(0, 4) : HISTORY_ALL;
+  const container = document.getElementById('historyTaskList');
+  if (!container) return;
+  container.innerHTML = list.map(t =>
+    '<div class="history-task-row" onclick="loadHistoryTask(\'' + t.name + '\')">' +
+    '<div class="history-task-thumb" style="background:' + t.grad + ';display:flex;align-items:center;justify-content:center;font-size:20px;">📄</div>' +
+    '<div style="flex:1;min-width:0;"><div class="history-task-name">' + t.name + '</div>' +
+    '<div class="history-task-meta">' + t.date + '</div></div>' +
+    '<div style="text-align:right;"><div style="font-size:11px;color:#10B981;">✓ ' + t.status + '</div>' +
+    '<div style="font-size:11px;color:#9CA3AF;margin-top:2px;">' + t.count + '条笔记</div></div></div>'
+  ).join('');
+}
+
+function loadHistoryTask(name) {
+  closeHistoryOverlay(null, true);
+  showToast('加载历史任务：' + name, 'info');
+}
+
+function startNewSession() {
+  if (state.phase < 7 && state.phase > 0) {
+    if (!confirm('当前对话还未生成，开启新对话将丢失当前输入，确认继续？')) return;
+  }
+  // 重置 state
+  state = { industry: null, product: null, skill: null, images: [], sellingPoints: [], style: null, phase: 0 };
+  // 清空 chatArea
+  const chatArea = document.getElementById('chatArea');
+  chatArea.innerHTML = '';
+  // 重置底部输入
+  showInputPhase(0);
+  // 重新触发开场
+  buildIndustryInChat();
+  showToast('已开启新对话', 'success');
+}
+
+function deleteMaterial(id) {
+  const idx = MATERIAL_STORE.findIndex(m => m.id === id);
+  if (idx !== -1) {
+    MATERIAL_STORE.splice(idx, 1);
+    openMaterialOverlay('img', null); // 刷新（manage 模式）
+    showToast('已删除', 'success');
+  }
+}
+
+function deleteTextMaterial(id) {
+  const idx = TEXT_STORE.findIndex(t => t.id === id);
+  if (idx !== -1) {
+    TEXT_STORE.splice(idx, 1);
+    switchMatTab('text'); // 刷新列表
+    showToast('已删除', 'success');
+  }
+}
+</script>
+</body>
+</html>
