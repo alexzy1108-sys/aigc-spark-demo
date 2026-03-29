@@ -490,7 +490,6 @@ body {
   flex-direction: column;
   gap: 8px;
   margin-left: 36px;
-  max-width: 600px;
   animation: fadeInUp 0.4s ease;
 }
 .skill-card-chat {
@@ -500,9 +499,9 @@ body {
   padding: 12px 14px;
   cursor: pointer;
   transition: border-color 0.2s, background 0.2s;
-  min-width: 220px;
-  max-width: 340px;
-  flex-shrink: 0;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
 }
 .skill-card-chat:hover { border-color: #FF2442; background: rgba(255,36,66,0.05); }
 .skill-card-chat.selected { border-color: #FF2442; background: rgba(255,36,66,0.08); }
@@ -1612,6 +1611,13 @@ body {
   transition: all 0.2s;
 }
 .result-regen-btn:hover { background: #F3F4F6; color: #13131F; }
+.result-regen-btn.primary {
+  background: #FF2442;
+  color: #fff;
+  border-color: #FF2442;
+  font-weight: 500;
+}
+.result-regen-btn.primary:hover { background: #e01f3a; border-color: #e01f3a; color: #fff; }
 
 /* ═══════════════════════════════════════════
    EDITOR MODAL
@@ -2660,12 +2666,12 @@ function showSkillCards() {
   const skills = SKILLS[state.industry] || [];
   const chatArea = document.getElementById('chatArea');
 
-  // 3张横向并排（紧凑 small 模式）
+  // 4张 grid 横向并排，占满整行
   const topWrap = document.createElement('div');
   topWrap.className = 'msg-row';
   topWrap.id = 'chatSkillCards';
-  topWrap.style.cssText = 'display:flex;gap:10px;flex-wrap:nowrap;';
-  topWrap.innerHTML = skills.slice(0,3).map((s,i) => buildSkillCardHtml(s, i, i===0, true)).join('');
+  topWrap.style.cssText = 'display:grid;grid-template-columns:repeat(4,1fr);gap:10px;width:100%;';
+  topWrap.innerHTML = skills.slice(0,4).map((s,i) => buildSkillCardHtml(s, i, i===0, true)).join('');
   chatArea.appendChild(topWrap);
 
   // 「查看更多套路」按钮 → 打开浮层
@@ -2820,6 +2826,7 @@ function confirmSkill(index) {
         if (imgHintText) {
           const hintBubble = document.createElement('div');
           hintBubble.className = 'msg-row';
+          hintBubble.id = 'uploadHintBubble';
           hintBubble.innerHTML = `<div style="display:inline-flex;align-items:center;gap:6px;background:#FFFBEB;border:1px solid #FDE68A;border-radius:10px;padding:8px 12px;font-size:12px;color:#92400E;max-width:500px;">
             <span style="font-size:14px;">📸</span>
             <span>${imgHintText}</span>
@@ -2904,7 +2911,7 @@ function skipImages() {
   goToSellingPoints();
 
   setTimeout(() => {
-    addAIBubble('没关系！请选择核心卖点（可多选，最多5个）', () => {
+    addAIBubble('没关系！说说这个商品最打动人的地方吧，写得越具体效果越好 💡', () => {
       showInputPhase(4);
     });
   }, 500);
@@ -2930,7 +2937,7 @@ function goToSellingPoints() {
     addThinkingBubble();
     setTimeout(() => {
       removeThinking();
-      addAIBubble('素材 ✓ 请选择核心卖点（可多选，最多5个）', () => {
+      addAIBubble('素材 ✓ 说说这个商品最打动人的地方吧，写得越具体效果越好 💡', () => {
         showInputPhase(4);
       });
     }, 500);
@@ -3003,6 +3010,7 @@ function buildOtherIndustryInputInChat() {
 
 // 点击线索 SPU 卡片 → 自动填入输入框，可继续编辑
 let _selectedLeadSpuId = null;
+let _selectedLeadSpuName = null;
 function selectLeadSpu(id, name) {
   // 取消上一个选中
   if (_selectedLeadSpuId) {
@@ -3011,20 +3019,13 @@ function selectLeadSpu(id, name) {
   }
   if (_selectedLeadSpuId === id) {
     _selectedLeadSpuId = null;
-    const inp = document.getElementById('leadInputChat');
-    if (inp) inp.value = '';
     return;
   }
   _selectedLeadSpuId = id;
+  _selectedLeadSpuName = name;
   const card = document.getElementById('leadSpuCard_' + id);
   if (card) card.classList.add('selected');
-  // 自动填入输入框
-  const inp = document.getElementById('leadInputChat');
-  if (inp) {
-    inp.value = name;
-    inp.style.borderColor = '#FF2442';
-    inp.focus();
-  }
+  // 不联动输入框，卡片选中即为选择
 }
 
 function setLeadInputChat(val) {
@@ -3033,10 +3034,14 @@ function setLeadInputChat(val) {
 }
 
 function confirmLeadInputChat() {
-  const val = document.getElementById('leadInputChat')?.value?.trim();
+  // 优先用卡片选中的，其次用手动输入框
+  const cardName = _selectedLeadSpuId ? _selectedLeadSpuName : null;
+  const inputVal = document.getElementById('leadInputChat')?.value?.trim();
+  const val = cardName || inputVal;
   if (!val) { showToast('请选择课程或输入产品/服务名称', 'error'); return; }
   document.getElementById('leadChatRow')?.remove();
   _selectedLeadSpuId = null;
+  _selectedLeadSpuName = null;
   selectProduct(val);
 }
 
@@ -3213,6 +3218,7 @@ function handleUploadDoneChat() {
 
 function skipImagesChat() {
   document.getElementById('uploadChatRow')?.remove();
+  document.getElementById('uploadHintBubble')?.remove();
   addUserBubble('跳过素材');
   goToSellingPoints();
 }
@@ -3226,73 +3232,20 @@ function buildSellingChipsInChat() {
   wrap.className = 'msg-row';
   wrap.id = 'sellingChatRow';
   wrap.innerHTML = `
-    <div style="max-width:600px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <div style="font-size:13px;color:#6B7280;">请选择核心卖点（可多选，最多5个）</div>
-        <button onclick="openMaterialOverlay('text','selling','selling')" style="font-size:11px;color:#FF2442;background:none;border:none;cursor:pointer;font-family:inherit;padding:0;">📦 从原料库选</button>
-      </div>
-      <div class="selling-chips" id="sellingChips" style="margin-bottom:10px;"></div>
-      <div id="customSellingRowChat" style="display:none;margin-bottom:10px;">
-        <div style="display:flex;gap:6px;">
-          <input id="customSellingInputChat" type="text" placeholder="输入自定义卖点..."
-            style="flex:1;padding:6px 10px;border:1.5px solid #FF2442;border-radius:20px;font-size:12.5px;color:#13131F;outline:none;font-family:inherit;background:#fff;" />
-          <button onclick="addCustomSellingChat()" style="padding:6px 12px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:12px;cursor:pointer;font-family:inherit;white-space:nowrap;">确认</button>
-        </div>
-      </div>
+    <div style="max-width:620px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+      <textarea id="sellingInputChat" rows="3" placeholder="如：30天保分、真实学员从5.5提到7.0、每天1v1答疑不限次数……写得越具体，生成效果越好 💡"
+        style="width:100%;padding:10px 12px;border:1.5px solid #E5E7EB;border-radius:10px;font-size:13px;color:#13131F;outline:none;font-family:inherit;background:#F9FAFB;resize:none;line-height:1.6;box-sizing:border-box;"
+        onfocus="this.style.borderColor='#FF2442'" onblur="this.style.borderColor='#E5E7EB'"></textarea>
+      <div style="font-size:11.5px;color:#9CA3AF;margin:8px 0 10px;">💡 灵感参考（无需点选，自由描述就好）：${points.slice(0,5).join(' · ')}</div>
       <button class="confirm-btn" style="width:100%;" onclick="confirmSellingPoints()">已选好，继续 →</button>
     </div>
   `;
   document.getElementById('chatArea').appendChild(wrap);
   scrollChat();
-
-  // 填充 chips
-  const container = document.getElementById('sellingChips');
-  points.forEach(p => {
-    const chip = document.createElement('button');
-    chip.className = 'selling-chip';
-    chip.textContent = p;
-    chip.dataset.value = p;
-    chip.onclick = () => toggleSellingPoint(chip, p);
-    container.appendChild(chip);
-  });
-  // 自定义 chip
-  const customChip = document.createElement('button');
-  customChip.className = 'selling-chip manual';
-  customChip.textContent = '✏️ 自定义';
-  customChip.onclick = () => {
-    const row = document.getElementById('customSellingRowChat');
-    if (row.style.display === 'none') {
-      row.style.display = 'block';
-      document.getElementById('customSellingInputChat').focus();
-    } else {
-      row.style.display = 'none';
-    }
-  };
-  container.appendChild(customChip);
-
-  document.getElementById('customSellingInputChat')?.addEventListener('keydown', e => {
-    if (e.key === 'Enter') addCustomSellingChat();
-  });
+  setTimeout(() => document.getElementById('sellingInputChat')?.focus(), 100);
 }
 
-function addCustomSellingChat() {
-  const input = document.getElementById('customSellingInputChat');
-  if (!input) return;
-  const val = input.value.trim();
-  if (!val) return;
-  if (state.sellingPoints.length >= 5) { showToast('最多选5个卖点', 'error'); return; }
-  const container = document.getElementById('sellingChips');
-  const customChip = container.querySelector('.selling-chip.manual');
-  const newChip = document.createElement('button');
-  newChip.className = 'selling-chip selected';
-  newChip.textContent = val;
-  newChip.dataset.value = val;
-  newChip.onclick = () => toggleSellingPoint(newChip, val);
-  container.insertBefore(newChip, customChip);
-  state.sellingPoints.push(val);
-  input.value = '';
-  document.getElementById('customSellingRowChat').style.display = 'none';
-}
+function addCustomSellingChat() { /* 兼容保留，不再使用 */ }
 
 /* 新版：把文风选择注入 chatArea */
 function buildStyleInChat() {
@@ -3300,20 +3253,14 @@ function buildStyleInChat() {
   wrap.className = 'msg-row';
   wrap.id = 'styleChatRow';
   wrap.innerHTML = `
-    <div style="max-width:600px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
-      <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">有什么文风偏好吗？（可跳过）</div>
-      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;">
-        <button class="lead-history-chip" onclick="setStyleChipChat('活泼轻快')">活泼轻快</button>
-        <button class="lead-history-chip" onclick="setStyleChipChat('专业严谨')">专业严谨</button>
-        <button class="lead-history-chip" onclick="setStyleChipChat('种草感强')">种草感强</button>
-        <button class="lead-history-chip" onclick="setStyleChipChat('情感共鸣')">情感共鸣</button>
-        <button class="lead-history-chip" onclick="setStyleChipChat('干货分享')">干货分享</button>
-      </div>
-      <div style="display:flex;gap:6px;align-items:center;">
-        <input type="text" id="styleInputChat" placeholder="或自由输入文风要求..."
-          style="flex:1;padding:8px 12px;border:1.5px solid #E5E7EB;border-radius:20px;font-size:13px;color:#13131F;outline:none;font-family:inherit;background:#F9FAFB;" />
-        <button onclick="confirmStyleChat()" style="padding:8px 16px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;white-space:nowrap;">确认</button>
-        <button onclick="skipStyleChat()" style="padding:8px 12px;background:none;border:1px solid #E5E7EB;border-radius:20px;font-size:13px;color:#6B7280;cursor:pointer;font-family:inherit;white-space:nowrap;">跳过</button>
+    <div style="max-width:620px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+      <textarea id="styleInputChat" rows="2" placeholder="如：像闺蜜在安利、有一点焦虑感但最后很治愈、干货型不废话……"
+        style="width:100%;padding:10px 12px;border:1.5px solid #E5E7EB;border-radius:10px;font-size:13px;color:#13131F;outline:none;font-family:inherit;background:#F9FAFB;resize:none;line-height:1.6;box-sizing:border-box;"
+        onfocus="this.style.borderColor='#FF2442'" onblur="this.style.borderColor='#E5E7EB'"></textarea>
+      <div style="font-size:11.5px;color:#9CA3AF;margin:8px 0 10px;">💡 灵感参考：活泼轻快 · 专业严谨 · 种草感强 · 情感共鸣 · 干货分享</div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="confirmStyleChat()" class="confirm-btn" style="flex:1;">确认</button>
+        <button onclick="skipStyleChat()" style="padding:9px 16px;background:none;border:1px solid #E5E7EB;border-radius:20px;font-size:13px;color:#6B7280;cursor:pointer;font-family:inherit;white-space:nowrap;">跳过</button>
       </div>
     </div>
   `;
@@ -3322,30 +3269,23 @@ function buildStyleInChat() {
   setTimeout(() => document.getElementById('styleInputChat')?.focus(), 100);
 }
 
-function setStyleChipChat(val) {
-  const input = document.getElementById('styleInputChat');
-  if (input) input.value = val;
-  // highlight chip
-  document.querySelectorAll('#styleChatRow .lead-history-chip').forEach(c => {
-    c.style.background = c.textContent === val ? '#FFF0F3' : '';
-    c.style.color = c.textContent === val ? '#FF2442' : '';
-    c.style.borderColor = c.textContent === val ? '#FF2442' : '';
-  });
-}
+function setStyleChipChat(val) { /* 兼容保留，不再使用 */ }
 
 function confirmStyleChat() {
   const input = document.getElementById('styleInputChat');
   const val = input ? input.value.trim() : '';
-  state.style = val || '种草感强';
-  addUserBubble(`文风：${state.style}`);
+  if (!val) { showToast('请描述一下你希望的文风，或点「跳过」', 'error'); return; }
+  state.style = val;
   document.getElementById('styleChatRow')?.remove();
+  const displayText = val.length > 20 ? val.slice(0, 20) + '…' : val;
+  addUserBubble(`文风偏好：${displayText}`);
   goToSummary();
 }
 
 function skipStyleChat() {
-  state.style = '种草感强';
-  addUserBubble('跳过文风');
+  state.style = '';
   document.getElementById('styleChatRow')?.remove();
+  addUserBubble('跳过文风');
   goToSummary();
 }
 
@@ -3421,16 +3361,28 @@ function toggleSellingPoint(chip, value) {
 }
 
 function confirmSellingPoints() {
-  if (state.sellingPoints.length === 0) { showToast('请至少选择一个卖点', 'error'); return; }
+  // 新版：从 textarea 读取自由输入内容
+  const textarea = document.getElementById('sellingInputChat');
+  if (textarea) {
+    const val = textarea.value.trim();
+    if (!val) { showToast('请描述一下你的核心卖点', 'error'); return; }
+    state.sellingPoints = [val]; // 整段文字作为卖点描述
+  } else {
+    if (state.sellingPoints.length === 0) { showToast('请至少选择一个卖点', 'error'); return; }
+  }
   state.phase = 5;
-  addUserBubble(`卖点：${state.sellingPoints.join('、')}`);
+  document.getElementById('sellingChatRow')?.remove();
+  const displayText = state.sellingPoints[0].length > 30
+    ? state.sellingPoints[0].slice(0, 30) + '…'
+    : state.sellingPoints[0];
+  addUserBubble(`核心卖点：${displayText}`);
   showInputPhase(-1);
 
   setTimeout(() => {
     addThinkingBubble();
     setTimeout(() => {
       removeThinking();
-      addAIBubble('卖点 ✓ 最后，有什么特别的文风要求或偏好吗？（可跳过）', () => {
+      addAIBubble('卖点 ✓ 最后，希望笔记读起来是什么感觉？随便聊聊就行，可跳过 😊', () => {
         showInputPhase(5); // 5 = buildStyleInChat
       });
     }, 500);
@@ -3481,255 +3433,362 @@ function goToSummary() {
     addThinkingBubble();
     setTimeout(() => {
       removeThinking();
-      // Add AI bubble with summary card inside
-      const today = new Date();
-      const mm = String(today.getMonth()+1).padStart(2,'0');
-      const dd = String(today.getDate()).padStart(2,'0');
-      const taskName = `${state.skill.name}_${state.product.slice(0,4)}_${mm}${dd}`;
+      addAIBubble('好的，创意参数已就绪 ✨', () => {
+        // Add summary card after AI text bubble
+        const today = new Date();
+        const mm = String(today.getMonth()+1).padStart(2,'0');
+        const dd = String(today.getDate()).padStart(2,'0');
+        const taskName = `${state.skill.name}_${state.product.slice(0,4)}_${mm}${dd}`;
 
-      const summaryHTML = `
-        <div class="summary-card">
-          <div class="summary-title">📋 创意参数已就绪</div>
-          <div class="summary-divider"></div>
-          <div class="summary-row" id="summaryRow_product">
-            <span class="summary-label">商品</span>
-            <span class="summary-value" id="summaryVal_product">${state.product}</span>
-            <span class="summary-edit" onclick="editSummaryField('product')">修改</span>
+        const summaryHTML = `
+          <div class="summary-card">
+            <div class="summary-title">📋 创意参数已就绪</div>
+            <div class="summary-divider"></div>
+            <div class="summary-row" id="summaryRow_product">
+              <span class="summary-label">商品</span>
+              <span class="summary-value" id="summaryVal_product">${state.product}</span>
+            </div>
+            <div class="summary-row" id="summaryRow_skill">
+              <span class="summary-label">套路</span>
+              <span class="summary-value" id="summaryVal_skill">${state.skill.icon} ${state.skill.name}</span>
+            </div>
+            <div class="summary-row" id="summaryRow_images">
+              <span class="summary-label">图片</span>
+              <span class="summary-value" id="summaryVal_images">${state.images.length ? state.images.length + ' 张素材' : '未上传'}</span>
+              <span class="summary-edit" onclick="editSummaryField('images')">修改</span>
+            </div>
+            <div class="summary-row" id="summaryRow_selling">
+              <span class="summary-label">卖点</span>
+              <span class="summary-value" id="summaryVal_selling">${state.sellingPoints.join(' · ')}</span>
+              <span class="summary-edit" onclick="editSummaryField('selling')">修改</span>
+            </div>
+            <div class="summary-row" id="summaryRow_style">
+              <span class="summary-label">文风</span>
+              <span class="summary-value" id="summaryVal_style">${state.style || '（未填写）'}</span>
+              <span class="summary-edit" onclick="editSummaryField('style')">修改</span>
+            </div>
+            <div class="summary-divider"></div>
+            <div class="summary-taskname">📁 ${taskName}</div>
+            <button class="start-gen-btn" onclick="startGeneration()">✨ 开始生成</button>
           </div>
-          <div class="summary-row" id="summaryRow_skill">
-            <span class="summary-label">套路</span>
-            <span class="summary-value" id="summaryVal_skill">${state.skill.icon} ${state.skill.name}</span>
-            <span class="summary-edit" onclick="editSummaryField('skill')">修改</span>
-          </div>
-          <div class="summary-row" id="summaryRow_selling">
-            <span class="summary-label">卖点</span>
-            <span class="summary-value" id="summaryVal_selling">${state.sellingPoints.join(' · ')}</span>
-            <span class="summary-edit" onclick="editSummaryField('selling')">修改</span>
-          </div>
-          <div class="summary-row" id="summaryRow_style">
-            <span class="summary-label">文风</span>
-            <span class="summary-value" id="summaryVal_style">${state.style || '（未填写）'}</span>
-            <span class="summary-edit" onclick="editSummaryField('style')">修改</span>
-          </div>
-          <div class="summary-divider"></div>
-          <div class="summary-taskname">📁 ${taskName}</div>
-          <button class="start-gen-btn" onclick="startGeneration()">✨ 开始生成</button>
-        </div>
-      `;
-      addAIBubbleHTML(summaryHTML);
+        `;
+        addAIBubbleHTML(summaryHTML);
+      });
     }, 600);
   }, 100);
 }
 
 /* ── 汇总卡「修改」：Lovart 风格 —— AI 追加新消息+输入组件 ── */
 function editSummaryField(field) {
-  const fieldLabels = { product:'商品', skill:'套路', selling:'卖点', style:'文风' };
+  const fieldLabels = { product:'商品', skill:'套路', images:'图片', selling:'卖点', style:'文风' };
   const label = fieldLabels[field] || field;
 
-  // 未生成（phase < 7）：滚动到对应输入卡并高亮
-  if (state.phase < 7) {
-    const rowMap = {
-      product: state.industry === '电商行业' ? 'spuChatRow' : 'leadChatRow',
-      skill:   'chatSkillCards',
-      selling: 'sellingChatRow',
-      style:   'styleChatRow',
-    };
-    const targetId = rowMap[field];
-    const el = targetId ? document.getElementById(targetId) : null;
-    if (el) {
-      el.scrollIntoView({ behavior:'smooth', block:'center' });
-      el.style.transition = 'box-shadow 0.4s';
-      el.style.boxShadow = '0 0 0 2.5px #FF2442, 0 4px 20px rgba(255,36,66,0.15)';
-      setTimeout(() => { el.style.boxShadow = ''; }, 1800);
-    }
-    return;
-  }
+  // 移除已有的修改卡（防止重复）
+  document.getElementById('editCardRow')?.remove();
 
-  // 已生成（phase >= 7）：AI 在对话底部追加新消息+输入组件
   addAIBubble(`好的，你想修改「${label}」，请重新选择：`, () => {
-    const wrap = document.createElement('div');
-    wrap.className = 'msg-row';
-    wrap.id = `editFieldRow_${field}`;
-
     if (field === 'product') {
-      const isEcom = state.industry === '电商行业';
-      if (isEcom) {
-        // 电商：重新显示 SPU 卡片（精简版，可选+确认）
-        const reEditCardsHtml = ECOM_SPU_CARDS.map(spu => `
-          <div class="spu-card" id="reEditSpuCard_${spu.id}" onclick="toggleReEditSpu('${spu.id}','${spu.name.replace(/'/g,'&#39;')}')">
-            <div class="spu-card-check">✓</div>
-            <div class="spu-card-icon" style="background:${spu.grad};">${spu.icon}</div>
-            <div class="spu-card-name">${spu.name}</div>
-            <div class="spu-card-sub">${spu.sub}</div>
-          </div>
-        `).join('');
-        wrap.innerHTML = `
-          <div style="max-width:680px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
-            <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">🛍️ 重新选择商品（SPU）</div>
-            <div class="spu-cards-wrap" id="reEditSpuCardsWrap">${reEditCardsHtml}</div>
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;">
-              <span id="reEditSpuHint" style="font-size:12px;color:#9CA3AF;">点击选择商品</span>
-              <button onclick="confirmReEditSpu()" style="padding:8px 18px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;">确认 →</button>
-            </div>
-          </div>
-        `;
-        document.getElementById('chatArea').appendChild(wrap);
-        scrollChat();
-        // 初始化临时选中变量
-        window._reEditSpuId = null;
-        window._reEditSpuName = null;
-        return;
-      } else {
-        // 线索：SPU 卡片 + 手动输入
-        const reEditLeadCardsHtml = LEAD_SPU_CARDS.map(spu => `
-          <div class="spu-card" id="reEditLeadCard_${spu.id}" onclick="selectReEditLeadSpu('${spu.id}','${spu.name.replace(/'/g,'&#39;')}')">
-            <div class="spu-card-check">✓</div>
-            <div class="spu-card-icon" style="background:${spu.grad};">${spu.icon}</div>
-            <div class="spu-card-name">${spu.name}</div>
-            <div class="spu-card-sub">${spu.sub}</div>
-          </div>
-        `).join('');
-        wrap.innerHTML = `
-          <div style="max-width:680px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
-            <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">📚 重新选择或输入课程/服务</div>
-            <div class="spu-cards-wrap" id="reEditLeadCardsWrap" style="margin-bottom:12px;">${reEditLeadCardsHtml}</div>
-            <div style="display:flex;gap:8px;align-items:center;">
-              <input id="editFieldInput_product" type="text" value="${state.product||''}"
-                placeholder="或手动输入..."
-                style="flex:1;padding:8px 14px;border:1.5px solid #E5E7EB;border-radius:20px;font-size:13px;color:#13131F;outline:none;font-family:inherit;background:#F9FAFB;" />
-              <button onclick="applyEditField('product', document.getElementById('editFieldInput_product').value.trim()||'${state.product||''}')"
-                style="padding:8px 16px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;">确认</button>
-            </div>
-          </div>
-        `;
-        document.getElementById('chatArea').appendChild(wrap);
-        scrollChat();
-        window._reEditLeadSpuId = null;
-        // 绑定卡片点击填充输入框
-        return;
-      }
+      _buildEditProductCard();
     } else if (field === 'skill') {
-      // 重新显示套路浮层
-      wrap.innerHTML = `
-        <div style="max-width:500px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
-          <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">重新选择或查看套路：</div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            ${(SKILLS[state.industry]||[]).slice(0,3).map((s) => {
-              const ico = s.icon||s.emoji||'📋';
-              return `<button onclick="applyEditField('skill','${s.name}','${ico}')"
-                style="padding:8px 14px;border:1.5px solid #E5E7EB;border-radius:10px;background:#F9FAFB;cursor:pointer;font-size:12px;color:#13131F;font-family:inherit;text-align:left;">
-                ${ico} ${s.name}<br><span style="color:#10B981;font-size:11px;">CTR ${s.ctr}</span>
-              </button>`;
-            }).join('')}
-            <button onclick="openSkillOverlay()"
-              style="padding:8px 14px;border:1.5px solid #E5E7EB;border-radius:10px;background:#F9FAFB;cursor:pointer;font-size:12px;color:#6B7280;font-family:inherit;">
-              🔍 更多套路
-            </button>
-          </div>
-        </div>
-      `;
+      _buildEditSkillCard();
+    } else if (field === 'images') {
+      _buildEditImagesCard();
     } else if (field === 'selling') {
-      // 重新显示卖点 chips
-      const points = SELLING_POINTS[state.industry] || [];
-      wrap.innerHTML = `
-        <div style="max-width:580px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
-          <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">重新选择卖点（当前：${state.sellingPoints.join('、')}）</div>
-          <div class="selling-chips" id="editSellingChips" style="margin-bottom:10px;"></div>
-          <button onclick="applyEditSelling()"
-            style="padding:8px 18px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;">确认卖点</button>
-        </div>
-      `;
-      document.getElementById('chatArea').appendChild(wrap);
-      scrollChat();
-      // 填充 chips
-      const container = document.getElementById('editSellingChips');
-      const tempSelected = [...state.sellingPoints];
-      points.forEach(p => {
-        const chip = document.createElement('button');
-        chip.className = 'selling-chip' + (tempSelected.includes(p) ? ' selected' : '');
-        chip.textContent = p;
-        chip.dataset.value = p;
-        chip.onclick = () => {
-          chip.classList.toggle('selected');
-        };
-        container.appendChild(chip);
-      });
-      return; // 已手动 appendChild
+      _buildEditSellingCard();
     } else if (field === 'style') {
-      wrap.innerHTML = `
-        <div style="max-width:520px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;">
-            ${['活泼轻快','专业严谨','种草感强','情感共鸣','干货分享'].map(s => `
-              <button class="lead-history-chip" onclick="this.dataset.sel='1';Array.from(this.parentNode.children).forEach(b=>b.style.background='');this.style.background='#FFF0F3';this.style.color='#FF2442';this.style.borderColor='#FF2442';document.getElementById('editStyleInput').value='${s}'">${s}</button>
-            `).join('')}
-          </div>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <input id="editStyleInput" type="text" value="${state.style||''}" placeholder="或自由输入..."
-              style="flex:1;padding:8px 14px;border:1.5px solid #E5E7EB;border-radius:20px;font-size:13px;color:#13131F;outline:none;font-family:inherit;background:#F9FAFB;" />
-            <button onclick="applyEditField('style', document.getElementById('editStyleInput').value||'种草感强')"
-              style="padding:8px 16px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;">确认</button>
-          </div>
-        </div>
-      `;
+      _buildEditStyleCard();
     }
-    document.getElementById('chatArea').appendChild(wrap);
-    scrollChat();
   });
 }
 
-// 电商行业「修改商品」时的 SPU 卡片切换
-function toggleReEditSpu(id, name) {
-  if (window._reEditSpuId) {
-    const prev = document.getElementById('reEditSpuCard_' + window._reEditSpuId);
-    if (prev) prev.classList.remove('selected');
+/* ── 修改图片 ── */
+function _buildEditImagesCard() {
+  document.getElementById('editCardRow')?.remove();
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-row';
+  wrap.id = 'editCardRow';
+  const isLead = state.industry === '线索行业';
+  wrap.innerHTML = `
+    <div style="max-width:600px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+      <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">📷 ${isLead ? '重新上传素材图（可选）' : '重新上传素材图'}</div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;" id="editImgGrid"></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end;">
+        ${isLead ? `<button onclick="_skipEditImages()" style="padding:8px 14px;background:none;border:1px solid #E5E7EB;border-radius:20px;font-size:13px;color:#6B7280;cursor:pointer;font-family:inherit;">跳过</button>` : ''}
+        <button onclick="_confirmEditImages()" style="padding:8px 18px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;">确认 →</button>
+      </div>
+    </div>`;
+  document.getElementById('chatArea').appendChild(wrap);
+  scrollChat();
+  // 渲染上传格子
+  const grid = document.getElementById('editImgGrid');
+  window._editImages = [...state.images];
+  const renderEditGrid = () => {
+    grid.innerHTML = '';
+    window._editImages.forEach((src, i) => {
+      const cell = document.createElement('div');
+      cell.style.cssText = 'position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:1px solid #E5E7EB;';
+      cell.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;">
+        <button onclick="window._editImages.splice(${i},1);window._editImages=[...window._editImages];renderEditGrid?.()" style="position:absolute;top:4px;right:4px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,0.5);color:#fff;border:none;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;">×</button>`;
+      grid.appendChild(cell);
+    });
+    if (window._editImages.length < 9) {
+      const add = document.createElement('label');
+      add.style.cssText = 'aspect-ratio:1;border:1.5px dashed #E5E7EB;border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;color:#D1D5DB;';
+      add.innerHTML = `+ <input type="file" accept="image/*" multiple style="display:none" onchange="
+        Array.from(this.files).forEach(f=>{
+          if(window._editImages.length>=9)return;
+          const r=new FileReader();r.onload=e=>{window._editImages.push(e.target.result);document.getElementById('editImgGrid')&&(()=>{window.renderEditGridFn&&window.renderEditGridFn();})();};r.readAsDataURL(f);
+        })">`;
+      grid.appendChild(add);
+    }
+  };
+  window.renderEditGridFn = renderEditGrid;
+  renderEditGrid();
+}
+function _skipEditImages() {
+  state.images = [];
+  document.getElementById('editCardRow')?.remove();
+  document.getElementById('summaryVal_images').textContent = '未上传';
+  addUserBubble('跳过图片');
+  setTimeout(() => addAIBubble('好的，「图片」已更新 ✓ 其他参数不变，点「开始生成」继续'), 300);
+}
+function _confirmEditImages() {
+  state.images = window._editImages || [];
+  document.getElementById('editCardRow')?.remove();
+  const label = state.images.length ? state.images.length + ' 张素材' : '未上传';
+  document.getElementById('summaryVal_images').textContent = label;
+  addUserBubble(`图片：${label}`);
+  setTimeout(() => addAIBubble('好的，「图片」已更新 ✓ 其他参数不变，点「开始生成」继续'), 300);
+}
+
+/* ── 修改商品 ── */
+function _buildEditProductCard() {
+  document.getElementById('editCardRow')?.remove();
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-row';
+  wrap.id = 'editCardRow';
+  const isEcom = state.industry === '电商行业';
+
+  if (isEcom) {
+    const cardsHtml = ECOM_SPU_CARDS.map(spu => `
+      <div class="spu-card" id="editSpuCard_${spu.id}" onclick="_toggleEditSpu('${spu.id}','${spu.name.replace(/'/g,"&#39;")}')">
+        <div class="spu-card-check">✓</div>
+        <div class="spu-card-icon" style="background:${spu.grad};">${spu.icon}</div>
+        <div class="spu-card-name">${spu.name}</div>
+        <div class="spu-card-sub">${spu.sub}</div>
+      </div>
+    `).join('');
+    wrap.innerHTML = `
+      <div style="max-width:680px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+        <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">🛍️ 请选择要推广的商品 SPU（必选）</div>
+        <div class="spu-cards-wrap">${cardsHtml}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:12px;">
+          <span id="editSpuHint" style="font-size:12px;color:#9CA3AF;">点击卡片选择商品</span>
+          <button onclick="_confirmEditSpu()" style="padding:9px 22px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;">确认 →</button>
+        </div>
+      </div>`;
+    window._editSpuId = null; window._editSpuName = null;
+  } else {
+    const cardsHtml = LEAD_SPU_CARDS.map(spu => `
+      <div class="spu-card" id="editLeadCard_${spu.id}" onclick="_selectEditLeadSpu('${spu.id}','${spu.name.replace(/'/g,"&#39;")}')">
+        <div class="spu-card-check">✓</div>
+        <div class="spu-card-icon" style="background:${spu.grad};">${spu.icon}</div>
+        <div class="spu-card-name">${spu.name}</div>
+        <div class="spu-card-sub">${spu.sub}</div>
+      </div>
+    `).join('');
+    wrap.innerHTML = `
+      <div style="max-width:680px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+        <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">📚 方式一：选择课程 SPU（点击后自动填入）</div>
+        <div class="spu-cards-wrap" style="margin-bottom:14px;">${cardsHtml}</div>
+        <div style="height:1px;background:#F3F4F6;margin-bottom:12px;"></div>
+        <div style="font-size:13px;color:#6B7280;margin-bottom:8px;">✏️ 方式二：手动输入产品/服务名称</div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input id="editProductInput" type="text" value="${state.product||''}" placeholder="输入产品/服务名称..."
+            style="flex:1;padding:9px 14px;border:1.5px solid #E5E7EB;border-radius:20px;font-size:13px;color:#13131F;outline:none;font-family:inherit;background:#F9FAFB;"
+            onfocus="this.style.borderColor='#FF2442'" onblur="this.style.borderColor='#E5E7EB'" />
+          <button onclick="_confirmEditLeadProduct()" style="padding:9px 18px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;">确认 →</button>
+        </div>
+      </div>`;
+    window._editLeadSpuId = null;
   }
-  if (window._reEditSpuId === id) {
-    window._reEditSpuId = null; window._reEditSpuName = null;
-    const hint = document.getElementById('reEditSpuHint');
-    if (hint) hint.textContent = '点击选择商品';
-    return;
+  document.getElementById('chatArea').appendChild(wrap);
+  scrollChat();
+}
+
+function _toggleEditSpu(id, name) {
+  if (window._editSpuId) {
+    document.getElementById('editSpuCard_' + window._editSpuId)?.classList.remove('selected');
   }
-  window._reEditSpuId = id; window._reEditSpuName = name;
-  const card = document.getElementById('reEditSpuCard_' + id);
-  if (card) card.classList.add('selected');
-  const hint = document.getElementById('reEditSpuHint');
+  if (window._editSpuId === id) { window._editSpuId = null; window._editSpuName = null; document.getElementById('editSpuHint').textContent = '点击卡片选择商品'; return; }
+  window._editSpuId = id; window._editSpuName = name;
+  document.getElementById('editSpuCard_' + id)?.classList.add('selected');
+  const hint = document.getElementById('editSpuHint');
   if (hint) { hint.textContent = '已选：' + name; hint.style.color = '#FF2442'; }
 }
-
-function confirmReEditSpu() {
-  if (!window._reEditSpuId) { showToast('请先选择商品 SPU', 'error'); return; }
-  applyEditField('product', window._reEditSpuName);
+function _confirmEditSpu() {
+  if (!window._editSpuId) { showToast('请先选择商品 SPU', 'error'); return; }
+  applyEditField('product', window._editSpuName);
 }
-
-// 线索行业「修改商品」时 SPU 卡片填充输入框
-function selectReEditLeadSpu(id, name) {
-  if (window._reEditLeadSpuId) {
-    const prev = document.getElementById('reEditLeadCard_' + window._reEditLeadSpuId);
-    if (prev) prev.classList.remove('selected');
+function _selectEditLeadSpu(id, name) {
+  if (window._editLeadSpuId) {
+    document.getElementById('editLeadCard_' + window._editLeadSpuId)?.classList.remove('selected');
   }
-  if (window._reEditLeadSpuId === id) {
-    window._reEditLeadSpuId = null;
-    const inp = document.getElementById('editFieldInput_product');
-    if (inp) inp.value = '';
-    return;
-  }
-  window._reEditLeadSpuId = id;
-  const card = document.getElementById('reEditLeadCard_' + id);
-  if (card) card.classList.add('selected');
-  const inp = document.getElementById('editFieldInput_product');
+  if (window._editLeadSpuId === id) { window._editLeadSpuId = null; const inp = document.getElementById('editProductInput'); if(inp) inp.value=''; return; }
+  window._editLeadSpuId = id;
+  document.getElementById('editLeadCard_' + id)?.classList.add('selected');
+  const inp = document.getElementById('editProductInput');
   if (inp) { inp.value = name; inp.style.borderColor = '#FF2442'; inp.focus(); }
 }
+function _confirmEditLeadProduct() {
+  const val = document.getElementById('editProductInput')?.value?.trim();
+  if (!val) { showToast('请选择课程或输入产品/服务名称', 'error'); return; }
+  applyEditField('product', val);
+}
 
-function applyEditSelling() {
+/* ── 修改套路 ── */
+function _buildEditSkillCard() {
+  document.getElementById('editCardRow')?.remove();
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-row';
+  wrap.id = 'editCardRow';
+  const skills = SKILLS[state.industry] || [];
+  const cardsHtml = skills.map((s, i) => {
+    const ico = s.icon || s.emoji || '📋';
+    return `
+      <div class="skill-card" id="editSkillCard_${i}" onclick="_selectEditSkill(${i},'${s.name.replace(/'/g,"&#39;")}','${ico}')"
+        style="cursor:pointer;border:1.5px solid #E5E7EB;border-radius:12px;padding:12px 14px;background:#F9FAFB;transition:all 0.2s;min-width:160px;max-width:200px;flex-shrink:0;">
+        <div style="font-size:20px;margin-bottom:6px;">${ico}</div>
+        <div style="font-size:13px;font-weight:600;color:#13131F;margin-bottom:3px;">${s.name}</div>
+        <div style="font-size:11px;color:#10B981;">CTR ${s.ctr}</div>
+        <div style="font-size:11px;color:#9CA3AF;margin-top:3px;">${s.desc||''}</div>
+      </div>`;
+  }).join('');
+  wrap.innerHTML = `
+    <div style="max-width:700px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+      <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">🎨 请选择创意套路</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;" id="editSkillCards">${cardsHtml}</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span id="editSkillHint" style="font-size:12px;color:#9CA3AF;">点击卡片选择套路</span>
+        <div style="display:flex;gap:8px;">
+          <button onclick="openSkillOverlay()" style="padding:8px 14px;background:#F9FAFB;border:1px solid #E5E7EB;border-radius:20px;font-size:12px;color:#6B7280;cursor:pointer;font-family:inherit;">🔍 更多套路</button>
+          <button onclick="_confirmEditSkill()" style="padding:8px 18px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;">确认 →</button>
+        </div>
+      </div>
+    </div>`;
+  document.getElementById('chatArea').appendChild(wrap);
+  scrollChat();
+  window._editSkillIdx = null; window._editSkillName = null; window._editSkillIco = null;
+}
+function _selectEditSkill(idx, name, ico) {
+  if (window._editSkillIdx !== null) {
+    const prev = document.getElementById('editSkillCard_' + window._editSkillIdx);
+    if (prev) { prev.style.borderColor = '#E5E7EB'; prev.style.background = '#F9FAFB'; }
+  }
+  if (window._editSkillIdx === idx) { window._editSkillIdx = null; window._editSkillName = null; window._editSkillIco = null; document.getElementById('editSkillHint').textContent = '点击卡片选择套路'; return; }
+  window._editSkillIdx = idx; window._editSkillName = name; window._editSkillIco = ico;
+  const card = document.getElementById('editSkillCard_' + idx);
+  if (card) { card.style.borderColor = '#FF2442'; card.style.background = 'rgba(255,36,66,0.06)'; }
+  const hint = document.getElementById('editSkillHint');
+  if (hint) { hint.textContent = '已选：' + ico + ' ' + name; hint.style.color = '#FF2442'; }
+}
+function _confirmEditSkill() {
+  if (!window._editSkillName) { showToast('请先选择套路', 'error'); return; }
+  applyEditField('skill', window._editSkillName, window._editSkillIco);
+}
+
+/* ── 修改卖点 ── */
+function _buildEditSellingCard() {
+  document.getElementById('editCardRow')?.remove();
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-row';
+  wrap.id = 'editCardRow';
+  const points = SELLING_POINTS[state.industry] || [];
+  wrap.innerHTML = `
+    <div style="max-width:600px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+      <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">请选择核心卖点（可多选，最多5个）</div>
+      <div class="selling-chips" id="editSellingChips" style="margin-bottom:12px;"></div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+        <input id="editCustomSelling" type="text" placeholder="输入自定义卖点后按 Enter..."
+          style="flex:1;padding:8px 14px;border:1.5px solid #E5E7EB;border-radius:20px;font-size:13px;outline:none;font-family:inherit;background:#F9FAFB;"
+          onfocus="this.style.borderColor='#FF2442'" onblur="this.style.borderColor='#E5E7EB'"
+          onkeydown="if(event.key==='Enter'){const v=this.value.trim();if(v)_addEditCustomChip(v);this.value='';}" />
+      </div>
+      <button onclick="_applyEditSelling()" class="confirm-btn" style="width:100%;">已选好，继续 →</button>
+    </div>`;
+  document.getElementById('chatArea').appendChild(wrap);
+  scrollChat();
+  // 填充 chips，默认选中当前已选卖点
+  const container = document.getElementById('editSellingChips');
+  points.forEach(p => {
+    const chip = document.createElement('button');
+    chip.className = 'selling-chip' + (state.sellingPoints.includes(p) ? ' selected' : '');
+    chip.textContent = p; chip.dataset.value = p;
+    chip.onclick = () => {
+      const sel = container.querySelectorAll('.selling-chip.selected');
+      if (!chip.classList.contains('selected') && sel.length >= 5) { showToast('最多选5个卖点','error'); return; }
+      chip.classList.toggle('selected');
+    };
+    container.appendChild(chip);
+  });
+}
+function _addEditCustomChip(val) {
+  const container = document.getElementById('editSellingChips');
+  if (!container) return;
+  if (container.querySelectorAll('.selling-chip.selected').length >= 5) { showToast('最多选5个卖点','error'); return; }
+  const chip = document.createElement('button');
+  chip.className = 'selling-chip selected'; chip.textContent = val; chip.dataset.value = val;
+  chip.onclick = () => chip.classList.toggle('selected');
+  container.appendChild(chip);
+}
+function _applyEditSelling() {
   const chips = document.querySelectorAll('#editSellingChips .selling-chip.selected');
   const newPoints = Array.from(chips).map(c => c.dataset.value);
   if (!newPoints.length) { showToast('请至少选一个卖点', 'error'); return; }
   applyEditField('selling', newPoints.join(' · '), null, newPoints);
 }
 
+/* ── 修改文风 ── */
+function _buildEditStyleCard() {
+  document.getElementById('editCardRow')?.remove();
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-row';
+  wrap.id = 'editCardRow';
+  wrap.innerHTML = `
+    <div style="max-width:580px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+      <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">有什么文风偏好吗？（可跳过）</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;">
+        ${['活泼轻快','专业严谨','种草感强','情感共鸣','干货分享'].map(s => `
+          <button class="lead-history-chip" onclick="
+            document.querySelectorAll('#editStyleWrap .lead-history-chip').forEach(b=>{b.style.background='';b.style.color='';b.style.borderColor='';});
+            this.style.background='#FFF0F3';this.style.color='#FF2442';this.style.borderColor='#FF2442';
+            document.getElementById('editStyleInput').value='${s}';">${s}</button>
+        `).join('')}
+      </div>
+      <div id="editStyleWrap" style="display:flex;gap:8px;align-items:center;">
+        <input id="editStyleInput" type="text" value="${state.style||''}" placeholder="或自由输入文风要求..."
+          style="flex:1;padding:9px 14px;border:1.5px solid #E5E7EB;border-radius:20px;font-size:13px;color:#13131F;outline:none;font-family:inherit;background:#F9FAFB;"
+          onfocus="this.style.borderColor='#FF2442'" onblur="this.style.borderColor='#E5E7EB'" />
+        <button onclick="applyEditField('style', document.getElementById('editStyleInput').value||'种草感强')"
+          style="padding:9px 18px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;">确认 →</button>
+        <button onclick="applyEditField('style','种草感强')"
+          style="padding:9px 12px;background:none;border:1px solid #E5E7EB;border-radius:20px;font-size:13px;color:#6B7280;cursor:pointer;font-family:inherit;">跳过</button>
+      </div>
+    </div>`;
+  document.getElementById('chatArea').appendChild(wrap);
+  scrollChat();
+}
+
+/* ── 旧版兼容函数（保留，不再使用） ── */
+function toggleReEditSpu(id, name) { _toggleEditSpu(id, name); }
+function confirmReEditSpu() { _confirmEditSpu(); }
+function selectReEditLeadSpu(id, name) { _selectEditLeadSpu(id, name); }
+
+function applyEditSelling() { _applyEditSelling(); }
+
 function applyEditField(field, value, extra, arrValue) {
-  // 移除修改输入行
-  document.getElementById(`editFieldRow_${field}`)?.remove();
+  // 移除修改卡片
+  document.getElementById('editCardRow')?.remove();
 
   // 更新 state
   if (field === 'product') {
@@ -3750,7 +3809,7 @@ function applyEditField(field, value, extra, arrValue) {
     addUserBubble(`文风改为：${value}`);
   }
 
-  // AI 确认
+  // AI 确认气泡
   setTimeout(() => {
     addAIBubble(`好的，「${field === 'product' ? '商品' : field === 'skill' ? '套路' : field === 'selling' ? '卖点' : '文风'}」已更新 ✓ 其他参数不变，点「开始生成」继续`);
   }, 300);
@@ -3939,8 +3998,8 @@ function showResults() {
         `).join('')}
       </div>
       <div class="result-regen">
-        <button class="result-regen-btn" onclick="regenAll()">🔄 重新生成一批</button>
-        <button class="result-regen-btn" onclick="tweakAndRegen()">✨ 调整参数再生成</button>
+        <button class="result-regen-btn" onclick="regenAll()">🔄 重新生成</button>
+        <button class="result-regen-btn primary" onclick="startNewSession()">✨ 新起会话</button>
       </div>
     </div>
   `;
@@ -4010,8 +4069,8 @@ function showResults() {
         `).join('')}
       </div>
       <div class="result-regen">
-        <button class="result-regen-btn" onclick="regenAll()">🔄 重新生成一批</button>
-        <button class="result-regen-btn" onclick="tweakAndRegen()">✨ 调整参数再生成</button>
+        <button class="result-regen-btn" onclick="regenAll()">🔄 重新生成</button>
+        <button class="result-regen-btn primary" onclick="startNewSession()">✨ 新起会话</button>
       </div>
     </div>
   `;
