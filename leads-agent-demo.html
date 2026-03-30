@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>线索营销 Agent · 内容策略工作台</title>
+<style>
+/* ══════════════════════════════════════════
+   RESET & BASE
+══════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  height: 100%;
+  overflow: hidden;
+}
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+  background: #F7F7F9;
+  color: #13131F;
+  font-size: 14px;
+  min-width: 1100px;
+}
+
+/* ══════════════════════════════════════════
+   HEADER（高度 52px）
+══════════════════════════════════════════ */
+.header {
+  height: 52px;
+  background: #FFFFFF;
+  border-bottom: 1px solid #EBEBEB;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 0;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+
+/* 左侧导航 */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 240px;
+}
+.header-back {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #6B7280;
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.2s;
+  white-space: nowrap;
+}
+.header-back:hover { color: #FF2442; }
+.header-divider {
+  width: 1px;
+  height: 16px;
+  background: #EBEBEB;
+}
+.header-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #13131F;
+  white-space: nowrap;
+}
+
+/* 中间步骤条 */
+.header-steps {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.step-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  background: #F3F4F6;
+  color: #9CA3AF;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.step-circle.active {
+  background: linear-gradient(135deg, #FF2442, #a855f7);
+  color: #FFFFFF;
+  box-shadow: 0 2px 8px rgba(255,36,66,0.3);
+}
+.step-label {
+  font-size: 12px;
+  color: #9CA3AF;
+  white-space: nowrap;
+  font-weight: 500;
+}
+.step-label.active {
+  color: #FF2442;
+  font-weight: 600;
+}
+.step-arrow {
+  margin: 0 8px;
+  color: #D1D5DB;
+  font-size: 11px;
+}
+
+/* 右侧操作区 */
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 200px;
+  justify-content: flex-end;
+}
+.quota-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: #FFF7F8;
+  border: 1px solid #FFD6DC;
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: #FF2442;
+  font-weight: 500;
+}
+.quota-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #FF2442;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.history-btn {
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid #EBEBEB;
+  border-radius: 6px;
+  background: #FFFFFF;
+  color: #6B7280;
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.history-btn:hover {
+  border-color: #FF2442;
+  color: #FF2442;
+  background: #FFF7F8;
+}
+
+/* ══════════════════════════════════════════
+   主体三栏布局
+══════════════════════════════════════════ */
+.main-layout {
+  display: flex;
+  height: calc(100vh - 52px);
+  overflow: hidden;
+}
+
+/* ══════════════════════════════════════════
+   左侧栏（260px）
+══════════════════════════════════════════ */
+.sidebar-left {
+  width: 260px;
+  flex-shrink: 0;
+  border-right: 1px solid #EBEBEB;
+  background: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* 商家卡片 */
+.brand-card {
+  padding: 16px;
+  border-bottom: 1px solid #F3F4F6;
+}
+.brand-card-inner {
+  background: #F7F7F9;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.brand-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #FF2442, #a855f7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+.brand-info { flex: 1; min-width: 0; }
+.brand-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #13131F;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.brand-meta {
+  font-size: 11px;
+  color: #9CA3AF;
+  margin-top: 2px;
+}
+
+/* 历史任务区 */
+.history-section {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+.history-section::-webkit-scrollbar { width: 4px; }
+.history-section::-webkit-scrollbar-track { background: transparent; }
+.history-section::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 2px; }
+
+.section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.section-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #6B7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.view-all {
+  font-size: 11px;
+  color: #FF2442;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.view-all:hover { opacity: 0.7; }
+
+/* 历史任务卡片 */
+.task-card {
+  background: #FFFFFF;
+  border: 1px solid #EBEBEB;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+}
+.task-card:hover {
+  border-color: #FFD6DC;
+  box-shadow: 0 2px 8px rgba(255,36,66,0.08);
+  transform: translateY(-1px);
+}
+.task-accent {
+  width: 4px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, #FF2442, #a855f7);
+}
+.task-body {
+  padding: 10px 10px;
+  flex: 1;
+  min-width: 0;
+}
+.task-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #13131F;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 4px;
+}
+.task-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #9CA3AF;
+}
+.task-done {
+  color: #10B981;
+  font-weight: 500;
+}
+.task-count {
+  background: #F3F4F6;
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 10px;
+  color: #6B7280;
+}
+
+/* ══════════════════════════════════════════
+   中间栏（flex:1）—— 对话区
+══════════════════════════════════════════ */
+.chat-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #F7F7F9;
+}
+
+/* 对话滚动区 */
+.chat-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+}
+.chat-scroll::-webkit-scrollbar { width: 4px; }
+.chat-scroll::-webkit-scrollbar-track { background: transparent; }
+.chat-scroll::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 2px; }
+
+/* 通用气泡行 */
+.msg-row {
+  display: flex;
+  margin-bottom: 16px;
+}
+.msg-row.agent { justify-content: flex-start; }
+.msg-row.user { justify-content: flex-end; }
+
+/* Agent 图标 */
+.agent-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #FF2442, #a855f7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+  margin-right: 8px;
+  margin-top: 2px;
+  box-shadow: 0 2px 6px rgba(255,36,66,0.25);
+}
+
+/* Agent 气泡 */
+.bubble-agent {
+  max-width: 80%;
+  background: #F3F4F6;
+  border-radius: 4px 12px 12px 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.7;
+  color: #13131F;
+  white-space: pre-line;
+}
+
+/* 用户气泡 */
+.bubble-user {
+  max-width: 70%;
+  background: linear-gradient(135deg, #FF2442, #a855f7);
+  border-radius: 12px 4px 12px 12px;
+  padding: 10px 14px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #FFFFFF;
+}
+
+/* 用户附件区（图片占位） */
+.upload-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+.upload-thumb {
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+}
+.upload-info {
+  font-size: 12px;
+  color: rgba(255,255,255,0.9);
+}
+.upload-label { font-weight: 600; }
+.upload-sub { opacity: 0.7; margin-top: 1px; }
+
+/* ── 方案确认卡片（内联在对话流中） ── */
+.plan-card {
+  max-width: 80%;
+  background: #FFFFFF;
+  border: 1px solid #EBEBEB;
+  border-left: 4px solid #FF2442;
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-left: 36px; /* 与 Agent 气泡对齐 */
+}
+.plan-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #13131F;
+  margin-bottom: 10px;
+}
+.plan-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 13px;
+  color: #374151;
+}
+.plan-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #10B981;
+  color: #FFFFFF;
+  font-size: 9px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.plan-note {
+  font-size: 12px;
+  color: #6B7280;
+  margin-top: 4px;
+  margin-bottom: 12px;
+  padding-left: 2px;
+}
+.plan-actions {
+  display: flex;
+  gap: 8px;
+}
+.btn-confirm {
+  height: 32px;
+  padding: 0 14px;
+  background: linear-gradient(135deg, #FF2442, #a855f7);
+  border: none;
+  border-radius: 6px;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.btn-confirm:hover {
+  opacity: 0.88;
+  box-shadow: 0 4px 12px rgba(255,36,66,0.3);
+  transform: translateY(-1px);
+}
+.btn-adjust {
+  height: 32px;
+  padding: 0 14px;
+  background: #FFFFFF;
+  border: 1px solid #D1D5DB;
+  border-radius: 6px;
+  color: #6B7280;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-adjust:hover {
+  border-color: #9CA3AF;
+  color: #374151;
+}
+
+/* ── 生成中气泡 ── */
+.generating-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  line-height: 1.8;
+}
+.gen-done { color: #10B981; font-weight: 500; }
+.gen-progress { color: #F59E0B; font-weight: 500; }
+.gen-title { font-weight: 600; color: #13131F; margin-bottom: 4px; }
+.gen-eta { font-size: 11px; color: #9CA3AF; margin-top: 6px; }
+
+/* ── 底部输入区 ── */
+.chat-input-bar {
+  flex-shrink: 0;
+  background: #FFFFFF;
+  border-top: 1px solid #EBEBEB;
+  padding: 12px 24px 16px;
+}
+.input-hint {
+  font-size: 11px;
+  color: #9CA3AF;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.input-hint::before {
+  content: '💡';
+  font-size: 11px;
+}
+.input-row {
+  display: flex;
+  gap: 10px;
+  align-items: flex-end;
+}
+.input-box {
+  flex: 1;
+  height: 40px;
+  padding: 0 14px;
+  background: #F7F7F9;
+  border: 1px solid #EBEBEB;
+  border-radius: 20px;
+  font-size: 14px;
+  font-family: inherit;
+  color: #13131F;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input-box::placeholder { color: #9CA3AF; }
+.input-box:focus {
+  border-color: #FF2442;
+  box-shadow: 0 0 0 3px rgba(255,36,66,0.08);
+  background: #FFFFFF;
+}
+.send-btn {
+  height: 40px;
+  padding: 0 20px;
+  background: linear-gradient(135deg, #FF2442, #a855f7);
+  border: none;
+  border-radius: 20px;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.send-btn:hover {
+  opacity: 0.88;
+  box-shadow: 0 4px 14px rgba(255,36,66,0.35);
+  transform: translateY(-1px);
+}
+.send-btn:active { transform: translateY(0); }
+
+/* ══════════════════════════════════════════
+   右侧栏（320px）—— 方案面板
+══════════════════════════════════════════ */
+.sidebar-right {
+  width: 320px;
+  flex-shrink: 0;
+  border-left: 1px solid #EBEBEB;
+  background: #FFFFFF;
+  overflow-y: auto;
+  padding: 16px;
+}
+.sidebar-right::-webkit-scrollbar { width: 4px; }
+.sidebar-right::-webkit-scrollbar-track { background: transparent; }
+.sidebar-right::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 2px; }
+
+.panel-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #13131F;
+  margin-bottom: 14px;
+}
+
+/* 当前方案卡片 */
+.panel-card {
+  background: #FFFFFF;
+  border: 1px solid #EBEBEB;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+.panel-card-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #9CA3AF;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 10px;
+}
+
+/* 场景 pill */
+.scene-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, rgba(255,36,66,0.1), rgba(168,85,247,0.1));
+  border: 1px solid rgba(255,36,66,0.2);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #FF2442;
+  margin-bottom: 12px;
+}
+
+/* 内容方向行 */
+.direction-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+.direction-name { color: #13131F; font-weight: 500; }
+.direction-count {
+  color: #6B7280;
+  font-size: 12px;
+}
+.direction-tag {
+  margin-left: auto;
+  background: #F3F4F6;
+  color: #6B7280;
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+/* 投放建议卡片 */
+.advice-card {
+  background: #F9FAFB;
+  border: 1px solid #EBEBEB;
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+.advice-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  margin-bottom: 8px;
+  font-size: 13px;
+  color: #374151;
+  line-height: 1.5;
+}
+.advice-row:last-child { margin-bottom: 0; }
+.advice-label {
+  color: #9CA3AF;
+  font-size: 11px;
+  white-space: nowrap;
+  padding-top: 1px;
+  min-width: 56px;
+}
+.advice-val { flex: 1; }
+.dot-red {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #FF2442;
+  vertical-align: middle;
+  margin-left: 3px;
+}
+
+/* 素材预览 */
+.material-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #13131F;
+  margin-bottom: 10px;
+}
+.material-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.material-card {
+  border: 1px solid #EBEBEB;
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.material-card:hover {
+  border-color: #FFD6DC;
+  box-shadow: 0 2px 8px rgba(255,36,66,0.1);
+  transform: translateY(-1px);
+}
+.material-thumb {
+  width: 100%;
+  aspect-ratio: 4/3;
+  background: #F3F4F6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #D1D5DB;
+}
+.material-info {
+  padding: 8px;
+}
+.material-name {
+  font-size: 10px;
+  color: #6B7280;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 3px;
+}
+.material-status {
+  font-size: 10px;
+  color: #F59E0B;
+  font-weight: 600;
+}
+
+/* 私信话术链接 */
+.chat-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #3B82F6;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  padding: 10px 0 4px;
+  border-top: 1px solid #F3F4F6;
+}
+.chat-link:hover { opacity: 0.7; }
+
+/* ══════════════════════════════════════════
+   动画：生成中闪烁
+══════════════════════════════════════════ */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+.blink { animation: blink 1.2s ease-in-out infinite; }
+
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════
+     HEADER
+══════════════════════════════════════════ -->
+<header class="header">
+
+  <!-- 左侧 -->
+  <div class="header-left">
+    <div class="header-back">
+      <span>←</span>
+      <span>首页</span>
+    </div>
+    <div class="header-divider"></div>
+    <div class="header-title">线索营销 Agent · 内容策略工作台</div>
+  </div>
+
+  <!-- 中间步骤条 -->
+  <div class="header-steps">
+    <!-- Step 1 激活 -->
+    <div class="step-item">
+      <div class="step-circle active">①</div>
+      <div class="step-label active">需求表达</div>
+    </div>
+    <div class="step-arrow">→</div>
+    <!-- Step 2 -->
+    <div class="step-item">
+      <div class="step-circle">②</div>
+      <div class="step-label">内容诊断</div>
+    </div>
+    <div class="step-arrow">→</div>
+    <!-- Step 3 -->
+    <div class="step-item">
+      <div class="step-circle">③</div>
+      <div class="step-label">素材生产</div>
+    </div>
+    <div class="step-arrow">→</div>
+    <!-- Step 4 -->
+    <div class="step-item">
+      <div class="step-circle">④</div>
+      <div class="step-label">投放配置</div>
+    </div>
+  </div>
+
+  <!-- 右侧 -->
+  <div class="header-right">
+    <div class="quota-badge">
+      <div class="quota-dot"></div>
+      今日剩余 47 次
+    </div>
+    <button class="history-btn">📋 历史记录</button>
+  </div>
+
+</header>
+
+<!-- ══════════════════════════════════════════
+     主体三栏
+══════════════════════════════════════════ -->
+<div class="main-layout">
+
+  <!-- ──────────────────────────────────────
+       左侧栏：商家信息 + 历史任务
+  ────────────────────────────────────── -->
+  <aside class="sidebar-left">
+
+    <!-- 商家卡片 -->
+    <div class="brand-card">
+      <div class="brand-card-inner">
+        <div class="brand-icon">🌸</div>
+        <div class="brand-info">
+          <div class="brand-name">雅思研究院</div>
+          <div class="brand-meta">教育行业 · ID: 8823401</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 历史任务 -->
+    <div class="history-section">
+      <div class="section-header">
+        <div class="section-title">历史任务</div>
+        <div class="view-all">查看全部 →</div>
+      </div>
+
+      <!-- 任务1 -->
+      <div class="task-card">
+        <div class="task-accent"></div>
+        <div class="task-body">
+          <div class="task-name">旺季冲刺_雅思_0325</div>
+          <div class="task-meta">
+            <span class="task-done">✓ 已完成</span>
+            <span class="task-count">8条</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 任务2 -->
+      <div class="task-card">
+        <div class="task-accent"></div>
+        <div class="task-body">
+          <div class="task-name">冷启测试_公考_0320</div>
+          <div class="task-meta">
+            <span class="task-done">✓ 已完成</span>
+            <span class="task-count">6条</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 任务3 -->
+      <div class="task-card">
+        <div class="task-accent"></div>
+        <div class="task-body">
+          <div class="task-name">质量优化_MBA_0315</div>
+          <div class="task-meta">
+            <span class="task-done">✓ 已完成</span>
+            <span class="task-count">6条</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /history-section -->
+  </aside>
+
+  <!-- ──────────────────────────────────────
+       中间栏：对话流 + 输入框
+  ────────────────────────────────────── -->
+  <main class="chat-column">
+
+    <!-- 对话滚动区 -->
+    <div class="chat-scroll">
+
+      <!-- ① Agent 开场白 -->
+      <div class="msg-row agent">
+        <div class="agent-avatar">🎯</div>
+        <div class="bubble-agent">
+          你好！我是你的线索营销 Agent 🎯 告诉我，你现在的生意目标是什么？
+        </div>
+      </div>
+
+      <!-- ② 用户消息 -->
+      <div class="msg-row user">
+        <div class="bubble-user">
+          我做雅思培训，现在报名季，想多拉咨询，预算一万左右
+        </div>
+      </div>
+
+      <!-- ③ Agent 分析回复 -->
+      <div class="msg-row agent">
+        <div class="agent-avatar">🎯</div>
+        <div class="bubble-agent">我理解你的情况：旺季冲刺，目标是拉新留资。
+
+先说内容——这个阶段内容是最关键的，做对了咨询量能翻倍。
+
+基于教育行业的跑量数据，我建议两个方向并跑：
+· 课表对比型：高互动率，教育用户很吃这个
+· 老师自述型：建立信任，私信转化率高
+
+每个方向先出4条，3天内看哪个更跑量，再集中资源。承接动作建议私信——报名季私信比表单转化高30%+。</div>
+      </div>
+
+      <!-- ④ 内联方案确认卡片 -->
+      <div class="msg-row agent" style="margin-bottom: 16px;">
+        <div style="width:28px; margin-right:8px; flex-shrink:0;"></div><!-- 占位对齐 -->
+        <div class="plan-card">
+          <div class="plan-card-title">📋 内容方案确认</div>
+
+          <div class="plan-item">
+            <span class="plan-check">✓</span>
+            <span>📊 课表对比型 × 4条</span>
+          </div>
+          <div class="plan-item">
+            <span class="plan-check">✓</span>
+            <span>👨‍🏫 老师自述型 × 4条</span>
+          </div>
+          <div class="plan-note">承接动作：私信</div>
+
+          <div class="plan-actions">
+            <button class="btn-confirm">确认方案，开始生成 →</button>
+            <button class="btn-adjust">调整方案</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ⑤ Agent 询问素材图 -->
+      <div class="msg-row agent">
+        <div class="agent-avatar">🎯</div>
+        <div class="bubble-agent">你有可以用的素材图吗？上传后我马上开始生成。</div>
+      </div>
+
+      <!-- ⑥ 用户回复 + 图片上传占位 -->
+      <div class="msg-row user">
+        <div class="bubble-user">
+          好的
+          <div class="upload-preview">
+            <div class="upload-thumb">🖼️</div>
+            <div class="upload-info">
+              <div class="upload-label">3张素材图</div>
+              <div class="upload-sub">已上传完成</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ⑦ Agent 生成中状态 -->
+      <div class="msg-row agent">
+        <div class="agent-avatar">🎯</div>
+        <div class="bubble-agent">
+          <div class="generating-steps">
+            <div class="gen-title">正在生成中... ⏳</div>
+            <div class="gen-done">✅ 分析套路结构...</div>
+            <div class="gen-done">✅ 匹配卖点话术...</div>
+            <div class="gen-progress">
+              <span class="blink">⏳</span> 生成图文内容...
+            </div>
+            <div class="gen-eta">预计 30 秒完成</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /chat-scroll -->
+
+    <!-- 底部固定输入区 -->
+    <div class="chat-input-bar">
+      <div class="input-hint">支持自然语言表达，Agent 会帮你翻译成内容策略</div>
+      <div class="input-row">
+        <input
+          class="input-box"
+          type="text"
+          placeholder="描述你的生意目标，或直接说想做什么..."
+        />
+        <button class="send-btn">发送 ↑</button>
+      </div>
+    </div>
+
+  </main><!-- /chat-column -->
+
+  <!-- ──────────────────────────────────────
+       右侧栏：内容方案面板
+  ────────────────────────────────────── -->
+  <aside class="sidebar-right">
+
+    <div class="panel-title">内容方案</div>
+
+    <!-- 当前方案卡片 -->
+    <div class="panel-card">
+      <div class="panel-card-title">当前方案</div>
+      <div class="scene-pill">🚀 旺季冲刺</div>
+
+      <!-- 内容方向 1 -->
+      <div class="direction-row">
+        <span>📊</span>
+        <span class="direction-name">课表对比型</span>
+        <span class="direction-count">· 4条</span>
+        <span class="direction-tag">教育高跑量</span>
+      </div>
+
+      <!-- 内容方向 2 -->
+      <div class="direction-row">
+        <span>👨‍🏫</span>
+        <span class="direction-name">老师自述型</span>
+        <span class="direction-count">· 4条</span>
+        <span class="direction-tag">高转化</span>
+      </div>
+    </div>
+
+    <!-- 投放建议卡片 -->
+    <div class="advice-card">
+      <div class="panel-card-title" style="margin-bottom:10px;">投放建议</div>
+      <div class="advice-row">
+        <span class="advice-label">承接动作</span>
+        <span class="advice-val">私信 <span class="dot-red"></span></span>
+      </div>
+      <div class="advice-row">
+        <span class="advice-label">人群定向</span>
+        <span class="advice-val">教育兴趣 + 竞品用户</span>
+      </div>
+      <div class="advice-row">
+        <span class="advice-label">预算节奏</span>
+        <span class="advice-val">小预算并跑 7 天</span>
+      </div>
+    </div>
+
+    <!-- 素材预览 -->
+    <div class="material-title">素材预览</div>
+    <div class="material-grid">
+
+      <!-- 素材卡片 1 -->
+      <div class="material-card">
+        <div class="material-thumb">⏳</div>
+        <div class="material-info">
+          <div class="material-name">课表对比型_雅思_0330</div>
+          <div class="material-status">⏳ 生成中</div>
+        </div>
+      </div>
+
+      <!-- 素材卡片 2 -->
+      <div class="material-card">
+        <div class="material-thumb">⏳</div>
+        <div class="material-info">
+          <div class="material-name">老师自述型_雅思_0330</div>
+          <div class="material-status">⏳ 生成中</div>
+        </div>
+      </div>
+
+    </div><!-- /material-grid -->
+
+    <!-- 私信话术链接 -->
+    <div class="chat-link">
+      💬 私信话术已准备好 →
+    </div>
+
+  </aside>
+
+</div><!-- /main-layout -->
+
+</body>
+</html>
