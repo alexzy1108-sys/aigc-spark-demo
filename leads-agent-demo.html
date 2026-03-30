@@ -3,16 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>线索营销 Agent</title>
+<title>线索营销🦞 · AIGC 加强版</title>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; overflow: hidden; }
 body {
-  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Menlo', 'Monaco', monospace;
-  background: #0d0d0d;
-  color: #e2e2e2;
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Menlo', monospace;
+  background: #0c0c0c;
+  color: #ddd;
   font-size: 13px;
-  min-width: 1100px;
+  min-width: 960px;
   height: 100vh;
   display: flex;
   flex-direction: column;
@@ -20,745 +20,452 @@ body {
 
 /* ── TITLEBAR ── */
 .titlebar {
-  height: 40px;
-  background: #1a1a1a;
-  border-bottom: 1px solid #2a2a2a;
+  height: 38px;
+  background: #181818;
+  border-bottom: 1px solid #272727;
   display: flex;
   align-items: center;
-  padding: 0 16px;
-  gap: 0;
+  padding: 0 14px;
   flex-shrink: 0;
   position: relative;
+  user-select: none;
 }
-.titlebar-dots {
-  display: flex;
-  gap: 6px;
-  margin-right: 16px;
+.dots { display: flex; gap: 6px; margin-right: 14px; }
+.dot { width: 12px; height: 12px; border-radius: 50%; }
+.d-r { background: #ff5f57; } .d-y { background: #febc2e; } .d-g { background: #28c840; }
+.title-center {
+  position: absolute; left: 50%; transform: translateX(-50%);
+  font-size: 12px; color: #555; letter-spacing: 0.3px;
+  display: flex; align-items: center; gap: 8px;
 }
-.dot {
-  width: 12px; height: 12px;
-  border-radius: 50%;
+.title-badge {
+  font-size: 10px; background: #1e1e1e; border: 1px solid #2e2e2e;
+  border-radius: 3px; padding: 1px 6px; color: #666;
 }
-.dot-red { background: #ff5f57; }
-.dot-yellow { background: #ffbd2e; }
-.dot-green { background: #28c840; }
-.titlebar-title {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  font-size: 12px;
-  color: #666;
-  letter-spacing: 0.3px;
+.title-right {
+  margin-left: auto; display: flex; gap: 10px; align-items: center;
 }
-.titlebar-right {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.badge {
-  font-size: 11px;
-  color: #888;
-  background: #222;
-  border: 1px solid #333;
-  border-radius: 4px;
-  padding: 2px 8px;
-}
-.badge-quota { color: #f0c040; }
+.quota { font-size: 11px; color: #f0c040; background: #1e1a00; border: 1px solid #3a3000; border-radius: 3px; padding: 2px 8px; }
+.conn { font-size: 11px; color: #28c840; display: flex; align-items: center; gap: 4px; }
+.conn-dot { width: 6px; height: 6px; border-radius: 50%; background: #28c840; animation: blink 2s ease infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.4} }
 
 /* ── TABS ── */
 .tabs {
-  height: 36px;
-  background: #141414;
-  border-bottom: 1px solid #252525;
-  display: flex;
-  align-items: flex-end;
-  padding: 0 16px;
-  gap: 2px;
-  flex-shrink: 0;
+  height: 34px; background: #121212; border-bottom: 1px solid #222;
+  display: flex; align-items: flex-end; padding: 0 14px; gap: 2px; flex-shrink: 0;
 }
 .tab {
-  padding: 6px 14px;
-  font-size: 12px;
-  color: #555;
-  border-radius: 6px 6px 0 0;
-  border: 1px solid transparent;
-  border-bottom: none;
-  cursor: pointer;
-  background: transparent;
-  transition: all 0.15s;
-  letter-spacing: 0.2px;
+  padding: 5px 13px; font-size: 11px; color: #444; border-radius: 5px 5px 0 0;
+  border: 1px solid transparent; border-bottom: none; cursor: pointer;
+  background: transparent; letter-spacing: 0.2px; transition: color 0.15s;
 }
-.tab.active {
-  background: #0d0d0d;
-  border-color: #2a2a2a;
-  border-bottom-color: #0d0d0d;
-  color: #e2e2e2;
-}
-.tab:not(.active):hover { color: #888; }
+.tab.active { background: #0c0c0c; border-color: #272727; border-bottom-color: #0c0c0c; color: #ccc; }
+.tab:not(.active):hover { color: #666; }
 
-/* ── MAIN BODY ── */
-.main {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-}
+/* ── LAYOUT ── */
+.main { display: flex; flex: 1; overflow: hidden; }
 
-/* ── LEFT SIDEBAR ── */
+/* ── SIDEBAR ── */
 .sidebar {
-  width: 220px;
-  background: #111;
-  border-right: 1px solid #222;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  overflow: hidden;
+  width: 200px; background: #101010; border-right: 1px solid #1e1e1e;
+  display: flex; flex-direction: column; flex-shrink: 0;
 }
-.sidebar-section {
-  padding: 12px 0;
-  border-bottom: 1px solid #1e1e1e;
+.sb-section { padding: 12px 0; border-bottom: 1px solid #1a1a1a; }
+.sb-label { font-size: 10px; color: #3a3a3a; letter-spacing: 1.5px; text-transform: uppercase; padding: 0 12px 7px; }
+.sb-item {
+  padding: 6px 12px; cursor: pointer; display: flex; align-items: center;
+  gap: 8px; border-left: 2px solid transparent; transition: background 0.1s;
 }
-.sidebar-label {
-  font-size: 10px;
-  color: #444;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  padding: 0 14px 8px;
-}
-.sidebar-item {
-  padding: 6px 14px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  transition: background 0.1s;
-  border-left: 2px solid transparent;
-}
-.sidebar-item:hover { background: #1a1a1a; }
-.sidebar-item.active {
-  background: #1a1a1a;
-  border-left-color: #ff2442;
-}
-.sidebar-item-icon { font-size: 12px; width: 16px; text-align: center; }
-.sidebar-item-text {
-  flex: 1;
-  min-width: 0;
-}
-.sidebar-item-name {
-  font-size: 12px;
-  color: #ccc;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.sidebar-item-meta {
-  font-size: 10px;
-  color: #444;
-  margin-top: 1px;
-}
-.sidebar-item.active .sidebar-item-name { color: #fff; }
-.status-dot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: #28c840;
-  flex-shrink: 0;
-}
-.status-dot.pending { background: #f0c040; }
+.sb-item:hover { background: #181818; }
+.sb-item.active { background: #181818; border-left-color: #ff4a6e; }
+.sb-name { font-size: 12px; color: #bbb; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sb-meta { font-size: 10px; color: #3a3a3a; margin-top: 1px; }
+.sb-item.active .sb-name { color: #eee; }
+.sb-check { font-size: 11px; color: #28c840; }
+.sb-pending { font-size: 11px; color: #f0c040; }
 
-/* ── CHAT PANEL ── */
-.chat-panel {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  background: #0d0d0d;
-}
+/* ── CHAT ── */
+.chat { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
 
-/* prompt line at top */
-.prompt-line {
-  padding: 10px 20px;
-  border-bottom: 1px solid #1a1a1a;
-  font-size: 11px;
-  color: #444;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
+.pathbar {
+  padding: 8px 18px; border-bottom: 1px solid #181818;
+  font-size: 11px; color: #383838; display: flex; align-items: center; gap: 10px; flex-shrink: 0;
 }
-.prompt-line-path { color: #555; }
-.prompt-line-branch { color: #7c6aff; }
-.prompt-line-status { color: #28c840; margin-left: auto; }
+.pathbar-branch { color: #6a5aff; }
+.pathbar-status { margin-left: auto; color: #28c840; }
 
-/* messages */
 .messages {
-  flex: 1;
-  overflow-y: auto;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+  flex: 1; overflow-y: auto; padding: 18px; display: flex; flex-direction: column; gap: 14px;
 }
-.messages::-webkit-scrollbar { width: 4px; }
-.messages::-webkit-scrollbar-track { background: transparent; }
-.messages::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
+.messages::-webkit-scrollbar { width: 3px; }
+.messages::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
 
-/* message row */
-.msg-row { display: flex; gap: 12px; }
-.msg-row.user { flex-direction: row-reverse; }
+/* rows */
+.row { display: flex; gap: 10px; }
+.row.user { flex-direction: row-reverse; }
+.avatar {
+  width: 26px; height: 26px; border-radius: 5px; flex-shrink: 0; margin-top: 2px;
+  display: flex; align-items: center; justify-content: center; font-size: 12px;
+}
+.avatar.agent { background: #141428; border: 1px solid #252540; }
+.avatar.user  { background: #1e1010; border: 1px solid #331818; }
+.body { max-width: 72%; display: flex; flex-direction: column; gap: 3px; }
+.row.user .body { align-items: flex-end; }
+.who { font-size: 10px; color: #383838; padding: 0 3px; }
 
-.msg-avatar {
-  width: 28px; height: 28px;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 13px;
-  flex-shrink: 0;
-  margin-top: 2px;
+.bubble {
+  padding: 10px 13px; border-radius: 8px; line-height: 1.65;
+  white-space: pre-wrap; word-break: break-word; font-size: 12.5px;
 }
-.msg-avatar.agent { background: #1a1a2e; border: 1px solid #2a2a4a; }
-.msg-avatar.user  { background: #1e1010; border: 1px solid #3a1a1a; }
+.bubble.agent { background: #151515; border: 1px solid #232323; color: #ccc; }
+.bubble.user  { background: #1c0e0e; border: 1px solid #321515; color: #eecccc; }
 
-.msg-body { max-width: 70%; display: flex; flex-direction: column; gap: 4px; }
-.msg-row.user .msg-body { align-items: flex-end; }
+.g { color: #3ec93e; } /* green */
+.y { color: #f0c040; } /* yellow */
+.b { color: #5599ff; } /* blue */
+.r { color: #ff6070; } /* red */
+.d { color: #484848; } /* dim */
+.w { color: #fff; font-weight: 600; } /* bold white */
 
-.msg-who {
-  font-size: 10px;
-  color: #444;
-  letter-spacing: 0.5px;
-  padding: 0 4px;
-}
-.msg-row.user .msg-who { color: #555; }
-
-.msg-bubble {
-  padding: 10px 14px;
-  border-radius: 8px;
-  line-height: 1.6;
-  white-space: pre-wrap;
-  word-break: break-word;
-}
-.msg-bubble.agent {
-  background: #161616;
-  border: 1px solid #252525;
-  color: #d0d0d0;
-}
-.msg-bubble.user {
-  background: #1e0e0e;
-  border: 1px solid #3a1818;
-  color: #f0d0d0;
-}
-
-/* highlight in agent bubble */
-.hl-green  { color: #4ec94e; }
-.hl-yellow { color: #f0c040; }
-.hl-blue   { color: #60aaff; }
-.hl-red    { color: #ff5f6d; }
-.hl-dim    { color: #555; }
-.hl-bold   { color: #fff; font-weight: 600; }
-
-/* inline card */
-.inline-card {
-  background: #0f1a0f;
-  border: 1px solid #1e3a1e;
-  border-left: 3px solid #28c840;
-  border-radius: 8px;
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  max-width: 420px;
-}
-.inline-card-title {
-  font-size: 11px;
-  color: #4ec94e;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-}
-.inline-card-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: #aaa;
-}
-.inline-card-row .check { color: #4ec94e; }
-.inline-card-row .tag {
-  margin-left: auto;
-  font-size: 10px;
-  background: #1a2a1a;
-  border: 1px solid #2a3a2a;
-  border-radius: 3px;
-  padding: 1px 6px;
-  color: #4ec94e;
-}
-.inline-card-divider {
-  height: 1px;
-  background: #1e3a1e;
-  margin: 2px 0;
-}
-.inline-card-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 2px;
-}
-.btn-primary {
-  padding: 6px 14px;
-  background: #ff2442;
-  border: none;
-  border-radius: 5px;
-  color: #fff;
-  font-family: inherit;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background 0.15s;
-  letter-spacing: 0.3px;
-}
-.btn-primary:hover { background: #e01e38; }
-.btn-secondary {
-  padding: 6px 14px;
-  background: transparent;
-  border: 1px solid #333;
-  border-radius: 5px;
-  color: #666;
-  font-family: inherit;
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.15s;
-}
-.btn-secondary:hover { border-color: #555; color: #999; }
-
-/* upload preview */
-.upload-preview {
-  display: flex;
-  gap: 6px;
-  margin-top: 4px;
-}
-.upload-thumb {
-  width: 52px; height: 52px;
-  background: #1a1a1a;
-  border: 1px solid #2a2a2a;
-  border-radius: 6px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  gap: 2px;
-}
-.upload-thumb-label { font-size: 9px; color: #555; }
-
-/* generating block */
-.gen-block {
-  background: #161616;
-  border: 1px solid #252525;
-  border-radius: 8px;
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  max-width: 360px;
-}
-.gen-line {
-  font-size: 12px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.gen-icon-done  { color: #4ec94e; }
-.gen-icon-spin  { color: #f0c040; animation: pulse 1.2s ease infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-.gen-text-done  { color: #666; text-decoration: line-through; }
-.gen-text-cur   { color: #e2e2e2; }
-.gen-text-wait  { color: #333; }
-.gen-eta { font-size: 10px; color: #444; margin-left: auto; }
-
-/* ── INPUT BAR ── */
-.input-bar {
-  padding: 12px 20px;
-  border-top: 1px solid #1a1a1a;
-  background: #0d0d0d;
-  flex-shrink: 0;
-}
-.input-hint {
-  font-size: 10px;
-  color: #333;
-  margin-bottom: 8px;
-  letter-spacing: 0.3px;
-}
-.input-hint span { color: #555; }
-.input-row {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-.input-prompt { color: #ff2442; font-size: 14px; flex-shrink: 0; }
-.input-field {
-  flex: 1;
-  background: #141414;
-  border: 1px solid #252525;
-  border-radius: 6px;
-  padding: 8px 12px;
-  color: #e2e2e2;
-  font-family: inherit;
-  font-size: 13px;
-  outline: none;
-  transition: border-color 0.2s;
-}
-.input-field::placeholder { color: #333; }
-.input-field:focus { border-color: #3a3a3a; }
-.input-send {
-  padding: 8px 16px;
-  background: #ff2442;
-  border: none;
-  border-radius: 6px;
-  color: #fff;
-  font-family: inherit;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background 0.15s;
-  letter-spacing: 0.5px;
-}
-.input-send:hover { background: #e01e38; }
-
-/* ── RIGHT PANEL ── */
-.right-panel {
-  width: 300px;
-  background: #111;
-  border-left: 1px solid #1e1e1e;
-  display: flex;
-  flex-direction: column;
-  flex-shrink: 0;
-  overflow: hidden;
-}
-.right-section {
-  padding: 14px 14px 0;
-  border-bottom: 1px solid #1a1a1a;
-  padding-bottom: 14px;
-}
-.right-section:last-child { border-bottom: none; flex: 1; overflow-y: auto; }
-.right-section-title {
-  font-size: 10px;
-  color: #444;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.right-section-title::after {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: #1e1e1e;
+/* voice badge */
+.voice-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: #0f1e0f; border: 1px solid #1e3a1e; border-radius: 4px;
+  padding: 3px 8px; font-size: 11px; color: #4ec94e; margin-top: 4px;
 }
 
 /* plan card */
-.plan-scene {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 11px;
-  background: #1e0e0e;
-  border: 1px solid #3a1818;
-  border-radius: 4px;
-  padding: 3px 8px;
-  color: #ff7a7a;
-  margin-bottom: 10px;
+.plan-card {
+  background: #0d180d; border: 1px solid #1a3a1a; border-left: 3px solid #3ec93e;
+  border-radius: 8px; padding: 12px 14px; max-width: 400px;
+  display: flex; flex-direction: column; gap: 8px;
 }
-.plan-row {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  padding: 5px 0;
-  border-bottom: 1px solid #1a1a1a;
-  font-size: 12px;
+.plan-title { font-size: 10px; color: #3ec93e; letter-spacing: 1px; text-transform: uppercase; }
+.plan-row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #999; }
+.plan-row .ck { color: #3ec93e; }
+.plan-row .tag {
+  margin-left: auto; font-size: 10px; background: #162016; border: 1px solid #253525;
+  border-radius: 3px; padding: 1px 5px; color: #3ec93e;
 }
-.plan-row:last-of-type { border-bottom: none; }
-.plan-row-name { color: #ccc; flex: 1; }
-.plan-row-count { color: #666; font-size: 11px; }
-.plan-row-tag {
-  font-size: 10px;
-  color: #444;
-  background: #1a1a1a;
-  border: 1px solid #252525;
-  border-radius: 3px;
-  padding: 1px 5px;
+.plan-hr { height: 1px; background: #1a3a1a; }
+.plan-meta { font-size: 11px; color: #484848; }
+.plan-meta span { color: #ff6070; }
+.plan-btns { display: flex; gap: 8px; margin-top: 2px; }
+.btn-go {
+  padding: 6px 13px; background: #e81c3a; border: none; border-radius: 5px;
+  color: #fff; font-family: inherit; font-size: 12px; cursor: pointer;
+  transition: background 0.15s; letter-spacing: 0.3px;
 }
+.btn-go:hover { background: #c81530; }
+.btn-alt {
+  padding: 6px 13px; background: transparent; border: 1px solid #2a2a2a;
+  border-radius: 5px; color: #555; font-family: inherit; font-size: 12px; cursor: pointer;
+  transition: all 0.15s;
+}
+.btn-alt:hover { border-color: #444; color: #888; }
 
-/* placement card */
-.placement-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 12px;
-  padding: 4px 0;
-  color: #777;
+/* voice input bubble */
+.voice-input {
+  background: #0d180d; border: 1px solid #1a3a1a; border-radius: 8px;
+  padding: 10px 13px; display: flex; align-items: center; gap: 10px; max-width: 300px;
 }
-.placement-row-key { color: #444; }
-.placement-row-val { color: #aaa; }
-.placement-row-val.accent { color: #ff5f6d; }
+.wave { display: flex; align-items: center; gap: 2px; }
+.wave-bar {
+  width: 3px; background: #3ec93e; border-radius: 2px;
+  animation: wave 0.8s ease infinite;
+}
+.wave-bar:nth-child(1) { height: 8px; animation-delay: 0s; }
+.wave-bar:nth-child(2) { height: 16px; animation-delay: 0.1s; }
+.wave-bar:nth-child(3) { height: 24px; animation-delay: 0.2s; }
+.wave-bar:nth-child(4) { height: 16px; animation-delay: 0.3s; }
+.wave-bar:nth-child(5) { height: 10px; animation-delay: 0.4s; }
+@keyframes wave { 0%,100%{transform:scaleY(1)} 50%{transform:scaleY(0.4)} }
+.voice-text { font-size: 12px; color: #3ec93e; }
+.voice-dur { font-size: 10px; color: #3a4a3a; margin-left: auto; }
 
-/* asset grid */
-.asset-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin-top: 2px;
-}
-.asset-card {
-  background: #161616;
-  border: 1px solid #222;
-  border-radius: 6px;
-  overflow: hidden;
-}
-.asset-thumb {
-  aspect-ratio: 4/3;
-  background: #1a1a1a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  color: #333;
-  position: relative;
-}
-.asset-thumb-overlay {
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    45deg,
-    #161616,
-    #161616 4px,
-    #1a1a1a 4px,
-    #1a1a1a 8px
-  );
-  opacity: 0.6;
-}
-.asset-thumb-icon { position: relative; z-index: 1; }
-.asset-info { padding: 6px 8px; }
-.asset-name { font-size: 10px; color: #555; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.asset-status { font-size: 10px; color: #f0c040; margin-top: 2px; animation: pulse 1.5s ease infinite; }
+/* gen block */
+.gen { background: #151515; border: 1px solid #232323; border-radius: 8px; padding: 11px 13px; max-width: 320px; display: flex; flex-direction: column; gap: 6px; }
+.gen-line { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+.gen-done { color: #3ec93e; }
+.gen-spin { color: #f0c040; animation: pulse 1.2s ease infinite; }
+.gen-wait { color: #252525; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.25} }
+.gen-s { color: #555; text-decoration: line-through; }
+.gen-c { color: #ddd; }
+.gen-q { color: #2a2a2a; }
+.gen-eta { font-size: 10px; color: #3a3a3a; margin-left: auto; }
 
-.dm-link {
-  display: block;
-  margin-top: 10px;
-  font-size: 11px;
-  color: #6090ff;
-  cursor: pointer;
-  transition: color 0.15s;
+/* ── INPUT BAR ── */
+.inputbar {
+  padding: 10px 18px 12px; border-top: 1px solid #1a1a1a; background: #0c0c0c; flex-shrink: 0;
 }
-.dm-link:hover { color: #88aaff; }
+.input-hint { font-size: 10px; color: #2e2e2e; margin-bottom: 7px; }
+.input-hint em { color: #444; font-style: normal; }
+.input-row { display: flex; gap: 8px; align-items: center; }
+.prompt-sym { color: #e81c3a; font-size: 15px; flex-shrink: 0; }
+.input-field {
+  flex: 1; background: #131313; border: 1px solid #232323; border-radius: 6px;
+  padding: 8px 11px; color: #ddd; font-family: inherit; font-size: 12.5px; outline: none;
+  transition: border-color 0.2s;
+}
+.input-field::placeholder { color: #2e2e2e; }
+.input-field:focus { border-color: #333; }
+.input-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.btn-voice {
+  padding: 8px 11px; background: #0d180d; border: 1px solid #1a3a1a; border-radius: 6px;
+  color: #3ec93e; font-family: inherit; font-size: 12px; cursor: pointer;
+  transition: all 0.15s; display: flex; align-items: center; gap: 5px;
+}
+.btn-voice:hover { background: #122012; border-color: #2a4a2a; }
+.btn-call {
+  padding: 8px 11px; background: #101820; border: 1px solid #1a2a3a; border-radius: 6px;
+  color: #5599ff; font-family: inherit; font-size: 12px; cursor: pointer;
+  transition: all 0.15s; display: flex; align-items: center; gap: 5px;
+}
+.btn-call:hover { background: #141e2e; border-color: #2a3a5a; }
+.btn-send {
+  padding: 8px 14px; background: #e81c3a; border: none; border-radius: 6px;
+  color: #fff; font-family: inherit; font-size: 12px; cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-send:hover { background: #c81530; }
+
+/* ── RIGHT ── */
+.right {
+  width: 280px; background: #101010; border-left: 1px solid #1a1a1a;
+  display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden;
+}
+.rs { padding: 12px 12px; border-bottom: 1px solid #181818; }
+.rs:last-child { flex: 1; overflow-y: auto; border-bottom: none; }
+.rs-title {
+  font-size: 10px; color: #363636; letter-spacing: 1.5px; text-transform: uppercase;
+  margin-bottom: 9px; display: flex; align-items: center; gap: 6px;
+}
+.rs-title::after { content: ''; flex: 1; height: 1px; background: #1a1a1a; }
+
+.scene-tag {
+  display: inline-flex; align-items: center; gap: 5px; font-size: 11px;
+  background: #1a0a0a; border: 1px solid #331515; border-radius: 4px;
+  padding: 2px 8px; color: #ff7070; margin-bottom: 9px;
+}
+.pr { display: flex; align-items: center; gap: 6px; padding: 5px 0; border-bottom: 1px solid #181818; font-size: 12px; }
+.pr:last-of-type { border-bottom: none; }
+.pr-name { color: #bbb; flex: 1; }
+.pr-cnt { color: #555; font-size: 11px; }
+.pr-tag { font-size: 10px; color: #3a3a3a; background: #181818; border: 1px solid #222; border-radius: 3px; padding: 1px 5px; }
+
+.pv { display: flex; justify-content: space-between; padding: 3px 0; font-size: 12px; }
+.pv-k { color: #3a3a3a; }
+.pv-v { color: #999; }
+.pv-v.acc { color: #ff6070; }
+
+.asset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; margin-top: 2px; }
+.asset {
+  background: #141414; border: 1px solid #1e1e1e; border-radius: 6px; overflow: hidden;
+}
+.asset-img {
+  aspect-ratio: 4/3; background: #181818; display: flex; align-items: center;
+  justify-content: center; font-size: 16px; color: #2a2a2a; position: relative;
+  background: repeating-linear-gradient(45deg,#141414,#141414 4px,#181818 4px,#181818 8px);
+}
+.asset-info { padding: 5px 7px; }
+.asset-name { font-size: 10px; color: #444; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.asset-status { font-size: 10px; color: #f0c040; margin-top: 1px; animation: pulse 1.5s ease infinite; }
+.asset-done { font-size: 10px; color: #3ec93e; margin-top: 1px; }
+
+.dm-link { display: block; margin-top: 10px; font-size: 11px; color: #4477cc; cursor: pointer; transition: color 0.15s; }
+.dm-link:hover { color: #6699ee; }
 </style>
 </head>
 <body>
 
 <!-- TITLEBAR -->
 <div class="titlebar">
-  <div class="titlebar-dots">
-    <div class="dot dot-red"></div>
-    <div class="dot dot-yellow"></div>
-    <div class="dot dot-green"></div>
+  <div class="dots">
+    <div class="dot d-r"></div><div class="dot d-y"></div><div class="dot d-g"></div>
   </div>
-  <div class="titlebar-title">线索营销 Agent — 内容策略工作台</div>
-  <div class="titlebar-right">
-    <span class="badge badge-quota">quota: 47/50</span>
-    <span class="badge">session: leads-0330</span>
+  <div class="title-center">
+    线索营销🦞 · AIGC 加强版
+    <span class="title-badge">beta</span>
+  </div>
+  <div class="title-right">
+    <span class="quota">今日剩余 47 次</span>
+    <span class="conn"><span class="conn-dot"></span>已连接</span>
   </div>
 </div>
 
 <!-- TABS -->
 <div class="tabs">
-  <div class="tab active">⬤ 需求表达</div>
-  <div class="tab">○ 内容诊断</div>
-  <div class="tab">○ 素材生产</div>
-  <div class="tab">○ 投放配置</div>
+  <div class="tab active">① 说需求</div>
+  <div class="tab">② 内容方案</div>
+  <div class="tab">③ 生产素材</div>
+  <div class="tab">④ 投放配置</div>
 </div>
 
 <!-- MAIN -->
 <div class="main">
 
-  <!-- LEFT SIDEBAR -->
+  <!-- SIDEBAR -->
   <div class="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-label">当前账户</div>
-      <div class="sidebar-item active">
-        <div class="sidebar-item-icon">🌸</div>
-        <div class="sidebar-item-text">
-          <div class="sidebar-item-name">雅思研究院</div>
-          <div class="sidebar-item-meta">教育行业 · 8823401</div>
+    <div class="sb-section">
+      <div class="sb-label">当前商家</div>
+      <div class="sb-item active">
+        <span>🦞</span>
+        <div>
+          <div class="sb-name">小红龙培训中心</div>
+          <div class="sb-meta">教育 · ID 8823401</div>
         </div>
-        <div class="status-dot"></div>
       </div>
     </div>
-    <div class="sidebar-section" style="flex:1; overflow-y:auto;">
-      <div class="sidebar-label">历史任务</div>
-      <div class="sidebar-item">
-        <div class="sidebar-item-icon" style="color:#4ec94e">✓</div>
-        <div class="sidebar-item-text">
-          <div class="sidebar-item-name">旺季冲刺_雅思_0325</div>
-          <div class="sidebar-item-meta">8条素材 · 已完成</div>
+    <div class="sb-section" style="flex:1;overflow-y:auto">
+      <div class="sb-label">最近任务</div>
+      <div class="sb-item">
+        <span class="sb-check">✓</span>
+        <div>
+          <div class="sb-name">报名季冲刺_0325</div>
+          <div class="sb-meta">8条 · 完成</div>
         </div>
       </div>
-      <div class="sidebar-item">
-        <div class="sidebar-item-icon" style="color:#4ec94e">✓</div>
-        <div class="sidebar-item-text">
-          <div class="sidebar-item-name">冷启测试_公考_0320</div>
-          <div class="sidebar-item-meta">6条素材 · 已完成</div>
+      <div class="sb-item">
+        <span class="sb-check">✓</span>
+        <div>
+          <div class="sb-name">新客冷启_0318</div>
+          <div class="sb-meta">6条 · 完成</div>
         </div>
       </div>
-      <div class="sidebar-item">
-        <div class="sidebar-item-icon" style="color:#4ec94e">✓</div>
-        <div class="sidebar-item-text">
-          <div class="sidebar-item-name">质量优化_MBA_0315</div>
-          <div class="sidebar-item-meta">6条素材 · 已完成</div>
+      <div class="sb-item">
+        <span class="sb-pending">◐</span>
+        <div>
+          <div class="sb-name">精准引流_0330</div>
+          <div class="sb-meta">生成中...</div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- CHAT PANEL -->
-  <div class="chat-panel">
+  <!-- CHAT -->
+  <div class="chat">
 
-    <!-- path bar -->
-    <div class="prompt-line">
-      <span class="prompt-line-path">~/workspace/leads</span>
-      <span style="color:#2a2a2a">·</span>
-      <span class="prompt-line-branch">⎇ session/0330</span>
-      <span class="prompt-line-status">● connected</span>
+    <div class="pathbar">
+      <span>~/session/leads-0330</span>
+      <span class="pathbar-branch">⎇ main</span>
+      <span class="pathbar-status">● 在线</span>
     </div>
 
-    <!-- messages -->
     <div class="messages">
 
-      <!-- Agent: 开场 -->
-      <div class="msg-row">
-        <div class="msg-avatar agent">🤖</div>
-        <div class="msg-body">
-          <div class="msg-who">agent@leads-marketing</div>
-          <div class="msg-bubble agent"><span class="hl-green">$</span> 你好，我是线索营销 Agent。
+      <!-- Agent 开场 -->
+      <div class="row">
+        <div class="avatar agent">🤖</div>
+        <div class="body">
+          <div class="who">营销 Agent</div>
+          <div class="bubble agent"><span class="g">$</span> 你好！我是线索营销 Agent。
 
-我会帮你把生意目标翻译成内容策略，直接生产可投素材。
+你只需要<span class="w">用自己的话说</span>生意上遇到的问题，我来帮你：
 
-<span class="hl-dim">→</span> 告诉我你现在想做什么？</div>
+  <span class="g">→</span> 判断做什么内容
+  <span class="g">→</span> 生产可以直接投的素材
+  <span class="g">→</span> 给出投放和私信方案
+
+<span class="d">支持打字 / 语音 / 电话，怎么方便怎么来。</span></div>
+          <div class="voice-badge">📞 支持电话直接说需求 &nbsp;·&nbsp; 🎙 语音输入</div>
         </div>
       </div>
 
-      <!-- User -->
-      <div class="msg-row user">
-        <div class="msg-avatar user">👤</div>
-        <div class="msg-body">
-          <div class="msg-who">见川</div>
-          <div class="msg-bubble user">我做雅思培训，现在报名季，想多拉咨询，预算一万左右</div>
+      <!-- 用户：语音输入 -->
+      <div class="row user">
+        <div class="avatar user">👤</div>
+        <div class="body">
+          <div class="who">老板</div>
+          <div class="voice-input">
+            <span style="font-size:13px">🎙</span>
+            <div class="wave">
+              <div class="wave-bar"></div><div class="wave-bar"></div>
+              <div class="wave-bar"></div><div class="wave-bar"></div>
+              <div class="wave-bar"></div>
+            </div>
+            <span class="voice-text">语音输入中...</span>
+            <span class="voice-dur">0:08</span>
+          </div>
+          <div class="bubble user" style="margin-top:4px">「我做英语培训，现在招生季，想多来点咨询，不知道发啥内容」</div>
         </div>
       </div>
 
-      <!-- Agent: 分析 -->
-      <div class="msg-row">
-        <div class="msg-avatar agent">🤖</div>
-        <div class="msg-body">
-          <div class="msg-who">agent@leads-marketing</div>
-          <div class="msg-bubble agent"><span class="hl-dim">[分析中]</span> 理解你的情况：
+      <!-- Agent 分析 -->
+      <div class="row">
+        <div class="avatar agent">🤖</div>
+        <div class="body">
+          <div class="who">营销 Agent</div>
+          <div class="bubble agent"><span class="d">[听到了，分析一下]</span>
 
-  阶段    <span class="hl-yellow">旺季冲刺</span>
-  目标    <span class="hl-blue">拉新留资</span>
-  预算    <span class="hl-green">¥10,000</span>
-  行业    教育 / 语言培训
+你的情况：
+  招生季  <span class="y">旺季冲刺</span>
+  目标    <span class="b">多拉咨询</span>
+  问题    <span class="r">不知道做什么内容</span>
 
-<span class="hl-bold">核心判断：</span>这个阶段内容是最关键的，做对了咨询量能翻倍。
+<span class="w">内容是最关键的一步。</span>内容对了，咨询量能翻倍。
 
-基于教育行业跑量数据，推荐两个方向并跑：
+我帮你定两个方向，先各出 4 条，看哪个跑量更好：
 
-  <span class="hl-green">→</span> <span class="hl-bold">课表对比型</span>   高互动率，教育用户很吃这个
-  <span class="hl-green">→</span> <span class="hl-bold">老师自述型</span>   建立信任，私信转化率高
+  <span class="g">①</span> <span class="w">课表对比</span>  —— 家长最吃这个，点击率高
+  <span class="g">②</span> <span class="w">老师出镜</span>  —— 有信任感，私信转化好
 
-每方向先出 4 条，3 天内看哪个更跑量，再集中资源。
-承接动作建议私信 —— 报名季私信比表单转化高 <span class="hl-yellow">30%+</span>。</div>
+咨询建议走<span class="r">私信</span>，招生季私信比留表单转化高 <span class="y">30%+</span>。</div>
         </div>
       </div>
 
-      <!-- Inline plan card -->
-      <div class="msg-row">
-        <div class="msg-avatar" style="width:28px;flex-shrink:0"></div>
-        <div class="msg-body" style="max-width:80%">
-          <div class="inline-card">
-            <div class="inline-card-title">▸ 内容方案 · 待确认</div>
-            <div class="inline-card-row">
-              <span class="check">✓</span>
-              <span>课表对比型 × 4条</span>
-              <span class="tag">教育高跑量</span>
-            </div>
-            <div class="inline-card-row">
-              <span class="check">✓</span>
-              <span>老师自述型 × 4条</span>
-              <span class="tag">高转化</span>
-            </div>
-            <div class="inline-card-divider"></div>
-            <div class="inline-card-row" style="font-size:11px;color:#555">
-              承接动作 &nbsp;<span style="color:#ff7a7a">私信</span>
-              &nbsp;·&nbsp; 人群 &nbsp;教育兴趣 + 竞品
-              &nbsp;·&nbsp; 节奏 &nbsp;7天并跑
-            </div>
-            <div class="inline-card-actions">
-              <button class="btn-primary">确认方案，开始生成 →</button>
-              <button class="btn-secondary">调整方案</button>
+      <!-- Plan card -->
+      <div class="row">
+        <div class="avatar" style="width:26px;flex-shrink:0"></div>
+        <div class="body" style="max-width:80%">
+          <div class="plan-card">
+            <div class="plan-title">▸ 内容方案 · 待确认</div>
+            <div class="plan-row"><span class="ck">✓</span> 课表对比型 × 4条 <span class="tag">高点击</span></div>
+            <div class="plan-row"><span class="ck">✓</span> 老师出镜型 × 4条 <span class="tag">高转化</span></div>
+            <div class="plan-hr"></div>
+            <div class="plan-meta">承接 <span>私信</span> · 并跑 7 天 · 看数据再追加</div>
+            <div class="plan-btns">
+              <button class="btn-go">确认，开始生产 →</button>
+              <button class="btn-alt">我来改改</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Agent: 上传 -->
-      <div class="msg-row">
-        <div class="msg-avatar agent">🤖</div>
-        <div class="msg-body">
-          <div class="msg-who">agent@leads-marketing</div>
-          <div class="msg-bubble agent"><span class="hl-green">?</span> 你有可以用的素材图吗？上传后我马上开始生成。</div>
+      <!-- Agent 要图 -->
+      <div class="row">
+        <div class="avatar agent">🤖</div>
+        <div class="body">
+          <div class="who">营销 Agent</div>
+          <div class="bubble agent"><span class="g">?</span> 有没有可以用的照片？
+发过来就行，我马上开始生成。
+
+<span class="d">没有也行，我可以帮你生成场景图。</span></div>
         </div>
       </div>
 
-      <!-- User: 上传 -->
-      <div class="msg-row user">
-        <div class="msg-avatar user">👤</div>
-        <div class="msg-body">
-          <div class="msg-who">见川</div>
-          <div class="msg-bubble user">好的</div>
-          <div class="upload-preview" style="justify-content:flex-end">
-            <div class="upload-thumb">🖼<div class="upload-thumb-label">素材1</div></div>
-            <div class="upload-thumb">🖼<div class="upload-thumb-label">素材2</div></div>
-            <div class="upload-thumb">🖼<div class="upload-thumb-label">素材3</div></div>
-          </div>
+      <!-- 用户回复 -->
+      <div class="row user">
+        <div class="avatar user">👤</div>
+        <div class="body">
+          <div class="who">老板</div>
+          <div class="bubble user">有，发你了 📎</div>
         </div>
       </div>
 
-      <!-- Agent: 生成中 -->
-      <div class="msg-row">
-        <div class="msg-avatar agent">🤖</div>
-        <div class="msg-body">
-          <div class="msg-who">agent@leads-marketing</div>
-          <div class="gen-block">
-            <div class="gen-line">
-              <span class="gen-icon-done">✓</span>
-              <span class="gen-text-done">解析套路结构...</span>
-            </div>
-            <div class="gen-line">
-              <span class="gen-icon-done">✓</span>
-              <span class="gen-text-done">匹配卖点话术...</span>
-            </div>
-            <div class="gen-line">
-              <span class="gen-icon-done">✓</span>
-              <span class="gen-text-done">过滤商业风控词...</span>
-            </div>
-            <div class="gen-line">
-              <span class="gen-icon-spin">◐</span>
-              <span class="gen-text-cur">生成图文内容...</span>
-              <span class="gen-eta">预计 28s</span>
-            </div>
-            <div class="gen-line">
-              <span style="color:#222">○</span>
-              <span class="gen-text-wait">写入广告素材库...</span>
-            </div>
-            <div class="gen-line">
-              <span style="color:#222">○</span>
-              <span class="gen-text-wait">生成私信话术...</span>
-            </div>
+      <!-- 生成中 -->
+      <div class="row">
+        <div class="avatar agent">🤖</div>
+        <div class="body">
+          <div class="who">营销 Agent</div>
+          <div class="gen">
+            <div class="gen-line"><span class="gen-done">✓</span><span class="gen-s">理解套路结构...</span></div>
+            <div class="gen-line"><span class="gen-done">✓</span><span class="gen-s">匹配卖点话术...</span></div>
+            <div class="gen-line"><span class="gen-done">✓</span><span class="gen-s">过滤违规词...</span></div>
+            <div class="gen-line"><span class="gen-spin">◐</span><span class="gen-c">生成图文素材...</span><span class="gen-eta">约 25s</span></div>
+            <div class="gen-line"><span class="gen-wait">○</span><span class="gen-q">写入素材库...</span></div>
+            <div class="gen-line"><span class="gen-wait">○</span><span class="gen-q">生成私信话术...</span></div>
           </div>
         </div>
       </div>
@@ -766,105 +473,76 @@ body {
     </div><!-- /messages -->
 
     <!-- INPUT BAR -->
-    <div class="input-bar">
+    <div class="inputbar">
       <div class="input-hint">
-        <span>支持自然语言表达，Agent 会翻译成内容策略</span>
-        &nbsp;·&nbsp; 输入 <span>/help</span> 查看指令
+        打字说 · <em>🎙 语音输入</em> · <em>📞 电话直接说</em> &nbsp;都可以，Agent 帮你翻译成内容策略
       </div>
       <div class="input-row">
-        <span class="input-prompt">›</span>
-        <input class="input-field" type="text" placeholder="描述你的生意目标，或直接说想做什么...">
-        <button class="input-send">↵ 发送</button>
+        <span class="prompt-sym">›</span>
+        <input class="input-field" type="text" placeholder="说说你想做什么生意，或者遇到什么问题...">
+        <div class="input-actions">
+          <button class="btn-voice">🎙 语音</button>
+          <button class="btn-call">📞 电话</button>
+          <button class="btn-send">发送 ↵</button>
+        </div>
       </div>
     </div>
 
-  </div><!-- /chat-panel -->
+  </div><!-- /chat -->
 
-  <!-- RIGHT PANEL -->
-  <div class="right-panel">
+  <!-- RIGHT -->
+  <div class="right">
 
-    <!-- 当前方案 -->
-    <div class="right-section">
-      <div class="right-section-title">内容方案</div>
-      <div class="plan-scene">🚀 旺季冲刺</div>
-      <div class="plan-row">
-        <span class="plan-row-name">📊 课表对比型</span>
-        <span class="plan-row-count">×4</span>
-        <span class="plan-row-tag">高跑量</span>
-      </div>
-      <div class="plan-row">
-        <span class="plan-row-name">👨‍🏫 老师自述型</span>
-        <span class="plan-row-count">×4</span>
-        <span class="plan-row-tag">高转化</span>
-      </div>
+    <div class="rs">
+      <div class="rs-title">内容方案</div>
+      <div class="scene-tag">🚀 招生季冲刺</div>
+      <div class="pr"><span class="pr-name">📊 课表对比型</span><span class="pr-cnt">×4</span><span class="pr-tag">高点击</span></div>
+      <div class="pr"><span class="pr-name">🎬 老师出镜型</span><span class="pr-cnt">×4</span><span class="pr-tag">高转化</span></div>
     </div>
 
-    <!-- 投放建议 -->
-    <div class="right-section">
-      <div class="right-section-title">投放建议</div>
-      <div class="placement-row">
-        <span class="placement-row-key">承接动作</span>
-        <span class="placement-row-val accent">私信 ●</span>
-      </div>
-      <div class="placement-row">
-        <span class="placement-row-key">人群定向</span>
-        <span class="placement-row-val">教育兴趣 + 竞品用户</span>
-      </div>
-      <div class="placement-row">
-        <span class="placement-row-key">预算节奏</span>
-        <span class="placement-row-val">小预算并跑 7 天</span>
-      </div>
+    <div class="rs">
+      <div class="rs-title">投放建议</div>
+      <div class="pv"><span class="pv-k">承接方式</span><span class="pv-v acc">私信 ●</span></div>
+      <div class="pv"><span class="pv-k">人群</span><span class="pv-v">教育兴趣 + 周边家长</span></div>
+      <div class="pv"><span class="pv-k">节奏</span><span class="pv-v">7天并跑测试</span></div>
     </div>
 
-    <!-- 素材预览 -->
-    <div class="right-section" style="flex:1;overflow-y:auto;">
-      <div class="right-section-title">素材预览</div>
+    <div class="rs">
+      <div class="rs-title">素材预览</div>
       <div class="asset-grid">
-        <div class="asset-card">
-          <div class="asset-thumb">
-            <div class="asset-thumb-overlay"></div>
-            <span class="asset-thumb-icon">⏳</span>
-          </div>
+        <div class="asset">
+          <div class="asset-img">⏳</div>
           <div class="asset-info">
-            <div class="asset-name">课表对比型_雅思_0330</div>
+            <div class="asset-name">课表对比_0330_01</div>
             <div class="asset-status">生成中...</div>
           </div>
         </div>
-        <div class="asset-card">
-          <div class="asset-thumb">
-            <div class="asset-thumb-overlay"></div>
-            <span class="asset-thumb-icon">⏳</span>
-          </div>
+        <div class="asset">
+          <div class="asset-img">⏳</div>
           <div class="asset-info">
-            <div class="asset-name">老师自述型_雅思_0330</div>
+            <div class="asset-name">老师出镜_0330_01</div>
             <div class="asset-status">生成中...</div>
           </div>
         </div>
-        <div class="asset-card" style="opacity:0.35">
-          <div class="asset-thumb">
-            <div class="asset-thumb-overlay"></div>
-            <span class="asset-thumb-icon" style="color:#222">○</span>
-          </div>
+        <div class="asset" style="opacity:0.3">
+          <div class="asset-img" style="color:#1a1a1a">○</div>
           <div class="asset-info">
-            <div class="asset-name">待生成...</div>
-            <div class="asset-status" style="color:#333;animation:none">排队中</div>
+            <div class="asset-name">排队中...</div>
+            <div class="asset-status" style="animation:none;color:#252525">等待</div>
           </div>
         </div>
-        <div class="asset-card" style="opacity:0.35">
-          <div class="asset-thumb">
-            <div class="asset-thumb-overlay"></div>
-            <span class="asset-thumb-icon" style="color:#222">○</span>
-          </div>
+        <div class="asset" style="opacity:0.3">
+          <div class="asset-img" style="color:#1a1a1a">○</div>
           <div class="asset-info">
-            <div class="asset-name">待生成...</div>
-            <div class="asset-status" style="color:#333;animation:none">排队中</div>
+            <div class="asset-name">排队中...</div>
+            <div class="asset-status" style="animation:none;color:#252525">等待</div>
           </div>
         </div>
       </div>
       <a class="dm-link">💬 私信话术已准备好 →</a>
     </div>
 
-  </div><!-- /right-panel -->
+  </div><!-- /right -->
 
 </div><!-- /main -->
 </body>
