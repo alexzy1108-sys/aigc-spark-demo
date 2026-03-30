@@ -283,6 +283,25 @@ body {
 }
 .rs-title::after { content: ''; flex: 1; height: 1px; background: #eceef8; }
 
+/* skill cards */
+.skill-item {
+  display: flex; align-items: center; gap: 9px; padding: 7px 0;
+  border-bottom: 1px solid #eceef8; font-size: 11px;
+}
+.skill-item:last-child { border-bottom: none; }
+.skill-icon { font-size: 15px; flex-shrink: 0; }
+.skill-body { flex: 1; min-width: 0; }
+.skill-name { font-size: 11.5px; font-weight: 600; font-family: 'SF Mono','Fira Code',monospace; margin-bottom: 2px; }
+.skill-desc { font-size: 10px; color: #a0a8c8; line-height: 1.4; }
+.skill-status { font-size: 13px; flex-shrink: 0; }
+.skill-done  .skill-name { color: #1a8030; }
+.skill-done  .skill-status.done { color: #18a838; }
+.skill-running .skill-name { color: #3040b0; }
+.skill-running .skill-status.running { color: #c08000; animation: pulse 1.2s ease infinite; }
+.skill-pending .skill-name { color: #b0b8d8; }
+.skill-pending .skill-status.pending { color: #d0d4e8; }
+.skill-pending .skill-desc { color: #c8d0e8; }
+
 /* chain */
 .chain-item {
   display: flex; align-items: flex-start; gap: 9px; padding: 7px 0;
@@ -411,9 +430,8 @@ body {
       <span>~/session/leads-0330</span>
       <span class="pathbar-branch">⎇ main</span>
       <div class="pathbar-right">
-        <span class="pathbar-stat">内容层 <span>待接通</span></span>
-        <span class="pathbar-stat">投放层 <span>待接通</span></span>
-        <span class="pathbar-stat">经营层 <span>待接通</span></span>
+        <span class="pathbar-stat">🧩 已调用 <span>3 个 skill</span></span>
+        <span class="pathbar-stat">⏱ 响应 <span>1.2s</span></span>
       </div>
     </div>
 
@@ -570,27 +588,46 @@ body {
   <div class="right">
 
     <div class="rs">
-      <div class="rs-title">三链路打通进度</div>
-      <div class="chain-item">
-        <span class="chain-icon">📝</span>
-        <div>
-          <div class="chain-name">内容层<span class="itag">进行中</span></div>
-          <div class="chain-desc">数据驱动选题 → AIGC 一键生产</div>
+      <div class="rs-title">已调用 Skill</div>
+      <div class="skill-item skill-done">
+        <div class="skill-icon">🎯</div>
+        <div class="skill-body">
+          <div class="skill-name">intent-parser</div>
+          <div class="skill-desc">识别生意阶段 · 营销目的 · 隐含约束</div>
         </div>
+        <div class="skill-status done">✓</div>
       </div>
-      <div class="chain-item" style="opacity:0.4">
-        <span class="chain-icon">📣</span>
-        <div>
-          <div class="chain-name" style="color:#b0b8d8">投放层<span style="font-size:10px;color:#c8d0e8;font-weight:400;margin-left:6px">待解锁</span></div>
-          <div class="chain-desc">人群定向 · 节奏安排 · 转化动作</div>
+      <div class="skill-item skill-done">
+        <div class="skill-icon">📊</div>
+        <div class="skill-body">
+          <div class="skill-name">content-strategy</div>
+          <div class="skill-desc">匹配行业套路 · 输出内容方案</div>
         </div>
+        <div class="skill-status done">✓</div>
       </div>
-      <div class="chain-item" style="opacity:0.4">
-        <span class="chain-icon">💬</span>
-        <div>
-          <div class="chain-name" style="color:#b0b8d8">经营层<span style="font-size:10px;color:#c8d0e8;font-weight:400;margin-left:6px">待解锁</span></div>
-          <div class="chain-desc">私信话术 · 分层承接 · 夜间托管</div>
+      <div class="skill-item skill-running">
+        <div class="skill-icon">🖼</div>
+        <div class="skill-body">
+          <div class="skill-name">aigc-image-gen</div>
+          <div class="skill-desc">调用生花 · 批量生产图文素材</div>
         </div>
+        <div class="skill-status running">◐</div>
+      </div>
+      <div class="skill-item skill-pending">
+        <div class="skill-icon">📣</div>
+        <div class="skill-body">
+          <div class="skill-name">placement-advisor</div>
+          <div class="skill-desc">人群定向 · 节奏建议 · 转化动作</div>
+        </div>
+        <div class="skill-status pending">○</div>
+      </div>
+      <div class="skill-item skill-pending">
+        <div class="skill-icon">💬</div>
+        <div class="skill-body">
+          <div class="skill-name">dm-script-gen</div>
+          <div class="skill-desc">按来源生成分层私信话术</div>
+        </div>
+        <div class="skill-status pending">○</div>
       </div>
     </div>
 
