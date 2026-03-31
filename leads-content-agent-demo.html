@@ -713,22 +713,32 @@ body {
 .cta-bar {
   margin: 16px 0 8px;
   background: linear-gradient(135deg, #0a0e2a 0%, #1a1040 50%, #0e0a2a 100%);
-  border-radius: 14px;
-  padding: 20px 24px;
+  border-radius: 18px;
+  padding: 28px 32px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: 24px;
   max-width: 660px;
   opacity: 0;
   transform: translateY(14px);
   transition: opacity 0.4s ease, transform 0.4s ease;
-  box-shadow: 0 8px 24px rgba(30,32,96,0.18);
+  box-shadow: 0 12px 40px rgba(10,14,42,0.5);
+  position: relative;
+  overflow: hidden;
+}
+.cta-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 20% 50%, rgba(224,26,58,0.12) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 50%, rgba(124,92,252,0.08) 0%, transparent 60%);
+  pointer-events: none;
 }
 .cta-bar.visible { opacity: 1; transform: translateY(0); }
 .cta-left { }
-.cta-title { font-size: 16px; font-weight: 800; color: #fff; letter-spacing:0.2px; }
-.cta-sub { font-size: 11px; color: rgba(255,255,255,0.6); margin-top: 4px; }
+.cta-title { font-size: 19px; font-weight: 900; color: #fff; letter-spacing:-0.3px; }
+.cta-sub { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 6px; }
 .cta-btns { display: flex; gap: 8px; }
 .btn-copy-plan {
   padding: 10px 16px;
@@ -743,20 +753,23 @@ body {
 }
 .btn-copy-plan:hover { background: rgba(255,255,255,0.2); }
 .btn-go {
-  padding: 12px 28px;
-  background: #e01a3a;
+  padding: 16px 36px;
+  background: linear-gradient(135deg, #e01a3a, #ff3060);
   border: none;
-  border-radius: 10px;
+  border-radius: 14px;
   color: #fff;
   font-family: inherit;
-  font-size: 15px;
+  font-size: 16px;
   cursor: pointer;
-  font-weight: 800;
+  font-weight: 900;
   white-space: nowrap;
-  box-shadow: 0 4px 14px rgba(224,26,58,0.4);
-  letter-spacing: 0.5px;
+  box-shadow: 0 6px 24px rgba(224,26,58,0.55), 0 0 0 1px rgba(255,255,255,0.1) inset;
+  letter-spacing: -0.2px;
+  position: relative;
+  z-index: 1;
+  transition: all 0.2s ease;
 }
-.btn-go:hover { background: #c0102a; transform:translateY(-1px); box-shadow:0 6px 18px rgba(224,26,58,0.5); }
+.btn-go:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(224,26,58,0.65); }
 
 /* ── 右侧面板 ── */
 .right-panel {
@@ -1448,7 +1461,7 @@ async function startDemo() {
   // ─── Phase 3：数据洞察（单气泡内动态更新）───
   {
     // 创建一个气泡，先显示 loading 点动画
-    const row = addMsgRow('msg-row', makeAgentAvatar() + `<div class="bubble agent" id="insightBubble" style="line-height:1.7;"></div>`);
+    const row = addMsgRow('msg-row', makeAgentAvatar() + `<div class="bubble agent" id="insightBubble" style="line-height:1.6;white-space:normal;"></div>`);
     row.classList.add('visible');
     scrollToBottom();
     const bbl = document.getElementById('insightBubble');
@@ -2068,8 +2081,7 @@ async function startDemo() {
         <div class="cta-sub">内容 × 8条 · 投放 × 3套 · 私信话术 × 3版</div>
       </div>
       <div class="cta-btns">
-        <button class="btn-copy-plan" onclick="this.textContent='✅ 已复制';setTimeout(()=>this.textContent='📋 复制完整方案',2000)">📋 复制完整方案</button>
-        <button class="btn-go">一键使用 →</button>
+        <button class="btn-go">⚡ 一键生意启动</button>
       </div>
     </div>`);
   await sleepCheck(150);
