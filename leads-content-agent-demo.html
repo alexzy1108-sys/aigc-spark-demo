@@ -1452,9 +1452,9 @@ async function startDemo() {
     // --- 逐行显示分析结论 ---
     bbl.innerHTML = '';
     const lines = [
-      { text: '✓ 分析成交用户路径', sub: '他们看了什么内容才进线', color: '#1a9038' },
-      { text: '✓ 分析无效留资路径', sub: '在哪个环节流失了', color: '#1a9038' },
-      { text: '✓ 分析站外成交路径', sub: '种草后去哪里成交', color: '#1a9038' },
+      { text: '✓ 分析高点击笔记关键词', sub: '用户搜什么内容才点进来看', color: '#1a9038' },
+      { text: '✓ 分析高互动笔记关键词', sub: '哪类内容让用户停留细看', color: '#1a9038' },
+      { text: '✓ 分析笔记评论区高频词', sub: '用户最在意哪些问题没被解答', color: '#1a9038' },
     ];
     for (const line of lines) {
       await sleepCheck(400);
@@ -1470,7 +1470,7 @@ async function startDemo() {
     // 结论
     const conclusion = document.createElement('div');
     conclusion.style.cssText = 'margin-top:10px;padding:8px 10px;background:#fff5f6;border-left:3px solid #e01a3a;border-radius:4px;opacity:0;transition:all 0.4s ease;';
-    conclusion.innerHTML = `<span style="color:#c02030;font-size:12px;font-weight:600;">结论：</span><span style="color:#303460;font-size:12px;">内容只做了一种，但进来的用户有三种意图。</span>`;
+    conclusion.innerHTML = `<span style="color:#c02030;font-size:12px;font-weight:600;">结论：</span><span style="color:#303460;font-size:12px;">奔驰用户基数庞大，需要细拆用户希望获得什么信息——单一账号不能满足用户复杂信息需求。</span>`;
     bbl.appendChild(conclusion);
     scrollToBottom();
     await sleepCheck(50);
@@ -1485,44 +1485,52 @@ async function startDemo() {
     wordCloud.innerHTML = `
       <div style="border-top:1px solid #eceef8;padding-top:10px;margin-bottom:10px;font-size:11px;color:#8090b8;">📊 平台数据显示，你的目标用户正在这样行动——</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
-        <div style="background:#1a1a2e;border-radius:8px;padding:10px 11px;">
-          <div style="font-size:10px;font-weight:700;color:#fff;margin-bottom:2px;letter-spacing:1px;">用户爱点击</div>
-          <div style="font-size:9px;color:#666;margin-bottom:7px;">CLE高点击笔记关键词</div>
-          <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 6px;font-family:sans-serif;">
-            <span style="color:#e01a3a;font-size:16px;font-weight:900;">适合女生开</span>
-            <span style="color:#ff8090;font-size:12px;font-weight:700;">海边</span>
-            <span style="color:#ff6080;font-size:11px;">高颜值</span>
-            <span style="color:#e06070;font-size:10px;">女生</span>
-            <span style="color:#e8a0a8;font-size:9px;">敞篷</span>
-            <span style="color:#e8a0a8;font-size:9px;">轿跑</span>
-            <span style="color:#e8a0a8;font-size:9px;">骑跑</span>
+        <div style="background:#1a1a2e;border-radius:8px;padding:10px 11px;display:flex;flex-direction:column;">
+          <div style="font-size:10px;font-weight:700;color:#fff;letter-spacing:1px;">用户爱点击</div>
+          <div style="font-size:9px;color:#555;margin-bottom:6px;">CLE高点击笔记关键词</div>
+          <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:5px 7px;font-family:sans-serif;">
+            <span style="color:#e01a3a;font-size:17px;font-weight:900;line-height:1.2;">适合女生开</span>
+            <span style="color:#ff6080;font-size:13px;font-weight:700;">海边</span>
+            <span style="color:#ff6080;font-size:12px;font-weight:700;">高颜值</span>
+            <span style="color:#ff8090;font-size:13px;font-weight:700;">女生轿跑</span>
+            <span style="color:#e06070;font-size:11px;">女生</span>
+            <span style="color:#c08090;font-size:10px;">敞篷</span>
+            <span style="color:#c08090;font-size:10px;">轿跑</span>
+            <span style="color:#c08090;font-size:9px;">骑跑</span>
+            <span style="color:#c08090;font-size:9px;">海边自驾</span>
+            <span style="color:#c08090;font-size:9px;">颜值</span>
           </div>
         </div>
-        <div style="background:#1a1a2e;border-radius:8px;padding:10px 11px;">
-          <div style="font-size:10px;font-weight:700;color:#fff;margin-bottom:2px;letter-spacing:1px;">用户爱细看</div>
-          <div style="font-size:9px;color:#666;margin-bottom:7px;">CLE高互动笔记关键词</div>
-          <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 6px;font-family:sans-serif;">
-            <span style="color:#e01a3a;font-size:15px;font-weight:900;">敞篷</span>
-            <span style="color:#e01a3a;font-size:15px;font-weight:900;">动力</span>
-            <span style="color:#ff8090;font-size:11px;font-weight:700;">柏林之声</span>
-            <span style="color:#ff6080;font-size:10px;">安全</span>
-            <span style="color:#e8a0a8;font-size:9px;">显示屏</span>
-            <span style="color:#e8a0a8;font-size:9px;">氛围灯</span>
-            <span style="color:#e8a0a8;font-size:9px;">迎宾灯</span>
+        <div style="background:#1a1a2e;border-radius:8px;padding:10px 11px;display:flex;flex-direction:column;">
+          <div style="font-size:10px;font-weight:700;color:#fff;letter-spacing:1px;">用户爱细看</div>
+          <div style="font-size:9px;color:#555;margin-bottom:6px;">CLE高互动笔记关键词</div>
+          <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:5px 7px;font-family:sans-serif;">
+            <span style="color:#e01a3a;font-size:16px;font-weight:900;line-height:1.2;">敞篷</span>
+            <span style="color:#e01a3a;font-size:16px;font-weight:900;line-height:1.2;">动力</span>
+            <span style="color:#ff6080;font-size:12px;font-weight:700;">柏林之声</span>
+            <span style="color:#ff8090;font-size:12px;font-weight:700;">氛围灯</span>
+            <span style="color:#ff8090;font-size:11px;font-weight:700;">安全</span>
+            <span style="color:#c08090;font-size:10px;">显示屏</span>
+            <span style="color:#c08090;font-size:10px;">迎宾灯</span>
+            <span style="color:#c08090;font-size:9px;">内饰</span>
+            <span style="color:#c08090;font-size:9px;">驾驶感</span>
+            <span style="color:#c08090;font-size:9px;">全景天窗</span>
           </div>
         </div>
-        <div style="background:#1a1a2e;border-radius:8px;padding:10px 11px;">
-          <div style="font-size:10px;font-weight:700;color:#fff;margin-bottom:2px;letter-spacing:1px;">用户爱疑问</div>
-          <div style="font-size:9px;color:#666;margin-bottom:7px;">CLE笔记下评论区</div>
-          <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 6px;font-family:sans-serif;">
-            <span style="color:#e01a3a;font-size:16px;font-weight:900;">政策</span>
-            <span style="color:#ff8090;font-size:12px;font-weight:700;">价格</span>
-            <span style="color:#ff6080;font-size:11px;">月薪</span>
-            <span style="color:#e8c0c8;font-size:9px;">落地</span>
-            <span style="color:#e8c0c8;font-size:9px;">油车</span>
-            <span style="color:#e8c0c8;font-size:9px;">好看</span>
-            <span style="color:#e8c0c8;font-size:9px;">月新</span>
-            <span style="color:#e8c0c8;font-size:9px;">优秀</span>
+        <div style="background:#1a1a2e;border-radius:8px;padding:10px 11px;display:flex;flex-direction:column;">
+          <div style="font-size:10px;font-weight:700;color:#fff;letter-spacing:1px;">用户爱疑问</div>
+          <div style="font-size:9px;color:#555;margin-bottom:6px;">CLE笔记下评论区</div>
+          <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:5px 7px;font-family:sans-serif;">
+            <span style="color:#e01a3a;font-size:17px;font-weight:900;line-height:1.2;">政策</span>
+            <span style="color:#ff6080;font-size:14px;font-weight:700;">价格</span>
+            <span style="color:#ff8090;font-size:12px;font-weight:700;">月薪</span>
+            <span style="color:#ff8090;font-size:11px;">落地价</span>
+            <span style="color:#c08090;font-size:10px;">油车</span>
+            <span style="color:#c08090;font-size:10px;">好看</span>
+            <span style="color:#c08090;font-size:10px;">月新</span>
+            <span style="color:#c08090;font-size:9px;">优秀</span>
+            <span style="color:#c08090;font-size:9px;">值不值</span>
+            <span style="color:#c08090;font-size:9px;">落地</span>
           </div>
         </div>
       </div>`;
