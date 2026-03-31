@@ -199,7 +199,7 @@ body {
 .chat-messages {
   flex: 1;
   overflow-y: auto;
-  padding: 18px 20px;
+  padding: 18px 32px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -236,7 +236,7 @@ body {
 
 /* 气泡 */
 .bubble {
-  max-width: 580px;
+  max-width: 720px;
   border-radius: 9px;
 }
 .bubble.agent {
@@ -1481,40 +1481,40 @@ async function startDemo() {
   // 词云洞察卡片
   await showAgentBubble(`<div style="margin-top:4px;">
   <div style="font-size:11px;color:#8090b8;margin-bottom:10px;">📊 平台数据显示，你的目标用户正在这样行动——</div>
-  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:620px;">
-    <div style="background:#1a1a2e;border-radius:10px;padding:12px;overflow:hidden;">
-      <div style="font-size:10px;font-weight:700;color:#fff;margin-bottom:8px;letter-spacing:1px;">用户爱点击</div>
-      <div style="font-size:9px;color:#aaa;margin-bottom:6px;">高点击笔记关键词</div>
-      <div style="line-height:1.8;font-family:sans-serif;">
-        <span style="color:#e01a3a;font-size:18px;font-weight:900;">母亲节花束</span>
-        <span style="color:#ff6080;font-size:13px;"> 鲜花定制</span>
-        <span style="color:#e8a0a8;font-size:10px;"> 送妈妈</span><br>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:720px;">
+    <div style="background:#1a1a2e;border-radius:10px;padding:14px 13px;height:130px;box-sizing:border-box;overflow:hidden;">
+      <div style="font-size:10px;font-weight:700;color:#fff;margin-bottom:4px;letter-spacing:1px;">用户爱点击</div>
+      <div style="font-size:9px;color:#666;margin-bottom:10px;">高点击笔记关键词</div>
+      <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 8px;font-family:sans-serif;">
+        <span style="color:#e01a3a;font-size:20px;font-weight:900;">母亲节花束</span>
         <span style="color:#ff8090;font-size:14px;font-weight:700;">礼品推荐</span>
-        <span style="color:#e8c0c8;font-size:10px;"> 花束价格</span>
-        <span style="color:#e06070;font-size:12px;"> 多少钱</span>
+        <span style="color:#ff6080;font-size:12px;">鲜花定制</span>
+        <span style="color:#e06070;font-size:11px;">多少钱</span>
+        <span style="color:#e8a0a8;font-size:10px;">送妈妈</span>
+        <span style="color:#e8c0c8;font-size:9px;">花束价格</span>
       </div>
     </div>
-    <div style="background:#1a1a2e;border-radius:10px;padding:12px;overflow:hidden;">
-      <div style="font-size:10px;font-weight:700;color:#fff;margin-bottom:8px;letter-spacing:1px;">用户爱细看</div>
-      <div style="font-size:9px;color:#aaa;margin-bottom:6px;">高互动笔记关键词</div>
-      <div style="line-height:1.8;font-family:sans-serif;">
-        <span style="color:#e01a3a;font-size:16px;font-weight:900;">实拍效果</span>
-        <span style="color:#ff6080;font-size:12px;"> 花材种类</span>
-        <span style="color:#e8a0a8;font-size:10px;"> 保鲜</span><br>
+    <div style="background:#1a1a2e;border-radius:10px;padding:14px 13px;height:130px;box-sizing:border-box;overflow:hidden;">
+      <div style="font-size:10px;font-weight:700;color:#fff;margin-bottom:4px;letter-spacing:1px;">用户爱细看</div>
+      <div style="font-size:9px;color:#666;margin-bottom:10px;">高互动笔记关键词</div>
+      <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 8px;font-family:sans-serif;">
+        <span style="color:#e01a3a;font-size:19px;font-weight:900;">实拍效果</span>
         <span style="color:#ff8090;font-size:15px;font-weight:700;">包装好看</span>
-        <span style="color:#e8c0c8;font-size:10px;"> 配色</span>
-        <span style="color:#e06070;font-size:13px;"> 当季花</span>
+        <span style="color:#ff6080;font-size:12px;">花材种类</span>
+        <span style="color:#e06070;font-size:13px;">当季花</span>
+        <span style="color:#e8a0a8;font-size:10px;">保鲜</span>
+        <span style="color:#e8c0c8;font-size:9px;">配色</span>
       </div>
     </div>
-    <div style="background:#1a1a2e;border-radius:10px;padding:12px;overflow:hidden;">
-      <div style="font-size:10px;font-weight:700;color:#fff;margin-bottom:8px;letter-spacing:1px;">用户爱疑问</div>
-      <div style="font-size:9px;color:#aaa;margin-bottom:6px;">笔记评论区高频词</div>
-      <div style="line-height:1.8;font-family:sans-serif;">
-        <span style="color:#e01a3a;font-size:17px;font-weight:900;">能寄外地吗</span>
-        <span style="color:#ff6080;font-size:11px;"> 价格</span><br>
+    <div style="background:#1a1a2e;border-radius:10px;padding:14px 13px;height:130px;box-sizing:border-box;overflow:hidden;">
+      <div style="font-size:10px;font-weight:700;color:#fff;margin-bottom:4px;letter-spacing:1px;">用户爱疑问</div>
+      <div style="font-size:9px;color:#666;margin-bottom:10px;">笔记评论区高频词</div>
+      <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 8px;font-family:sans-serif;">
+        <span style="color:#e01a3a;font-size:18px;font-weight:900;">能寄外地吗</span>
         <span style="color:#ff8090;font-size:14px;font-weight:700;">几天能到</span>
-        <span style="color:#e8c0c8;font-size:10px;"> 怎么下单</span>
-        <span style="color:#e06070;font-size:12px;"> 保鲜多久</span>
+        <span style="color:#ff6080;font-size:12px;">保鲜多久</span>
+        <span style="color:#e06070;font-size:11px;">怎么下单</span>
+        <span style="color:#e8c0c8;font-size:9px;">价格</span>
       </div>
     </div>
   </div>
