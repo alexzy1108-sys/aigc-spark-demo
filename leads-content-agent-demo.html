@@ -148,7 +148,7 @@ body {
 
 /* ── 左侧商家 sidebar ── */
 .sidebar {
-  width: 160px;
+  width: 190px;
   background: #fff;
   border-right: 1px solid #e0e4f0;
   display: flex;
@@ -889,12 +889,12 @@ body {
 
 /* ── Step 引导卡片 ── */
 .step-intro-card {
-  background: linear-gradient(135deg, #f8f9fe 0%, #fff 100%);
-  border: 1px solid #e0e4f4;
-  border-left: 3px solid #e01a3a;
+  background: #fff;
+  border: 1px solid #e8eaf4;
   border-radius: 10px;
-  padding: 14px 16px;
-  max-width: 420px;
+  padding: 12px 14px;
+  max-width: 500px;
+  box-shadow: 0 2px 8px rgba(60,70,140,0.06);
 }
 .step-intro-label {
   font-size: 10px;
@@ -902,19 +902,53 @@ body {
   font-weight: 700;
   letter-spacing: 1.5px;
   text-transform: uppercase;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.step-intro-label::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 12px;
+  background: #e01a3a;
+  border-radius: 2px;
 }
 .step-intro-title {
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 700;
   color: #1e2060;
+  margin-bottom: 10px;
+}
+.step-intro-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.step-intro-col {
+  background: #f8f9fe;
+  border-radius: 8px;
+  padding: 10px 11px;
+}
+.step-intro-col-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #303460;
+  margin-bottom: 5px;
+}
+.step-intro-col-badge {
+  display: inline-block;
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 3px;
   margin-bottom: 6px;
+  font-weight: 600;
 }
-.step-intro-desc {
-  font-size: 12px;
-  color: #606890;
-  line-height: 1.7;
-}
+.step-intro-col-badge.kob { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
+.step-intro-col-badge.kos { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+.step-intro-col-desc { font-size: 11px; color: #7080a8; line-height: 1.6; }
+.step-intro-desc { font-size: 12px; color: #7080a8; line-height: 1.7; }
 
 /* ── 投放卡片组 ── */
 .deploy-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-width:660px; }
@@ -928,6 +962,46 @@ body {
 .deploy-tag { font-size:10px; padding:2px 7px; border-radius:10px; background:#f0f2ff; color:#4050a0; border:1px solid #d8ddf0; }
 .deploy-card-budget { font-size:11px; color:#909ab8; }
 .deploy-card-kpi { font-size:11px; color:#18a838; font-weight:600; padding-top:4px; border-top:1px dashed #e8f5e9; }
+
+/* ── 左侧进度步骤条 ── */
+.sidebar-steps { display:flex; flex-direction:column; gap:0; }
+.sidebar-step { display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid #f0f2fa; position:relative; }
+.sidebar-step:last-child { border-bottom:none; }
+.sidebar-step-dot {
+  width:22px; height:22px; border-radius:50%; border:2px solid #d0d8f0;
+  background:#fff; flex-shrink:0; margin-top:1px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:10px; font-weight:700; transition:all 0.3s ease;
+}
+.sidebar-step-dot.idle { border-color:#d0d8f0; background:#fff; color:transparent; }
+.sidebar-step-dot.active { border-color:#e01a3a; background:#fff5f6; animation:pulseDot 1s ease-in-out infinite; }
+.sidebar-step-dot.done { border-color:#18a838; background:#18a838; color:#fff; font-size:11px; }
+.sidebar-step-body { flex:1; }
+.sidebar-step-name { font-size:12px; font-weight:600; color:#303460; margin-bottom:2px; transition:color 0.3s; }
+.sidebar-step-name.active { color:#e01a3a; }
+.sidebar-step-name.done { color:#18a838; }
+.sidebar-step-desc { font-size:10px; color:#b0b8d8; line-height:1.4; }
+
+/* ── 私信三列平铺 ── */
+.dm-triptych { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-width:860px; }
+.dm-col { background:#fff; border:1px solid #e0e4f4; border-radius:10px; overflow:hidden; display:flex; flex-direction:column; }
+.dm-col-header { padding:8px 12px; border-bottom:1px solid #eceef8; display:flex; align-items:center; gap:6px; }
+.dm-col-emoji { font-size:14px; }
+.dm-col-title { font-size:11px; font-weight:700; color:#303460; }
+.dm-col-sub { font-size:10px; color:#b0b8d8; margin-top:1px; }
+.dm-col-profile { padding:8px 12px; background:#f8f9fe; border-bottom:1px solid #eceef8; }
+.dm-col-profile-row { display:flex; gap:4px; align-items:baseline; margin-bottom:3px; }
+.dm-col-profile-key { font-size:9px; color:#b0b8d8; flex-shrink:0; width:44px; }
+.dm-col-profile-val { font-size:10px; color:#606890; line-height:1.4; }
+.dm-col-messages { flex:1; padding:10px; display:flex; flex-direction:column; gap:7px; min-height:180px; }
+.dm-col-msg { display:flex; gap:5px; align-items:flex-end; }
+.dm-col-msg.m { flex-direction:row-reverse; }
+.dm-col-av { width:20px; height:20px; border-radius:50%; flex-shrink:0; font-size:10px; display:flex; align-items:center; justify-content:center; }
+.dm-col-av.u { background:#f0f2ff; border:1px solid #d0d8f8; }
+.dm-col-av.m { background:#fff0f0; border:1px solid #f0c0c8; }
+.dm-col-bbl { padding:6px 9px; border-radius:10px; font-size:11px; line-height:1.5; max-width:160px; }
+.dm-col-bbl.u { background:#f0f2ff; color:#3040a0; border-radius:10px 10px 10px 2px; }
+.dm-col-bbl.m { background:#fff0f0; color:#a02030; border-radius:10px 10px 2px 10px; }
 </style>
 </head>
 <body>
@@ -967,13 +1041,55 @@ body {
 
   <!-- 左侧商家 sidebar -->
   <div class="sidebar">
-    <div class="sidebar-header">
-      <div class="merchant-name">🌸 花开四季</div>
-      <div class="merchant-id">鲜花礼品 · 母亲节大促</div>
+    <div class="sidebar-header" style="display:flex;align-items:center;gap:8px;padding:14px 14px 10px;">
+      <span style="font-size:16px;">🌸</span>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#1e2060;">花开四季</div>
+        <div style="font-size:11px;color:#b0b8d8;margin-top:2px;">鲜花礼品 · 母亲节大促</div>
+      </div>
     </div>
     <hr class="sidebar-divider">
-    <div class="sidebar-status">
+    <div style="margin-bottom:12px;padding:0 14px;">
       <span class="task-badge badge-wip" id="sidebarStatus">● 生成中...</span>
+    </div>
+    <hr class="sidebar-divider">
+    <div style="font-size:9px;color:#b0b8d8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;padding:0 14px;">AGENT 进度</div>
+    <div class="sidebar-steps" style="padding:0 14px;">
+      <div class="sidebar-step" id="sidebarStep0">
+        <div class="sidebar-step-dot idle" id="stepDot0"></div>
+        <div class="sidebar-step-body">
+          <div class="sidebar-step-name" id="stepName0">数据洞察</div>
+          <div class="sidebar-step-desc">分析用户决策路径</div>
+        </div>
+      </div>
+      <div class="sidebar-step" id="sidebarStep1">
+        <div class="sidebar-step-dot idle" id="stepDot1"></div>
+        <div class="sidebar-step-body">
+          <div class="sidebar-step-name" id="stepName1">账号定位</div>
+          <div class="sidebar-step-desc">KOB / KOS 双账号</div>
+        </div>
+      </div>
+      <div class="sidebar-step" id="sidebarStep2">
+        <div class="sidebar-step-dot idle" id="stepDot2"></div>
+        <div class="sidebar-step-body">
+          <div class="sidebar-step-name" id="stepName2">内容矩阵</div>
+          <div class="sidebar-step-desc">8条选题分层覆盖</div>
+        </div>
+      </div>
+      <div class="sidebar-step" id="sidebarStep3">
+        <div class="sidebar-step-dot idle" id="stepDot3"></div>
+        <div class="sidebar-step-body">
+          <div class="sidebar-step-name" id="stepName3">投放策略</div>
+          <div class="sidebar-step-desc">三段节奏精细押注</div>
+        </div>
+      </div>
+      <div class="sidebar-step" id="sidebarStep4">
+        <div class="sidebar-step-dot idle" id="stepDot4"></div>
+        <div class="sidebar-step-body">
+          <div class="sidebar-step-name" id="stepName4">承接话术</div>
+          <div class="sidebar-step-desc">按来源定制开场白</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -987,69 +1103,20 @@ body {
     </div>
   </div>
 
-  <!-- 右侧面板 -->
-  <div class="right-panel">
-    <!-- AGENT 进度步骤条 -->
-    <div class="panel-section">
-      <div class="panel-title">AGENT 进度</div>
-      <div class="step-item" id="step0">
-        <div class="step-dot idle" id="stepDot0"></div>
-        <span class="step-name" id="stepName0">数据洞察</span>
-      </div>
-      <div class="step-item" id="step1">
-        <div class="step-dot idle" id="stepDot1"></div>
-        <span class="step-name" id="stepName1">账号定位</span>
-      </div>
-      <div class="step-item" id="step2">
-        <div class="step-dot idle" id="stepDot2"></div>
-        <span class="step-name" id="stepName2">内容矩阵</span>
-      </div>
-      <div class="step-item" id="step3">
-        <div class="step-dot idle" id="stepDot3"></div>
-        <span class="step-name" id="stepName3">投放策略</span>
-      </div>
-      <div class="step-item" id="step4">
-        <div class="step-dot idle" id="stepDot4"></div>
-        <span class="step-name" id="stepName4">承接话术</span>
-      </div>
-    </div>
-
-    <!-- 数据洞察汇总（隐藏，保留功能） -->
-    <div class="panel-section" id="panelInsight" style="display:none;">
-      <div class="panel-title">📊 数据洞察</div>
-      <div class="insight-row" id="ins0">
-        <span class="insight-key">情感驱动型</span>
-        <span><span class="insight-val">43%</span><span class="insight-arrow">→</span><span style="font-size:10px;color:#18a838;font-weight:600;">种草层</span></span>
-      </div>
-      <div class="insight-row" id="ins1">
-        <span class="insight-key">比价决策型</span>
-        <span><span class="insight-val">32%</span><span class="insight-arrow">→</span><span style="font-size:10px;color:#2060d0;font-weight:600;">筛选层</span></span>
-      </div>
-      <div class="insight-row" id="ins2">
-        <span class="insight-key">促单敏感型</span>
-        <span><span class="insight-val">25%</span><span class="insight-arrow">→</span><span style="font-size:10px;color:#d08000;font-weight:600;">转化层</span></span>
-      </div>
-    </div>
-
-    <!-- 当前内容方案（隐藏，保留功能） -->
-    <div class="panel-section" id="panelContent" style="display:none;">
-      <div class="panel-title">📄 当前内容方案</div>
-      <div class="content-counter" id="contentCounter">
-        <div class="counter-num" id="counterNum">0</div>
-        <div class="counter-label">条内容已生成</div>
-      </div>
-    </div>
-
-    <!-- 素材预览（右侧，隐藏，保留功能） -->
-    <div class="panel-section" id="panelMaterials" style="display:none;">
-      <div class="panel-title">🖼 素材预览</div>
-      <div class="right-mat-grid">
-        <div class="right-mat-cell" id="rmat0">🌸</div>
-        <div class="right-mat-cell" id="rmat1">💐</div>
-        <div class="right-mat-cell" id="rmat2">🎁</div>
-        <div class="right-mat-cell" id="rmat3">📦</div>
-      </div>
-    </div>
+  <!-- 右侧面板已移除，进度步骤条已迁移至左侧 sidebar -->
+  <!-- 保留隐藏元素以兼容JS引用 -->
+  <div style="display:none;">
+    <div id="panelInsight"></div>
+    <div id="panelContent"></div>
+    <div id="panelMaterials"></div>
+    <div id="contentCounter"><div id="counterNum">0</div></div>
+    <div id="ins0"></div>
+    <div id="ins1"></div>
+    <div id="ins2"></div>
+    <div id="rmat0"></div>
+    <div id="rmat1"></div>
+    <div id="rmat2"></div>
+    <div id="rmat3"></div>
   </div>
 
 </div>
@@ -1190,12 +1257,12 @@ function setSkillStatus(idx, state) {
   const dot = document.getElementById('stepDot' + idx);
   const name = document.getElementById('stepName' + idx);
   if (dot) {
-    dot.className = 'step-dot ' + state;
+    dot.className = 'sidebar-step-dot ' + state;
     if (state === 'done') dot.textContent = '✓';
     else dot.textContent = '';
   }
   if (name) {
-    name.className = 'step-name ' + (state === 'idle' ? '' : state);
+    name.className = 'sidebar-step-name ' + (state === 'idle' ? '' : state);
   }
 }
 
@@ -1459,11 +1526,17 @@ async function startDemo() {
   await showAgentBubble(`<div class="step-intro-card">
   <div class="step-intro-label">STEP 1 · 账号定位</div>
   <div class="step-intro-title">三种用户意图 → 需要两种账号说不同的话</div>
-  <div class="step-intro-desc">
-    官感账号（KOB）→ 专业感 + 品牌背书<br>
-    面向：比价决策型 + 促单敏感型<br><br>
-    人感账号（KOS）→ 真实人设 + 生活场景<br>
-    面向：情感驱动型
+  <div class="step-intro-cols">
+    <div class="step-intro-col">
+      <div class="step-intro-col-badge kob">官感 KOB</div>
+      <div class="step-intro-col-title">专业感 · 品牌背书</div>
+      <div class="step-intro-col-desc">面向比价决策型<br>说产品价值，建信任</div>
+    </div>
+    <div class="step-intro-col">
+      <div class="step-intro-col-badge kos">人感 KOS</div>
+      <div class="step-intro-col-title">真实人设 · 生活场景</div>
+      <div class="step-intro-col-desc">面向情感驱动型<br>说使用场景，引共鸣</div>
+    </div>
   </div>
 </div>`);
   await sleepCheck(600);
@@ -1707,94 +1780,124 @@ async function startDemo() {
 </div>`);
   await sleepCheck(700);
 
-  // ── 私信模拟界面数据 ──
-  const dmScenes = [
-    {
-      id: 'sceneA',
-      tab: '🌸 情感进线',
-      profile: { note: '《送妈妈的第一束花，我选了这个》', trait: '情感驱动，决策早期', stage: '尚在浏览，价格不敏感' },
-      messages: [
-        { role: 'user', text: '怎么买？' },
-        { role: 'merchant', text: '姐姐你好🌸 看你是从送妈妈的那篇笔记来的～ 想帮妈妈挑一束有心意的花对吧？你妈妈平时家里喜欢素雅风还是饱满热烈一点的？我帮你搭一个她会喜欢的🌺' },
-        { role: 'user', text: '素雅风的，预算在300左右' },
-        { role: 'merchant', text: '素雅风超适合妈妈！我们有一款白芍药+香雪球的组合，特别清雅，298就可以拿下～要给你看看实拍吗？' },
-      ]
-    },
-    {
-      id: 'sceneB',
-      tab: '💰 比价进线',
-      profile: { note: '《超市花 vs 定制花束，差距到底在哪》', trait: '已有意向，在做比价', stage: '关注性价比，快速决策型' },
-      messages: [
-        { role: 'user', text: '你们最便宜多少？' },
-        { role: 'merchant', text: '你好！我直接帮你说清楚：300/500/800三档我们家都有，区别主要在花材品种和包装形式。你这次是自己送还是顺丰寄出去？预算大概多少？我帮你挑最划算的方案🌿' },
-        { role: 'user', text: '500以内，送给妈妈' },
-        { role: 'merchant', text: '500档推荐玫瑰+洋桔梗+满天星组合，很有层次感，包装也好看，妈妈收到一定开心！现在下单还有早鸟价488，要安排吗？' },
-      ]
-    },
-    {
-      id: 'sceneC',
-      tab: '⚡ 活动进线',
-      profile: { note: '《母亲节提前订享8折，今天截止》', trait: '决策成熟，时效敏感', stage: '需要临门一脚，立刻成交' },
-      messages: [
-        { role: 'user', text: '8折还有吗？' },
-        { role: 'merchant', text: '姐你来得正好！8折今天是最后一天哦～你现在下单我们今天就安排打花，后天保证送到。想要哪个价位的？我先帮你锁库存🌸' },
-        { role: 'user', text: '500的，能后天到吗' },
-        { role: 'merchant', text: '500档没问题！顺丰隔日达，后天上午到。现在给你锁一束，付款后立刻安排～需要写贺卡吗？免费的🎀' },
-      ]
-    }
-  ];
-
-  // 将场景数据存到 window 供事件处理器访问
-  window._dmScenes = dmScenes;
-  window._dmExtraMessages = { sceneA: [], sceneB: [], sceneC: [] };
-  window._dmAnimating = false;
-  window._dmCurrentScene = 'sceneA';
-
-  const dmSimHtml = `
-  <div class="dm-simulator" id="dmSimulator">
-    <div class="dm-scene-tabs">
-      <button class="dm-scene-tab active" id="dmTab0" onclick="switchDmScene(0)">🌸 情感进线</button>
-      <button class="dm-scene-tab" id="dmTab1" onclick="switchDmScene(1)">💰 比价进线</button>
-      <button class="dm-scene-tab" id="dmTab2" onclick="switchDmScene(2)">⚡ 活动进线</button>
-    </div>
-    <div class="dm-body">
-      <div class="dm-profile" id="dmProfile">
-        <div class="dm-profile-title">USER PROFILE</div>
-        <div class="dm-profile-row">
-          <div class="dm-profile-key">来自笔记</div>
-          <div class="dm-profile-val" id="dmPNote"></div>
-        </div>
-        <div class="dm-profile-row">
-          <div class="dm-profile-key">用户特征</div>
-          <div class="dm-profile-val" id="dmPTrait"></div>
-        </div>
-        <div class="dm-profile-row">
-          <div class="dm-profile-key">决策阶段</div>
-          <div class="dm-profile-val" id="dmPStage"></div>
+  // ── 私信三列平铺布局 ──
+  const dmTriptychHtml = `<div class="dm-triptych" id="dmTriptych">
+    <!-- 场景A：情感进线 -->
+    <div class="dm-col">
+      <div class="dm-col-header">
+        <span class="dm-col-emoji">🌸</span>
+        <div>
+          <div class="dm-col-title">情感进线</div>
+          <div class="dm-col-sub">来自「送妈妈的花」</div>
         </div>
       </div>
-      <div class="dm-chat">
-        <div class="dm-chat-header">
-          <span>💬</span>
-          <span>小红书私信</span>
+      <div class="dm-col-profile">
+        <div class="dm-col-profile-row"><span class="dm-col-profile-key">用户类型</span><span class="dm-col-profile-val">情感驱动</span></div>
+        <div class="dm-col-profile-row"><span class="dm-col-profile-key">决策阶段</span><span class="dm-col-profile-val">决策早期</span></div>
+        <div class="dm-col-profile-row"><span class="dm-col-profile-key">价格敏感</span><span class="dm-col-profile-val">不敏感</span></div>
+      </div>
+      <div class="dm-col-messages" id="dmColMsgA">
+        <div class="dm-col-msg" id="dmA0" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av u">👤</div>
+          <div class="dm-col-bbl u">怎么买？</div>
         </div>
-        <div class="dm-messages" id="dmMessages"></div>
-        <div class="dm-input-area">
-          <input class="dm-input" id="dmInput" placeholder="输入消息..." onkeydown="if(event.key==='Enter')sendDmMsg()">
-          <button class="dm-send" onclick="sendDmMsg()">发送</button>
+        <div class="dm-col-msg m" id="dmA1" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av m">🌸</div>
+          <div class="dm-col-bbl m">姐姐你好🌸 看你是从送妈妈的那篇笔记来的～ 你妈妈喜欢素雅风还是热烈一点的？</div>
+        </div>
+        <div class="dm-col-msg" id="dmA2" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av u">👤</div>
+          <div class="dm-col-bbl u">素雅风，300左右</div>
+        </div>
+        <div class="dm-col-msg m" id="dmA3" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av m">🌸</div>
+          <div class="dm-col-bbl m">白芍药+香雪球，298拿下～要看实拍吗？</div>
+        </div>
+      </div>
+    </div>
+    <!-- 场景B：比价进线 -->
+    <div class="dm-col">
+      <div class="dm-col-header">
+        <span class="dm-col-emoji">💰</span>
+        <div>
+          <div class="dm-col-title">比价进线</div>
+          <div class="dm-col-sub">来自「超市花对比」</div>
+        </div>
+      </div>
+      <div class="dm-col-profile">
+        <div class="dm-col-profile-row"><span class="dm-col-profile-key">用户类型</span><span class="dm-col-profile-val">已有意向</span></div>
+        <div class="dm-col-profile-row"><span class="dm-col-profile-key">决策阶段</span><span class="dm-col-profile-val">正在比价</span></div>
+        <div class="dm-col-profile-row"><span class="dm-col-profile-key">价格敏感</span><span class="dm-col-profile-val">关注性价比</span></div>
+      </div>
+      <div class="dm-col-messages" id="dmColMsgB">
+        <div class="dm-col-msg" id="dmB0" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av u">👤</div>
+          <div class="dm-col-bbl u">最便宜多少？</div>
+        </div>
+        <div class="dm-col-msg m" id="dmB1" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av m">🌸</div>
+          <div class="dm-col-bbl m">直接说：300/500/800三档都有。你是自送还是顺丰寄？</div>
+        </div>
+        <div class="dm-col-msg" id="dmB2" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av u">👤</div>
+          <div class="dm-col-bbl u">500以内送妈妈</div>
+        </div>
+        <div class="dm-col-msg m" id="dmB3" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av m">🌸</div>
+          <div class="dm-col-bbl m">玫瑰+洋桔梗+满天星，现在早鸟价488，安排吗？</div>
+        </div>
+      </div>
+    </div>
+    <!-- 场景C：活动进线 -->
+    <div class="dm-col">
+      <div class="dm-col-header">
+        <span class="dm-col-emoji">⚡</span>
+        <div>
+          <div class="dm-col-title">活动进线</div>
+          <div class="dm-col-sub">来自「限时8折」</div>
+        </div>
+      </div>
+      <div class="dm-col-profile">
+        <div class="dm-col-profile-row"><span class="dm-col-profile-key">用户类型</span><span class="dm-col-profile-val">决策成熟</span></div>
+        <div class="dm-col-profile-row"><span class="dm-col-profile-key">决策阶段</span><span class="dm-col-profile-val">时效敏感</span></div>
+        <div class="dm-col-profile-row"><span class="dm-col-profile-key">需要</span><span class="dm-col-profile-val">临门一脚</span></div>
+      </div>
+      <div class="dm-col-messages" id="dmColMsgC">
+        <div class="dm-col-msg" id="dmC0" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av u">👤</div>
+          <div class="dm-col-bbl u">8折还有吗？</div>
+        </div>
+        <div class="dm-col-msg m" id="dmC1" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av m">🌸</div>
+          <div class="dm-col-bbl m">今天最后一天！现在下单后天到。要哪个价位？先帮你锁库存🌸</div>
+        </div>
+        <div class="dm-col-msg" id="dmC2" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av u">👤</div>
+          <div class="dm-col-bbl u">500的，后天能到吗</div>
+        </div>
+        <div class="dm-col-msg m" id="dmC3" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av m">🌸</div>
+          <div class="dm-col-bbl m">顺丰隔日达，后天上午到。需要写贺卡吗？免费🎀</div>
         </div>
       </div>
     </div>
   </div>`;
 
-  const dmRow = addMsgRow('msg-row', makeAgentAvatar() + dmSimHtml);
+  const dmRow = addMsgRow('msg-row', makeAgentAvatar() + dmTriptychHtml);
   await sleepCheck(150);
   dmRow.classList.add('visible');
   scrollToBottom();
 
-  // 初始化第一个场景
-  await renderDmScene(0, true);
-  scrollToBottom();
+  // 三列气泡依次淡入（每条间隔300ms，三列同步）
+  const bubbleIds = [['dmA0','dmA1','dmA2','dmA3'],['dmB0','dmB1','dmB2','dmB3'],['dmC0','dmC1','dmC2','dmC3']];
+  for (let step = 0; step < 4; step++) {
+    await sleepCheck(300);
+    for (const col of bubbleIds) {
+      const el = document.getElementById(col[step]);
+      if (el) el.style.opacity = '1';
+    }
+    scrollToBottom();
+  }
 
   setSkillStatus(4, 'done');
   setProgress(83);
@@ -1870,80 +1973,7 @@ function copyDM(btn, text) {
   }, 2000);
 }
 
-// ── 私信模拟器函数 ──
-async function renderDmScene(idx, animate) {
-  if (window._dmAnimating) return;
-  window._dmAnimating = true;
-
-  const scene = window._dmScenes[idx];
-  window._dmCurrentScene = scene.id;
-
-  // 更新画像
-  document.getElementById('dmPNote').textContent = scene.profile.note;
-  document.getElementById('dmPTrait').textContent = scene.profile.trait;
-  document.getElementById('dmPStage').textContent = scene.profile.stage;
-
-  // 清空消息区
-  const msgBox = document.getElementById('dmMessages');
-  msgBox.innerHTML = '';
-
-  // 合并预设消息 + 用户追加消息
-  const allMsgs = [...scene.messages, ...(window._dmExtraMessages[scene.id] || [])];
-
-  if (animate) {
-    for (const msg of allMsgs) {
-      await new Promise(r => setTimeout(r, 400));
-      appendDmMsg(msgBox, msg.role, msg.text);
-      msgBox.scrollTop = msgBox.scrollHeight;
-    }
-  } else {
-    for (const msg of allMsgs) {
-      appendDmMsg(msgBox, msg.role, msg.text);
-    }
-    msgBox.scrollTop = msgBox.scrollHeight;
-  }
-
-  window._dmAnimating = false;
-}
-
-function appendDmMsg(container, role, text) {
-  const isUser = role === 'user';
-  const div = document.createElement('div');
-  div.className = 'dm-msg' + (isUser ? '' : ' merchant');
-  div.innerHTML = `
-    <div class="dm-avatar ${isUser ? 'user-av' : 'merchant-av'}">${isUser ? '👤' : '🌸'}</div>
-    <div class="dm-bubble ${isUser ? 'user-bubble' : 'merchant-bubble'}">${text}</div>`;
-  container.appendChild(div);
-}
-
-function switchDmScene(idx) {
-  if (window._dmAnimating) return;
-  // 更新 tab 高亮
-  for (let i = 0; i < 3; i++) {
-    const tab = document.getElementById('dmTab' + i);
-    if (tab) tab.classList.toggle('active', i === idx);
-  }
-  renderDmScene(idx, true);
-}
-
-function sendDmMsg() {
-  const input = document.getElementById('dmInput');
-  const text = input.value.trim();
-  if (!text) return;
-  input.value = '';
-
-  // 找当前场景 idx
-  const sceneIdx = window._dmScenes.findIndex(s => s.id === window._dmCurrentScene);
-  const scene = window._dmScenes[sceneIdx];
-
-  // 存到该场景的额外消息
-  if (!window._dmExtraMessages[scene.id]) window._dmExtraMessages[scene.id] = [];
-  window._dmExtraMessages[scene.id].push({ role: 'user', text });
-
-  const msgBox = document.getElementById('dmMessages');
-  appendDmMsg(msgBox, 'user', text);
-  msgBox.scrollTop = msgBox.scrollHeight;
-}
+// 私信模拟器旧函数已移除（Tab切换改为三列平铺展示）
 </script>
 </body>
 <!-- v9 build: 2026-03-31T19:00 -->
