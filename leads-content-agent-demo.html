@@ -917,19 +917,17 @@ body {
 }
 
 /* ── 投放卡片组 ── */
-.deploy-cards { display:flex; flex-direction:column; gap:8px; max-width:600px; }
-.deploy-card { background:#fff; border:1px solid #e0e4f4; border-radius:10px; padding:12px 14px; display:flex; gap:14px; align-items:flex-start; }
-.deploy-card-phase { flex-shrink:0; width:80px; }
-.deploy-card-phase-label { font-size:10px; color:#b0b8d8; margin-bottom:2px; }
-.deploy-card-phase-days { font-size:20px; font-weight:800; color:#e01a3a; line-height:1; }
-.deploy-card-phase-unit { font-size:10px; color:#e01a3a; }
-.deploy-card-divider { width:1px; background:#e8eaf4; flex-shrink:0; align-self:stretch; }
-.deploy-card-body { flex:1; }
-.deploy-card-type { font-size:12px; font-weight:700; color:#1e2060; margin-bottom:4px; }
-.deploy-card-tags { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:6px; }
+.deploy-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-width:660px; }
+.deploy-card { background:#fff; border:1px solid #e0e4f4; border-radius:10px; padding:14px 13px; display:flex; flex-direction:column; gap:8px; }
+.deploy-card-top { display:flex; align-items:baseline; gap:5px; padding-bottom:8px; border-bottom:1px solid #f0f2fa; }
+.deploy-card-phase-days { font-size:28px; font-weight:800; color:#e01a3a; line-height:1; }
+.deploy-card-phase-unit { font-size:11px; color:#e01a3a; font-weight:600; }
+.deploy-card-phase-label { font-size:10px; color:#b0b8d8; margin-left:auto; }
+.deploy-card-type { font-size:12px; font-weight:700; color:#1e2060; }
+.deploy-card-tags { display:flex; flex-wrap:wrap; gap:4px; }
 .deploy-tag { font-size:10px; padding:2px 7px; border-radius:10px; background:#f0f2ff; color:#4050a0; border:1px solid #d8ddf0; }
-.deploy-card-budget { font-size:11px; color:#606890; }
-.deploy-card-kpi { font-size:11px; color:#18a838; font-weight:600; margin-top:3px; }
+.deploy-card-budget { font-size:11px; color:#909ab8; }
+.deploy-card-kpi { font-size:11px; color:#18a838; font-weight:600; padding-top:4px; border-top:1px dashed #e8f5e9; }
 </style>
 </head>
 <body>
@@ -958,10 +956,10 @@ body {
 
 <!-- Tab 导航 -->
 <div class="tabs">
-  <div class="tab active" id="tab1">① 说需求</div>
-  <div class="tab" id="tab2">② 内容生产 <span style="font-size:10px;color:#c0c8e0;margin:0 2px">→</span> 投放联动</div>
-  <div class="tab" id="tab3">③ 素材预览</div>
-  <div class="tab" id="tab4">④ 承接话术</div>
+  <div class="tab active" id="tab1">说需求</div>
+  <div class="tab" id="tab2">内容方案</div>
+  <div class="tab" id="tab3">素材预览</div>
+  <div class="tab" id="tab4">承接话术</div>
 </div>
 
 <!-- 主体 -->
@@ -1235,9 +1233,7 @@ async function startDemo() {
 
   // ─── Phase 0：Agent 开场 ───
   setProgress(5);
-  const openText = `来的人质量不高？大概率是内容没做对。
-
-说说你现在想做什么生意，我帮你搞定内容、投放和承接。`;
+  const openText = `告诉我你的生意目标，我帮你把内容、投放、承接三段打通。`;
 
   await typewriterBubble(openText, 16);
 
@@ -1656,56 +1652,45 @@ async function startDemo() {
 
   await showAgentBubble(`<div class="deploy-cards">
   <div class="deploy-card">
-    <div class="deploy-card-phase">
-      <div class="deploy-card-phase-label">阶段一</div>
-      <div class="deploy-card-phase-days">14<span class="deploy-card-phase-unit">天</span></div>
+    <div class="deploy-card-top">
+      <span class="deploy-card-phase-days">14</span><span class="deploy-card-phase-unit">天</span>
+      <span class="deploy-card-phase-label">阶段一</span>
     </div>
-    <div class="deploy-card-divider"></div>
-    <div class="deploy-card-body">
-      <div class="deploy-card-type">情感共鸣 / 种草内容</div>
-      <div class="deploy-card-tags">
-        <span class="deploy-tag">25-40岁女性</span>
-        <span class="deploy-tag">搜索「母亲节礼物」</span>
-        <span class="deploy-tag">预算30%</span>
-      </div>
-      <div class="deploy-card-budget">转化动作：私信开口</div>
-      <div class="deploy-card-kpi">考核：品牌意向人群增长</div>
+    <div class="deploy-card-type">情感共鸣 / 种草</div>
+    <div class="deploy-card-tags">
+      <span class="deploy-tag">25-40岁女性</span>
+      <span class="deploy-tag">搜索母亲节礼物</span>
+      <span class="deploy-tag">预算30%</span>
     </div>
+    <div class="deploy-card-budget">转化：私信开口</div>
+    <div class="deploy-card-kpi">↑ 品牌意向人群</div>
   </div>
   <div class="deploy-card">
-    <div class="deploy-card-phase">
-      <div class="deploy-card-phase-label">阶段二</div>
-      <div class="deploy-card-phase-days">7<span class="deploy-card-phase-unit">天</span></div>
+    <div class="deploy-card-top">
+      <span class="deploy-card-phase-days">7</span><span class="deploy-card-phase-unit">天</span>
+      <span class="deploy-card-phase-label">阶段二</span>
     </div>
-    <div class="deploy-card-divider"></div>
-    <div class="deploy-card-body">
-      <div class="deploy-card-type">产品对比 / 晒单内容</div>
-      <div class="deploy-card-tags">
-        <span class="deploy-tag">互动过种草笔记</span>
-        <span class="deploy-tag">浏览鲜花类用户</span>
-        <span class="deploy-tag">预算50%</span>
-      </div>
-      <div class="deploy-card-budget">转化动作：私信留资</div>
-      <div class="deploy-card-kpi">考核：私信开口率 + 有效客资</div>
+    <div class="deploy-card-type">产品对比 / 晒单</div>
+    <div class="deploy-card-tags">
+      <span class="deploy-tag">互动过种草笔记</span>
+      <span class="deploy-tag">预算50%</span>
     </div>
+    <div class="deploy-card-budget">转化：私信留资</div>
+    <div class="deploy-card-kpi">↑ 私信开口率</div>
   </div>
   <div class="deploy-card">
-    <div class="deploy-card-phase">
-      <div class="deploy-card-phase-label">阶段三</div>
-      <div class="deploy-card-phase-days">3<span class="deploy-card-phase-unit">天</span></div>
+    <div class="deploy-card-top">
+      <span class="deploy-card-phase-days">3</span><span class="deploy-card-phase-unit">天</span>
+      <span class="deploy-card-phase-label">阶段三</span>
     </div>
-    <div class="deploy-card-divider"></div>
-    <div class="deploy-card-body">
-      <div class="deploy-card-type">活动利益 / 限时内容</div>
-      <div class="deploy-card-tags">
-        <span class="deploy-tag">已进线未留资</span>
-        <span class="deploy-tag">高意向访客</span>
-        <span class="deploy-tag">预算20%</span>
-        <span class="deploy-tag">出价上浮20%</span>
-      </div>
-      <div class="deploy-card-budget">转化动作：表单 / 直接下单</div>
-      <div class="deploy-card-kpi">考核：有效客资成本 + 转化数</div>
+    <div class="deploy-card-type">活动利益 / 限时</div>
+    <div class="deploy-card-tags">
+      <span class="deploy-tag">已进线未留资</span>
+      <span class="deploy-tag">出价+20%</span>
     </div>
+    <div class="deploy-card-budget">转化：表单下单</div>
+    <div class="deploy-card-kpi">↓ 有效客资成本</div>
+  </div>
   </div>
 </div>`);
 
