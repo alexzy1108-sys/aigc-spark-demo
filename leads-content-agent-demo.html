@@ -252,6 +252,7 @@ body {
   font-size: 13px;
   color: #1a1d3a;
   box-shadow: 0 2px 16px rgba(60,70,140,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  width: fit-content;
 }
 .bubble.user {
   background: linear-gradient(135deg, #7c5cfc, #9f7dff);
@@ -906,7 +907,8 @@ body {
   background: linear-gradient(135deg, rgba(255,255,255,0.97), rgba(248,249,254,0.97));
   border: 1px solid rgba(224,228,244,0.8);
   border-radius: 16px;
-  padding: 14px 16px;
+  padding: 16px 18px;
+  width: 560px;
   max-width: 100%;
   box-shadow: 0 4px 20px rgba(60,70,140,0.08);
 }
@@ -1662,14 +1664,24 @@ async function startDemo() {
         <span class="step-intro-col-badge kob">官感账号</span>
         <span class="step-intro-col-title">奔驰CLE风尚志</span>
       </div>
-      <div class="step-intro-col-desc">核心TA：垂直用户<br>内容：产品痛点×人群×买点<br><strong style="color:#1e2060;">让用户知道CLE是一辆强大的轿跑</strong></div>
+      <div class="step-intro-col-desc">
+        <div style="margin-bottom:5px;"><span style="color:#a0a8c8;">核心TA</span> 垂直用户 / 产品决策型</div>
+        <div style="margin-bottom:5px;"><span style="color:#a0a8c8;">内容策略</span> 产品痛点 × 人群 × 买点</div>
+        <div style="margin-bottom:6px;"><span style="color:#a0a8c8;">核心笔记</span> 测评 / 参数 / 对比竞品</div>
+        <div style="background:#e8f0ff;border-radius:6px;padding:5px 8px;font-size:11px;font-weight:600;color:#1565c0;">🎯 让用户知道CLE是一辆强大的轿跑</div>
+      </div>
     </div>
     <div class="step-intro-col">
       <div class="step-intro-col-header">
         <span class="step-intro-col-badge kos">人感账号</span>
         <span class="step-intro-col-title">她与奔驰CLE</span>
       </div>
-      <div class="step-intro-col-desc">核心TA：高净值精致女性<br>内容：人群×场景×产品×买点<br><strong style="color:#1e2060;">让用户感受CLE是一种美好生活方式</strong></div>
+      <div class="step-intro-col-desc">
+        <div style="margin-bottom:5px;"><span style="color:#a0a8c8;">核心TA</span> 高净值精致女性</div>
+        <div style="margin-bottom:5px;"><span style="color:#a0a8c8;">内容策略</span> 人群 × 场景 × 产品 × 买点</div>
+        <div style="margin-bottom:6px;"><span style="color:#a0a8c8;">核心笔记</span> 提车 / 自驾 / 生活方式</div>
+        <div style="background:#e8f5e9;border-radius:6px;padding:5px 8px;font-size:11px;font-weight:600;color:#2e7d32;">🌿 让用户感受CLE是一种美好生活方式</div>
+      </div>
     </div>
   </div>
 </div>`);
