@@ -886,6 +886,50 @@ body {
   animation: blink 0.7s infinite;
   vertical-align: text-bottom;
 }
+
+/* ── Step 引导卡片 ── */
+.step-intro-card {
+  background: linear-gradient(135deg, #f8f9fe 0%, #fff 100%);
+  border: 1px solid #e0e4f4;
+  border-left: 3px solid #e01a3a;
+  border-radius: 10px;
+  padding: 14px 16px;
+  max-width: 420px;
+}
+.step-intro-label {
+  font-size: 10px;
+  color: #e01a3a;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.step-intro-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e2060;
+  margin-bottom: 6px;
+}
+.step-intro-desc {
+  font-size: 12px;
+  color: #606890;
+  line-height: 1.7;
+}
+
+/* ── 投放卡片组 ── */
+.deploy-cards { display:flex; flex-direction:column; gap:8px; max-width:600px; }
+.deploy-card { background:#fff; border:1px solid #e0e4f4; border-radius:10px; padding:12px 14px; display:flex; gap:14px; align-items:flex-start; }
+.deploy-card-phase { flex-shrink:0; width:80px; }
+.deploy-card-phase-label { font-size:10px; color:#b0b8d8; margin-bottom:2px; }
+.deploy-card-phase-days { font-size:20px; font-weight:800; color:#e01a3a; line-height:1; }
+.deploy-card-phase-unit { font-size:10px; color:#e01a3a; }
+.deploy-card-divider { width:1px; background:#e8eaf4; flex-shrink:0; align-self:stretch; }
+.deploy-card-body { flex:1; }
+.deploy-card-type { font-size:12px; font-weight:700; color:#1e2060; margin-bottom:4px; }
+.deploy-card-tags { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:6px; }
+.deploy-tag { font-size:10px; padding:2px 7px; border-radius:10px; background:#f0f2ff; color:#4050a0; border:1px solid #d8ddf0; }
+.deploy-card-budget { font-size:11px; color:#606890; }
+.deploy-card-kpi { font-size:11px; color:#18a838; font-weight:600; margin-top:3px; }
 </style>
 </head>
 <body>
@@ -1299,14 +1343,53 @@ async function startDemo() {
   setProgress(30);
   await sleepCheck(900);
 
-  // ─── Phase 3：数据洞察（逐行打字）───
-  // 先显示 loading
-  await typewriterBubble('正在调取站内数据...', 30);
-  await sleepCheck(600);
+  // ─── Phase 3：数据洞察（单气泡内动态更新）───
+  {
+    // 创建一个气泡，先显示 loading 点动画
+    const row = addMsgRow('msg-row', makeAgentAvatar() + `<div class="bubble agent" id="insightBubble" style="min-width:280px;line-height:1.9;"></div>`);
+    row.classList.add('visible');
+    scrollToBottom();
+    const bbl = document.getElementById('insightBubble');
 
-  // 逐行打字出分析过程
-  await typewriterBubble('✓ 分析成交用户路径 → 他们看了什么内容才进线\n✓ 分析无效留资路径 → 在哪个环节流失了\n✓ 分析站外成交路径 → 种草后去哪里成交\n\n结论：来人质量低，根本原因是内容只做了一种，\n但进来的用户有三种意图。', 20);
-  await sleepCheck(500);
+    // --- loading 阶段 ---
+    bbl.innerHTML = `<span style="color:#b0b8d8;font-size:12px;">正在调取站内数据</span><span id="insightDots" style="color:#b0b8d8;font-size:12px;">...</span>`;
+    // 3个点循环动效（用 interval）
+    let dotCount = 0;
+    const dotEl = document.getElementById('insightDots');
+    const dotTimer = setInterval(() => {
+      if (dotEl) { dotCount = (dotCount + 1) % 4; dotEl.textContent = '.'.repeat(dotCount || 1); }
+    }, 350);
+    await sleepCheck(2000);
+    clearInterval(dotTimer);
+
+    // --- 逐行显示分析结论 ---
+    bbl.innerHTML = '';
+    const lines = [
+      { text: '✓ 分析成交用户路径', sub: '他们看了什么内容才进线', color: '#1a9038' },
+      { text: '✓ 分析无效留资路径', sub: '在哪个环节流失了', color: '#1a9038' },
+      { text: '✓ 分析站外成交路径', sub: '种草后去哪里成交', color: '#1a9038' },
+    ];
+    for (const line of lines) {
+      await sleepCheck(400);
+      const div = document.createElement('div');
+      div.style.cssText = 'opacity:0;transform:translateY(6px);transition:all 0.3s ease;margin-bottom:4px;';
+      div.innerHTML = `<span style="color:${line.color};font-weight:600;">${line.text}</span> <span style="color:#8090b8;font-size:11px;">→ ${line.sub}</span>`;
+      bbl.appendChild(div);
+      scrollToBottom();
+      await sleepCheck(50);
+      div.style.opacity = '1'; div.style.transform = 'translateY(0)';
+    }
+    await sleepCheck(600);
+    // 结论
+    const conclusion = document.createElement('div');
+    conclusion.style.cssText = 'margin-top:10px;padding:8px 10px;background:#fff5f6;border-left:3px solid #e01a3a;border-radius:4px;opacity:0;transition:all 0.4s ease;';
+    conclusion.innerHTML = `<span style="color:#c02030;font-size:12px;font-weight:600;">结论：</span><span style="color:#303460;font-size:12px;">内容只做了一种，但进来的用户有三种意图。</span>`;
+    bbl.appendChild(conclusion);
+    scrollToBottom();
+    await sleepCheck(50);
+    conclusion.style.opacity = '1';
+    await sleepCheck(500);
+  }
 
   // 人群洞察卡片组
   const crowdRow = addMsgRow('msg-row', makeAgentAvatar() + `
@@ -1377,22 +1460,16 @@ async function startDemo() {
 
   // ─── Phase 4：账号定位 ───
   setSkillStatus(1, 'active');
-  const accountText = `[STEP 1 · 账号定位]
-
-三种用户意图 → 需要两种账号说不同的话：
-
-  官感账号（KOB）→ 专业感、品牌背书
-    面向：比价决策型 + 促单敏感型
-    说什么：产品卖点 → 转译为用户能理解的价值
-
-  人感账号（KOS）→ 真实人设、生活场景
+  await showAgentBubble(`<div class="step-intro-card">
+  <div class="step-intro-label">STEP 1 · 账号定位</div>
+  <div class="step-intro-title">三种用户意图 → 需要两种账号说不同的话</div>
+  <div class="step-intro-desc">
+    官感账号（KOB）→ 专业感 + 品牌背书<br>
+    面向：比价决策型 + 促单敏感型<br><br>
+    人感账号（KOS）→ 真实人设 + 生活场景<br>
     面向：情感驱动型
-    说什么：用户使用场景 → 产品功能自然融入生活
-
-2.0 内容打法：先找用户真实场景，再嵌入产品价值
-（不是从卖点出发硬植入场景）`;
-
-  await showAgentBubble('<pre style="white-space:pre-wrap;font-family:inherit;font-size:12.5px;line-height:1.75;">' + accountText + '</pre>');
+  </div>
+</div>`);
   await sleepCheck(600);
 
   // 双列账号卡片
@@ -1427,16 +1504,11 @@ async function startDemo() {
   document.getElementById('tab2').classList.add('flash');
   setTimeout(() => document.getElementById('tab2').classList.remove('flash'), 2000);
 
-  const matrixText = `[STEP 2 · 内容矩阵]
-
-基于数据洞察 + 账号定位，生成分层内容矩阵 👇
-
-三层覆盖用户全决策链路：
-  拉新种草层 → 触达情感驱动型用户，建立认知
-  意向筛选层 → 吸引比价决策型用户，推进选择
-  促转化层   → 推动促单敏感型用户，临门一脚`;
-
-  await showAgentBubble('<pre style="white-space:pre-wrap;font-family:inherit;font-size:12.5px;line-height:1.75;">' + matrixText + '</pre>');
+  await showAgentBubble(`<div class="step-intro-card">
+  <div class="step-intro-label">STEP 2 · 内容矩阵</div>
+  <div class="step-intro-title">8条选题，覆盖用户决策全程</div>
+  <div class="step-intro-desc">种草层 → 筛选层 → 转化层，每条内容对应不同意图的用户</div>
+</div>`);
   await sleepCheck(600);
 
   // 内容矩阵表格
@@ -1575,49 +1647,67 @@ async function startDemo() {
 
   // ─── Phase 6：投放建议 ───
   setSkillStatus(3, 'active');
-  const deployText = `[STEP 3 · 投放建议]
-
-每条内容配套精细化投放策略——
-三段节奏，分阶段押注：`;
-
-  await showAgentBubble('<pre style="white-space:pre-wrap;font-family:inherit;font-size:12.5px;line-height:1.75;">' + deployText + '</pre>');
+  await showAgentBubble(`<div class="step-intro-card">
+  <div class="step-intro-label">STEP 3 · 投放策略</div>
+  <div class="step-intro-title">三段节奏，分阶段押注</div>
+  <div class="step-intro-desc">前14天曝光种草 → 前7天精准收割 → 前3天冲量转化</div>
+</div>`);
   await sleepCheck(500);
 
-  const deployData = [
-    { type:'情感共鸣/种草', action:'私信开口', crowd:'25-40岁女性，搜索"母亲节礼物"', pace:'前14天曝光为主，预算30%', period:'14天·品牌意向人群增长' },
-    { type:'产品对比/晒单', action:'私信留资', crowd:'互动过种草笔记+浏览鲜花类用户', pace:'前7天精准收割，预算50%', period:'7天·私信开口率+有效客资' },
-    { type:'活动利益/限时', action:'表单/直接下单', crowd:'已进线未留资+高意向访客', pace:'前3天冲量出价上浮20%，预算20%', period:'3天·有效客资成本+转化数' },
-  ];
-
-  let depHtml = `<div class="deploy-wrap" id="deployWrap">
-    <table class="deploy-table">
-      <thead><tr>
-        <th>内容类型</th><th>转化动作</th><th>人群定向</th><th>投放节奏</th><th>考核周期</th>
-      </tr></thead>
-      <tbody>`;
-  deployData.forEach((r, i) => {
-    depHtml += `<tr class="deploy-row" id="deprow${i}">
-      <td><strong>${r.type}</strong></td>
-      <td>${r.action}</td>
-      <td style="color:#606890;">${r.crowd}</td>
-      <td style="color:#8090b0;">${r.pace}</td>
-      <td style="color:#8090b0;">${r.period}</td>
-    </tr>`;
-  });
-  depHtml += `</tbody></table></div>`;
-
-  const depRow = addMsgRow('msg-row', makeAgentAvatar() + depHtml);
-  await sleepCheck(150);
-  depRow.classList.add('visible');
-  scrollToBottom();
-  await sleepCheck(300);
-  document.getElementById('deployWrap').classList.add('visible');
-
-  for (let i = 0; i < 3; i++) {
-    await sleepCheck(300);
-    const r = document.getElementById('deprow' + i);
-    if (r) r.classList.add('visible');
-  }
+  await showAgentBubble(`<div class="deploy-cards">
+  <div class="deploy-card">
+    <div class="deploy-card-phase">
+      <div class="deploy-card-phase-label">阶段一</div>
+      <div class="deploy-card-phase-days">14<span class="deploy-card-phase-unit">天</span></div>
+    </div>
+    <div class="deploy-card-divider"></div>
+    <div class="deploy-card-body">
+      <div class="deploy-card-type">情感共鸣 / 种草内容</div>
+      <div class="deploy-card-tags">
+        <span class="deploy-tag">25-40岁女性</span>
+        <span class="deploy-tag">搜索「母亲节礼物」</span>
+        <span class="deploy-tag">预算30%</span>
+      </div>
+      <div class="deploy-card-budget">转化动作：私信开口</div>
+      <div class="deploy-card-kpi">考核：品牌意向人群增长</div>
+    </div>
+  </div>
+  <div class="deploy-card">
+    <div class="deploy-card-phase">
+      <div class="deploy-card-phase-label">阶段二</div>
+      <div class="deploy-card-phase-days">7<span class="deploy-card-phase-unit">天</span></div>
+    </div>
+    <div class="deploy-card-divider"></div>
+    <div class="deploy-card-body">
+      <div class="deploy-card-type">产品对比 / 晒单内容</div>
+      <div class="deploy-card-tags">
+        <span class="deploy-tag">互动过种草笔记</span>
+        <span class="deploy-tag">浏览鲜花类用户</span>
+        <span class="deploy-tag">预算50%</span>
+      </div>
+      <div class="deploy-card-budget">转化动作：私信留资</div>
+      <div class="deploy-card-kpi">考核：私信开口率 + 有效客资</div>
+    </div>
+  </div>
+  <div class="deploy-card">
+    <div class="deploy-card-phase">
+      <div class="deploy-card-phase-label">阶段三</div>
+      <div class="deploy-card-phase-days">3<span class="deploy-card-phase-unit">天</span></div>
+    </div>
+    <div class="deploy-card-divider"></div>
+    <div class="deploy-card-body">
+      <div class="deploy-card-type">活动利益 / 限时内容</div>
+      <div class="deploy-card-tags">
+        <span class="deploy-tag">已进线未留资</span>
+        <span class="deploy-tag">高意向访客</span>
+        <span class="deploy-tag">预算20%</span>
+        <span class="deploy-tag">出价上浮20%</span>
+      </div>
+      <div class="deploy-card-budget">转化动作：表单 / 直接下单</div>
+      <div class="deploy-card-kpi">考核：有效客资成本 + 转化数</div>
+    </div>
+  </div>
+</div>`);
 
   setSkillStatus(3, 'done');
   setProgress(74);
@@ -1625,14 +1715,11 @@ async function startDemo() {
 
   // ─── Phase 7：差异化私信话术 ───
   setSkillStatus(4, 'active');
-  const dmText = `[STEP 4 · 差异化私信话术]
-
-同一个商家，不同内容进来的用户，
-第一句话必须不一样——
-
-告别「你好，请问有什么需要」`;
-
-  await showAgentBubble('<pre style="white-space:pre-wrap;font-family:inherit;font-size:12.5px;line-height:1.75;">' + dmText + '</pre>');
+  await showAgentBubble(`<div class="step-intro-card">
+  <div class="step-intro-label">STEP 4 · 差异化承接</div>
+  <div class="step-intro-title">同一商家，不同内容进来的用户，第一句话必须不一样</div>
+  <div class="step-intro-desc">告别「你好，请问有什么需要」— 按来源内容定制开场白</div>
+</div>`);
   await sleepCheck(700);
 
   // ── 私信模拟界面数据 ──
@@ -1728,99 +1815,8 @@ async function startDemo() {
   setProgress(83);
   await sleepCheck(1000);
 
-  // ─── Phase 8：生成素材 ───
-  // Tab ③ 闪烁
-  document.getElementById('tab3').classList.add('flash');
-  setTimeout(() => document.getElementById('tab3').classList.remove('flash'), 2000);
-
-  await showAgentBubble('好，内容方案已确认，开始生产 AIGC 素材 👇');
-  await sleepCheck(500);
-
-  const genSteps = [
-    { id: 'gs0', text: '解析套路结构...' },
-    { id: 'gs1', text: '匹配卖点话术...' },
-    { id: 'gs2', text: '过滤违规词...' },
-    { id: 'gs3', text: '生成图文素材...', spin: true },
-    { id: 'gs4', text: '写入素材库...' },
-    { id: 'gs5', text: '生成私信话术...' },
-  ];
-
-  let genHtml = `<div class="gen-progress"><div id="genSteps">`;
-  genSteps.forEach((s, i) => {
-    genHtml += `<div class="gen-step pending" id="${s.id}">
-      <span class="gen-icon" id="${s.id}icon">○</span>
-      <span id="${s.id}text">${s.text}</span>
-    </div>`;
-  });
-  genHtml += `</div></div>`;
-
-  const genRow = addMsgRow('msg-row', makeAgentAvatar() + genHtml);
-  await sleepCheck(150);
-  genRow.classList.add('visible');
-  scrollToBottom();
-  await sleepCheck(400);
-
-  // 前3步快速完成（划线）
-  for (let i = 0; i < 3; i++) {
-    const el = document.getElementById(genSteps[i].id);
-    const icon = document.getElementById(genSteps[i].id + 'icon');
-    if (el) { el.className = 'gen-step done'; }
-    if (icon) icon.textContent = '✓';
-    await sleepCheck(400);
-  }
-
-  // 第4步：旋转 + 约2s
-  const gs3 = document.getElementById('gs3');
-  const gs3icon = document.getElementById('gs3icon');
-  if (gs3) { gs3.className = 'gen-step active'; gs3.style.opacity = '1'; }
-  if (gs3icon) gs3icon.innerHTML = '<span class="spin">◐</span>';
-
-  // 右侧素材格子出现
-  document.getElementById('panelMaterials').style.display = 'block';
-  for (let i = 0; i < 4; i++) {
-    await sleepCheck(300);
-    const rm = document.getElementById('rmat' + i);
-    if (rm) {
-      rm.classList.add('visible');
-      if (i < 2) rm.classList.add('pulse');
-    }
-  }
-
-  await sleepCheck(1800);
-
-  // 完成第4步
-  if (gs3) gs3.className = 'gen-step done';
-  if (gs3icon) gs3icon.innerHTML = '✓';
-
-  // 第5、6步
-  for (let i = 4; i < 6; i++) {
-    const el = document.getElementById(genSteps[i].id);
-    const icon = document.getElementById(genSteps[i].id + 'icon');
-    if (el) { el.className = 'gen-step active'; el.style.opacity = '1'; }
-    await sleepCheck(500);
-    if (el) el.className = 'gen-step done';
-    if (icon) icon.textContent = '✓';
-  }
-
-  // 停止脉冲
-  for (let i = 0; i < 4; i++) {
-    const rm = document.getElementById('rmat' + i);
-    if (rm) rm.classList.remove('pulse');
-  }
-
-  setProgress(92);
-  await sleepCheck(600);
-
   // ─── Phase 9：完成 ───
-  // 完成 banner
-  const doneRow = addMsgRow('msg-row', `
-    <div class="done-banner" id="doneBanner" style="max-width:600px;">
-      ✅ 方案已就绪 · 内容×8条 · 投放×3套 · 私信话术×3版
-    </div>`);
-  await sleepCheck(150);
-  doneRow.classList.add('visible');
-  document.getElementById('doneBanner').classList.add('visible');
-  scrollToBottom();
+  setProgress(92);
   await sleepCheck(600);
 
   // CTA
