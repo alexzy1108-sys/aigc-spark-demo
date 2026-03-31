@@ -49,7 +49,7 @@ body {
   align-items: center;
   gap: 10px;
 }
-.title-main { font-size: 15px; font-weight: 800; color: #1e2040; }
+.title-main { font-size: 17px; font-weight: 900; color: #1a1d3a; }
 .title-sub { font-size: 11px; color: #a0a8c8; }
 .titlebar-right {
   margin-left: auto;
@@ -152,7 +152,7 @@ body {
 
 /* ── 左侧商家 sidebar ── */
 .sidebar {
-  width: 220px;
+  width: 260px;
   background: #fff;
   border-right: 1px solid #e0e4f0;
   display: flex;
@@ -161,7 +161,7 @@ body {
   overflow-y: auto;
 }
 .sidebar-header {
-  padding: 14px 14px 10px;
+  padding: 16px 16px 12px;
 }
 .merchant-name {
   font-size: 13px;
@@ -982,28 +982,28 @@ body {
 .deploy-card-kpi { font-size:11px; font-weight:700; color:#7af0b0; padding-top:4px; border-top:1px dashed rgba(255,255,255,0.1); }
 
 /* ── 左侧进度步骤条 ── */
-.sidebar-steps { display:flex; flex-direction:column; gap:0; padding:0 4px; }
-.sidebar-step { display:flex; align-items:flex-start; gap:12px; padding:12px 0; position:relative; }
+.sidebar-steps { display:flex; flex-direction:column; gap:0; padding:0 8px; }
+.sidebar-step { display:flex; align-items:flex-start; gap:14px; padding:14px 0; position:relative; }
 .sidebar-step:not(:last-child)::after {
-  content:''; position:absolute; left:13px; top:38px;
-  width:2px; height:calc(100% - 26px);
+  content:''; position:absolute; left:15px; top:44px;
+  width:2px; height:calc(100% - 32px);
   background:linear-gradient(to bottom, #d0d8f0, transparent);
 }
 .sidebar-step-dot {
-  width:26px; height:26px; border-radius:50%; border:2px solid #d0d8f0;
+  width:32px; height:32px; border-radius:50%; border:2px solid #d0d8f0;
   background:#fff; flex-shrink:0; margin-top:0;
   display:flex; align-items:center; justify-content:center;
-  font-size:11px; font-weight:700; transition:all 0.3s ease;
+  font-size:12px; font-weight:700; transition:all 0.3s ease;
   position:relative; z-index:1;
 }
 .sidebar-step-dot.idle { border-color:#d8ddf0; background:#f8f9fe; color:transparent; }
 .sidebar-step-dot.active { border-color:#e01a3a; background:#fff0f2; box-shadow:0 0 0 4px rgba(224,26,58,0.1); animation:pulseDot 1s ease-in-out infinite; }
 .sidebar-step-dot.done { border-color:#18a838; background:#18a838; color:#fff; }
 .sidebar-step-body { flex:1; padding-top:3px; }
-.sidebar-step-name { font-size:13px; font-weight:600; color:#303460; margin-bottom:3px; transition:color 0.3s; }
+.sidebar-step-name { font-size:14px; font-weight:700; color:#303460; margin-bottom:3px; transition:color 0.3s; }
 .sidebar-step-name.active { color:#e01a3a; }
 .sidebar-step-name.done { color:#18a838; }
-.sidebar-step-desc { font-size:10px; color:#c0c8e0; line-height:1.4; }
+.sidebar-step-desc { font-size:11px; color:#b0b8d8; line-height:1.4; }
 
 /* ── 私信三列平铺 ── */
 .dm-triptych { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-width:860px; }
@@ -1037,7 +1037,10 @@ body {
     <div class="dot d-g"></div>
   </div>
   <div class="title-center">
-    <span class="title-main">LinkClaw · 小红书线索内容一体化</span>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#e01a3a,#ff4060);display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 2px 10px rgba(224,26,58,0.45);flex-shrink:0;">⚡</div>
+      <span style="font-size:17px;font-weight:900;color:#1a1d3a;letter-spacing:-0.4px;">LinkClaw <span style="color:#e01a3a;">·</span> 小红书线索内容一体化</span>
+    </div>
   </div>
   <div class="titlebar-right">
     <button class="btn-skip" id="btnSkip" onclick="skipCurrent()">⏭ 跳过</button>
@@ -1495,7 +1498,32 @@ async function startDemo() {
     const wordCloud = document.createElement('div');
     wordCloud.style.cssText = 'margin-top:6px;opacity:0;transition:opacity 0.4s ease;';
     wordCloud.innerHTML = `
-      <div style="border-top:1px solid #eceef8;padding-top:8px;margin-bottom:8px;font-size:11px;color:#8090b8;">📊 平台数据显示，你的目标用户正在这样行动——</div>
+      <div style="border-top:1px solid #eceef8;padding-top:10px;margin-bottom:10px;">
+        <div style="font-size:11px;color:#8090b8;margin-bottom:8px;">📊 平台数据显示，你的目标用户正在这样行动——</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+          <div style="display:flex;align-items:center;gap:6px;background:#f5f6fc;border-radius:8px;padding:6px 10px;border:1px solid #eceef8;">
+            <span style="font-size:16px;">👁</span>
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#1a1d3a;">月均搜索量</div>
+              <div style="font-size:13px;font-weight:900;color:#e01a3a;line-height:1.1;">120万+</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;background:#f5f6fc;border-radius:8px;padding:6px 10px;border:1px solid #eceef8;">
+            <span style="font-size:16px;">💬</span>
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#1a1d3a;">评论区互动率</div>
+              <div style="font-size:13px;font-weight:900;color:#7c5cfc;line-height:1.1;">8.4%</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;background:#f5f6fc;border-radius:8px;padding:6px 10px;border:1px solid #eceef8;">
+            <span style="font-size:16px;">🎯</span>
+            <div>
+              <div style="font-size:10px;font-weight:700;color:#1a1d3a;">高意向用户占比</div>
+              <div style="font-size:13px;font-weight:900;color:#18a838;line-height:1.1;">34%</div>
+            </div>
+          </div>
+        </div>
+      </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
         <div style="background:#1a1a2e;border-radius:8px;padding:10px 11px;display:flex;flex-direction:column;">
           <div style="font-size:10px;font-weight:700;color:#fff;letter-spacing:1px;">用户爱点击</div>
