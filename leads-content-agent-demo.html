@@ -903,9 +903,9 @@ body {
 <!-- Tab 导航 -->
 <div class="tabs">
   <div class="tab active" id="tab1">① 说需求</div>
-  <div class="tab" id="tab2">② 内容方案</div>
-  <div class="tab" id="tab3">③ 生产素材</div>
-  <div class="tab" id="tab4">④ 投放配置</div>
+  <div class="tab" id="tab2">② 内容生产 <span style="font-size:10px;color:#c0c8e0;margin:0 2px">→</span> 投放联动</div>
+  <div class="tab" id="tab3">③ 素材预览</div>
+  <div class="tab" id="tab4">④ 承接话术</div>
 </div>
 
 <!-- 主体 -->
@@ -1190,14 +1190,9 @@ async function startDemo() {
 
   // ─── Phase 0：Agent 开场 ───
   setProgress(5);
-  const openText = `投了广告，来的人质量不高？
+  const openText = `来的人质量不高？大概率是内容没做对。
 
-大概率不是投放的问题——
-是内容只做了一种，但进来的用户有三种意图。
-用同一套话术承接，高意向的人在第一句就流失了。
-
-告诉我你现在的生意目标，我帮你把三段打通：
-用对的内容找对的人，进线后第一句话就说到心里去。`;
+说说你现在想做什么生意，我帮你搞定内容、投放和承接。`;
 
   await typewriterBubble(openText, 16);
 
@@ -1303,20 +1298,54 @@ async function startDemo() {
   setProgress(30);
   await sleepCheck(900);
 
-  // ─── Phase 3：数据洞察 ───
-  const insightText = `[STEP 0 · 数据洞察]
+  // ─── Phase 3：数据洞察（逐行打字动效）───
+  const insightLines = [
+    { text: '正在调取站内数据...', delay: 0, color: '#a0a8c8', isLoading: true },
+    { text: '✓ 分析成交用户路径  →  他们看了什么内容才进线', delay: 900, color: '#1a9038' },
+    { text: '✓ 分析无效留资路径  →  在哪个环节流失了', delay: 1600, color: '#1a9038' },
+    { text: '✓ 分析站外成交路径  →  种草后去哪里成交', delay: 2300, color: '#1a9038' },
+    { text: '', delay: 3000 },
+    { text: '结论 ——', delay: 3200, color: '#1e2060', bold: true },
+    { text: '来人质量低，根本原因是内容只做了一种，', delay: 3600, color: '#d02040' },
+    { text: '但进来的用户有三种意图。', delay: 4200, color: '#d02040' },
+  ];
 
-在给你方案之前，先用平台数据搞清楚你的用户——
+  // 创建气泡容器，逐行追加内容
+  const insightRow = addMsgRow('msg-row', makeAgentAvatar() + `
+    <div>
+      <div class="who">Claw · 数据洞察</div>
+      <div class="bubble agent" id="insight-bubble" style="min-width:320px;"></div>
+    </div>`);
+  msgs.appendChild(insightRow);
+  msgs.scrollTop = msgs.scrollHeight;
+  const insightBubble = document.getElementById('insight-bubble');
 
-研究了三类用户的决策路径：
-  ✓ 成交用户路径    → 他们看了什么内容才进线
-  ✓ 无效留资路径   → 在哪个环节流失了
-  ✓ 站外成交路径   → 小红书种草后去哪里成交
-
-结论：你的来人质量低，根本原因是——
-内容只做了一种，但进来的用户有三种意图。`;
-
-  await showAgentBubble('<pre style="white-space:pre-wrap;font-family:inherit;font-size:12.5px;line-height:1.75;">' + insightText + '</pre>');
+  for (const line of insightLines) {
+    await sleepCheck(line.isLoading ? 0 : (line.delay === 0 ? 0 : 700));
+    if (line.isLoading) {
+      // 加载动画
+      insightBubble.innerHTML = `<span style="color:#b0b8d8;font-size:11px;">
+        <span class="dot-jump" style="animation:dotJump 0.9s ease infinite 0s">●</span>
+        <span class="dot-jump" style="animation:dotJump 0.9s ease infinite 0.2s">●</span>
+        <span class="dot-jump" style="animation:dotJump 0.9s ease infinite 0.4s">●</span>
+        &nbsp;正在调取站内数据...
+      </span>`;
+      await sleepCheck(900);
+      insightBubble.innerHTML = '';
+      continue;
+    }
+    if (line.text === '') { insightBubble.innerHTML += '<br>'; continue; }
+    const span = document.createElement('div');
+    span.style.cssText = `color:${line.color||'#303460'};font-weight:${line.bold?'600':'400'};line-height:1.8;font-size:12.5px;`;
+    insightBubble.appendChild(span);
+    // 逐字打出
+    for (const ch of line.text) {
+      span.textContent += ch;
+      msgs.scrollTop = msgs.scrollHeight;
+      await sleepCheck(22);
+    }
+  }
+  await sleepCheck(600);
   await sleepCheck(700);
 
   // 人群洞察卡片组
