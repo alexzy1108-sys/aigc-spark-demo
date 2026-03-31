@@ -1448,7 +1448,7 @@ async function startDemo() {
   // ─── Phase 3：数据洞察（单气泡内动态更新）───
   {
     // 创建一个气泡，先显示 loading 点动画
-    const row = addMsgRow('msg-row', makeAgentAvatar() + `<div class="bubble agent" id="insightBubble" style="min-width:280px;line-height:1.9;"></div>`);
+    const row = addMsgRow('msg-row', makeAgentAvatar() + `<div class="bubble agent" id="insightBubble" style="line-height:1.7;"></div>`);
     row.classList.add('visible');
     scrollToBottom();
     const bbl = document.getElementById('insightBubble');
@@ -1496,11 +1496,11 @@ async function startDemo() {
   // 词云洞察 — 追加到同一个 insightBubble 里，保持视觉连贯
   {
     const wordCloud = document.createElement('div');
-    wordCloud.style.cssText = 'margin-top:6px;opacity:0;transition:opacity 0.4s ease;';
+    wordCloud.style.cssText = 'margin-top:0;opacity:0;transition:opacity 0.4s ease;';
     wordCloud.innerHTML = `
-      <div style="border-top:1px solid #eceef8;padding-top:10px;margin-bottom:10px;">
-        <div style="font-size:11px;color:#8090b8;margin-bottom:8px;">📊 平台数据显示，你的目标用户正在这样行动——</div>
-        <div style="display:flex;gap:6px;margin-bottom:8px;">
+      <div style="border-top:1px solid #eceef8;padding-top:6px;margin-bottom:6px;">
+        <div style="font-size:11px;color:#8090b8;margin-bottom:5px;">📊 平台数据显示，你的目标用户正在这样行动——</div>
+        <div style="display:flex;gap:6px;margin-bottom:4px;">
           <div style="background:#fff5f6;border:1px solid #ffd0d8;border-radius:6px;padding:5px 10px;display:flex;align-items:center;gap:6px;">
             <span style="font-size:15px;font-weight:900;color:#e01a3a;">120万+</span>
             <span style="font-size:10px;color:#a0a8c8;">月均搜索量</span>
@@ -1515,7 +1515,7 @@ async function startDemo() {
           </div>
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:0;">
         <div style="background:#1a1a2e;border-radius:8px;padding:10px 11px;display:flex;flex-direction:column;">
           <div style="font-size:10px;font-weight:700;color:#fff;letter-spacing:1px;">用户爱点击</div>
           <div style="font-size:9px;color:#555;margin-bottom:6px;">CLE高点击笔记关键词</div>
