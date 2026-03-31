@@ -889,6 +889,134 @@ html, body {
 .placement-mini-detail { color: var(--text2); }
 
 /* ============================================================
+   CROWD INSIGHT CARDS (Phase 2.5)
+   ============================================================ */
+.crowd-insight-wrap {
+  margin-top: 12px;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  max-width: 680px;
+}
+
+.crowd-axis {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 14px;
+  position: relative;
+}
+.crowd-axis::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0; right: 0;
+  height: 1px;
+  border-top: 2px dashed var(--border);
+  z-index: 0;
+}
+.crowd-axis-label {
+  position: relative;
+  z-index: 1;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  border: 1.5px solid transparent;
+  flex: 1;
+  text-align: center;
+  background: #fff;
+}
+.crowd-axis-label.green  { color: #18a838; border-color: #18a838; background: rgba(24,168,56,0.08); }
+.crowd-axis-label.blue   { color: #2060d0; border-color: #2060d0; background: rgba(32,96,208,0.08); }
+.crowd-axis-label.orange { color: #a07000; border-color: #a07000; background: rgba(160,112,0,0.08); }
+
+.crowd-cards-row {
+  display: flex;
+  gap: 12px;
+}
+
+.crowd-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+.crowd-card.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* note cover: 4:5 ratio */
+.note-cover {
+  width: 100%;
+  aspect-ratio: 4/5;
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.note-cover-bg {
+  position: absolute;
+  inset: 0;
+}
+.note-cover-title {
+  position: absolute;
+  bottom: 32px;
+  left: 0; right: 0;
+  padding: 0 10px;
+  font-size: 14px;
+  font-weight: 900;
+  line-height: 1.3;
+  text-align: center;
+}
+.note-cover-comment {
+  position: absolute;
+  top: 6px; right: 8px;
+  font-size: 10px;
+  background: rgba(0,0,0,0.35);
+  color: #fff;
+  border-radius: 10px;
+  padding: 2px 6px;
+}
+.note-cover-footer {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  background: #fff;
+  padding: 4px 8px;
+  font-size: 9px;
+  color: #333;
+  line-height: 1.4;
+  border-top: 1px solid rgba(0,0,0,0.06);
+}
+
+.crowd-desc {
+  font-size: 11px;
+  line-height: 1.5;
+  font-weight: 600;
+}
+.crowd-desc.green  { color: #18a838; }
+.crowd-desc.blue   { color: #2060d0; }
+.crowd-desc.orange { color: #a07000; }
+
+.crowd-badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 700;
+  align-self: flex-start;
+}
+.crowd-badge.green  { background: rgba(24,168,56,0.12); color: #18a838; }
+.crowd-badge.blue   { background: rgba(32,96,208,0.12); color: #2060d0; }
+.crowd-badge.orange { background: rgba(160,112,0,0.12); color: #a07000; }
+
+/* ============================================================
    MISC
    ============================================================ */
 .section-intro {
@@ -912,7 +1040,7 @@ html, body {
 
 <!-- COMPLETION BANNER -->
 <div id="completion-banner">
-  ✅ 内容矩阵 + 投放策略 + 私信话术 · 三段联动方案已生成完毕
+  ✅ 内容矩阵 + 投放策略 + 私信话术 · 三段联动方案已生成完毕（含数据洞察）
 </div>
 
 <!-- APP WINDOW -->
@@ -999,7 +1127,7 @@ html, body {
 let demoRunning = false;
 let demoPaused  = false;
 let currentPhase = 0;
-let totalPhases  = 9;
+let totalPhases  = 10;
 let phaseResolvers = [];
 let countdownTimer = null;
 let voiceTimeLeft = 12;
@@ -1175,6 +1303,21 @@ function panelRecognition() {
   `);
 }
 
+function panelDataInsight() {
+  setPanelContent(`
+    <div class="panel-title">📊 数据洞察</div>
+    <div style="font-size:10px;color:var(--text3);margin-bottom:8px">进线用户内容来源分布</div>
+    <div style="font-size:11px;line-height:2">
+      <span style="color:#18a838;font-weight:700">情感驱动型</span>
+      <span style="color:var(--text2)"> 43% → 种草层</span><br>
+      <span style="color:#2060d0;font-weight:700">比价决策型</span>
+      <span style="color:var(--text2)"> 32% → 筛选层</span><br>
+      <span style="color:#a07000;font-weight:700">促单敏感型</span>
+      <span style="color:var(--text2)"> 25% → 转化层</span>
+    </div>
+  `);
+}
+
 function panelContentMatrix() {
   setPanelContent(`
     <div class="panel-title">📋 当前内容方案</div>
@@ -1346,6 +1489,124 @@ async function phase2() {
   panelRecognition();
 }
 
+/* Phase 2.5: Data Insight */
+async function phase2_5() {
+  setProgress(47);
+
+  await agentBubble(
+    '[站内数据洞察]\n\n' +
+    '基于鲜花/礼品赛道近30天的用户行为数据，\n' +
+    '帮你拆解进线用户的内容来源分布 👇'
+  );
+
+  const { row, bubble } = createBubbleRow(false);
+  const pre = document.createElement('div');
+  pre.className = 'agent-prefix';
+  pre.textContent = 'AIGC Claw ›';
+  bubble.appendChild(pre);
+
+  const intro = document.createElement('div');
+  intro.style.cssText = 'font-size:12px;margin-bottom:10px;font-weight:600';
+  intro.textContent = '👥 进线人群 · 内容来源分布';
+  bubble.appendChild(intro);
+
+  // Crowd insight wrapper
+  const wrap = document.createElement('div');
+  wrap.className = 'crowd-insight-wrap';
+
+  // Axis labels row
+  const axis = document.createElement('div');
+  axis.className = 'crowd-axis';
+  axis.innerHTML = `
+    <span class="crowd-axis-label green">人群A — 情感驱动型</span>
+    <span class="crowd-axis-label blue">人群B — 比价决策型</span>
+    <span class="crowd-axis-label orange">人群C — 促单敏感型</span>
+  `;
+  wrap.appendChild(axis);
+
+  // Cards row
+  const cardsRow = document.createElement('div');
+  cardsRow.className = 'crowd-cards-row';
+
+  const crowdData = [
+    {
+      colorClass: 'green',
+      axisLabel: '送礼决策中',
+      bgGradient: 'linear-gradient(135deg, #ffd6e7, #ffb3c6)',
+      coverTitle: '送妈妈的花🌸',
+      coverTitleColor: '#fff',
+      comment: '💬 125',
+      footerText: '送妈妈的第一束花，我选了这个',
+      desc: '进线后对价格不敏感，更在意「送到心里」',
+      badge: '43%',
+    },
+    {
+      colorClass: 'blue',
+      axisLabel: '已有购买意向',
+      bgGradient: 'linear-gradient(135deg, #dbeafe, #bfdbfe)',
+      coverTitle: '花束价格对比💰',
+      coverTitleColor: '#1e3a8a',
+      comment: '💬 89',
+      footerText: '超市花 vs 定制花束，差距到底在哪',
+      desc: '关注性价比，正在做比价决策',
+      badge: '32%',
+    },
+    {
+      colorClass: 'orange',
+      axisLabel: '决策成熟',
+      bgGradient: 'linear-gradient(135deg, #fef3c7, #fde68a)',
+      coverTitle: '母亲节8折⏰',
+      coverTitleColor: '#92400e',
+      comment: '💬 210',
+      footerText: '母亲节提前订享8折，今天截止',
+      desc: '决策成熟，对时效和活动敏感，需要临门一脚',
+      badge: '25%',
+    },
+  ];
+
+  crowdData.forEach(d => {
+    const card = document.createElement('div');
+    card.className = 'crowd-card';
+
+    const cover = document.createElement('div');
+    cover.className = 'note-cover';
+    cover.innerHTML = `
+      <div class="note-cover-bg" style="background:${d.bgGradient}"></div>
+      <div class="note-cover-comment">${d.comment}</div>
+      <div class="note-cover-title" style="color:${d.coverTitleColor}">${d.coverTitle}</div>
+      <div class="note-cover-footer">《${d.footerText}》</div>
+    `;
+
+    const desc = document.createElement('div');
+    desc.className = `crowd-desc ${d.colorClass}`;
+    desc.textContent = d.desc;
+
+    const badge = document.createElement('span');
+    badge.className = `crowd-badge ${d.colorClass}`;
+    badge.textContent = d.badge;
+
+    card.appendChild(cover);
+    card.appendChild(desc);
+    card.appendChild(badge);
+    cardsRow.appendChild(card);
+  });
+
+  wrap.appendChild(cardsRow);
+  bubble.appendChild(wrap);
+  scrollChat();
+
+  // Animate cards in with stagger
+  const cards = cardsRow.querySelectorAll('.crowd-card');
+  for (let i = 0; i < cards.length; i++) {
+    await sleep(200);
+    cards[i].classList.add('show');
+    scrollChat();
+  }
+
+  setProgress(50);
+  panelDataInsight();
+}
+
 /* Phase 3: Diagnosis */
 async function phase3() {
   setProgress(50);
@@ -1419,6 +1680,7 @@ async function phase4() {
         <th>营销目的</th>
         <th>选题方向</th>
         <th>笔记标题示例</th>
+        <th>用户特征</th>
       </tr>
     </thead>
     <tbody id="matrix-tbody"></tbody>
@@ -1427,14 +1689,14 @@ async function phase4() {
   scrollChat();
 
   const matrixData = [
-    { layer: '拉新种草层', cls: 'top', purpose: '扩大触达建立认知', dir: '情感共鸣向', title: '《送妈妈的第一束花，我选了这个》' },
-    { layer: '拉新种草层', cls: 'top', purpose: '扩大触达建立认知', dir: '知识科普向', title: '《为什么鲜花要选当季花材？母亲节避坑指南》' },
-    { layer: '拉新种草层', cls: 'top', purpose: '扩大触达建立认知', dir: '场景展示向', title: '《把妈妈的客厅变成花园只要一束花》' },
-    { layer: '意向筛选层', cls: 'mid', purpose: '吸引精准用户',     dir: '产品展示向', title: '《实拍！300-800元花束长什么样，帮你选》' },
-    { layer: '意向筛选层', cls: 'mid', purpose: '吸引精准用户',     dir: '对比评测向', title: '《超市花 vs 定制花束，差距到底在哪》' },
-    { layer: '意向筛选层', cls: 'mid', purpose: '吸引精准用户',     dir: '案例晒单向', title: '《客户晒单｜妈妈收到后直接哭了》' },
-    { layer: '促转化层',   cls: 'bot', purpose: '推动留资/下单',    dir: '活动利益向', title: '《母亲节提前订享8折，今天截止》' },
-    { layer: '促转化层',   cls: 'bot', purpose: '推动留资/下单',    dir: '答疑消顾向', title: '《外地也能送？花束能保鲜几天？5个问题全答了》' },
+    { layer: '拉新种草层', cls: 'top', purpose: '扩大触达建立认知', dir: '情感共鸣向', title: '《送妈妈的第一束花，我选了这个》', userTrait: '情感驱动，决策早期，价格不敏感' },
+    { layer: '拉新种草层', cls: 'top', purpose: '扩大触达建立认知', dir: '知识科普向', title: '《为什么鲜花要选当季花材？母亲节避坑指南》', userTrait: '有兴趣，正在了解阶段' },
+    { layer: '拉新种草层', cls: 'top', purpose: '扩大触达建立认知', dir: '场景展示向', title: '《把妈妈的客厅变成花园只要一束花》', userTrait: '视觉驱动，尚未明确需求' },
+    { layer: '意向筛选层', cls: 'mid', purpose: '吸引精准用户',     dir: '产品展示向', title: '《实拍！300-800元花束长什么样，帮你选》', userTrait: '有意向，在做选择' },
+    { layer: '意向筛选层', cls: 'mid', purpose: '吸引精准用户',     dir: '对比评测向', title: '《超市花 vs 定制花束，差距到底在哪》', userTrait: '已有意向，在做比价决策' },
+    { layer: '意向筛选层', cls: 'mid', purpose: '吸引精准用户',     dir: '案例晒单向', title: '《客户晒单｜妈妈收到后直接哭了》', userTrait: '需要社会认同，接近决策' },
+    { layer: '促转化层',   cls: 'bot', purpose: '推动留资/下单',    dir: '活动利益向', title: '《母亲节提前订享8折，今天截止》', userTrait: '决策成熟，价格敏感' },
+    { layer: '促转化层',   cls: 'bot', purpose: '推动留资/下单',    dir: '答疑消顾向', title: '《外地也能送？花束能保鲜几天？5个问题全答了》', userTrait: '有顾虑，需要消除障碍' },
   ];
 
   const tbody = document.getElementById('matrix-tbody');
@@ -1447,6 +1709,7 @@ async function phase4() {
       <td>${d.purpose}</td>
       <td><span class="direction-tag">${d.dir}</span></td>
       <td style="font-size:11px;color:var(--text)">${d.title}</td>
+      <td style="font-size:10px;color:var(--text2)">${d.userTrait}</td>
     `;
     tbody.appendChild(tr);
     requestAnimationFrame(() => requestAnimationFrame(() => tr.classList.add('show')));
@@ -1489,6 +1752,7 @@ async function phase5() {
         <th>转化动作</th>
         <th>人群定向</th>
         <th>投放节奏</th>
+        <th>考核周期 &amp; 指标</th>
       </tr>
     </thead>
     <tbody id="placement-tbody"></tbody>
@@ -1497,9 +1761,9 @@ async function phase5() {
   scrollChat();
 
   const placementData = [
-    { period: '种草期', cls: 'seed', content: '种草/情感类', action: '私信开口', crowd: '25-40岁女性，搜索过"母亲节礼物"', rhythm: '前14天曝光为主，预算30%' },
-    { period: '收割期', cls: 'harvest', content: '对比/晒单类', action: '私信留资', crowd: '互动过种草笔记+浏览鲜花类用户', rhythm: '前7天精准收割，预算50%' },
-    { period: '冲刺期', cls: 'sprint', content: '活动/利益类', action: '表单/下单', crowd: '已进线未留资+高意向访客', rhythm: '前3天冲量，出价上浮20%，预算20%' },
+    { period: '种草期', cls: 'seed', content: '种草/情感类', action: '私信开口', crowd: '25-40岁女性，搜索过"母亲节礼物"', rhythm: '前14天曝光为主，预算30%', kpi: '<strong>14天</strong>，品牌意向人群增长 + 以阅3∩搜3渗透率' },
+    { period: '收割期', cls: 'harvest', content: '对比/晒单类', action: '私信留资', crowd: '互动过种草笔记+浏览鲜花类用户', rhythm: '前7天精准收割，预算50%', kpi: '<strong>7天</strong>，私信开口率 + 有效客资量' },
+    { period: '冲刺期', cls: 'sprint', content: '活动/利益类', action: '表单/下单', crowd: '已进线未留资+高意向访客', rhythm: '前3天冲量，出价上浮20%，预算20%', kpi: '<strong>3天</strong>，有效客资成本 + 转化数' },
   ];
 
   const tbody = document.getElementById('placement-tbody');
@@ -1513,6 +1777,7 @@ async function phase5() {
       <td style="font-weight:600;color:var(--red)">${d.action}</td>
       <td style="font-size:10px">${d.crowd}</td>
       <td style="font-size:10px">${d.rhythm}</td>
+      <td style="font-size:10px">${d.kpi}</td>
     `;
     tbody.appendChild(tr);
     requestAnimationFrame(() => requestAnimationFrame(() => tr.classList.add('show')));
@@ -1543,7 +1808,7 @@ async function phase6() {
   bubble.appendChild(pre);
   const intro = document.createElement('div');
   intro.style.cssText = 'font-size:12px;margin-bottom:10px';
-  intro.textContent = '💬 根据内容来源，为你生成2套差异化私信话术：';
+  intro.textContent = '💬 根据内容来源，为你生成3套差异化私信话术：';
   bubble.appendChild(intro);
 
   const scripts = [
@@ -1551,11 +1816,25 @@ async function phase6() {
       source: '来自 种草/情感内容',
       text: '你好～看到你在看我们的母亲节花束，有特别想了解的款式吗？说说你妈妈喜欢什么风格，我帮你挑 🌸',
       id: 'script-a',
+      sceneLabelText: '场景A — 来自「种草/情感类」内容',
+      sceneLabelColor: '#18a838',
+      tagText: '情感驱动，决策早期',
     },
     {
       source: '来自 对比/促转化内容',
       text: '你好～预算大概在哪个区间？我们有300-500的清新款和600-800的高端定制款，直接告诉我，我给你发实拍图',
       id: 'script-b',
+      sceneLabelText: '场景B — 来自「对比/晒单类」内容',
+      sceneLabelColor: '#2060d0',
+      tagText: '已有意向，正在比价',
+    },
+    {
+      source: '来自 活动利益类内容',
+      text: '姐你来得正好！母亲节8折今天是最后一天哦～你现在下单我们今天就安排打花，后天保证送到。想要哪个价位的？我先帮你锁库存 🌸',
+      id: 'script-c',
+      sceneLabelText: '场景C — 来自「活动利益类」内容',
+      sceneLabelColor: '#a07000',
+      tagText: '决策成熟，需临门一脚',
     },
   ];
 
@@ -1570,8 +1849,11 @@ async function phase6() {
     card.className = 'script-card';
     card.innerHTML = `
       <div class="script-header">
-        <span class="script-source">${s.source}</span>
+        <span class="script-source" style="color:${s.sceneLabelColor};border-color:${s.sceneLabelColor};background:transparent">${s.sceneLabelText}</span>
         <button class="copy-btn" onclick="copyScript('${s.id}', this)">📋 复制</button>
+      </div>
+      <div style="margin-bottom:8px">
+        <span style="display:inline-block;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;color:${s.sceneLabelColor};background:${s.sceneLabelColor}18;border:1px solid ${s.sceneLabelColor}40">${s.tagText}</span>
       </div>
       <div class="script-text" id="${s.id}">${s.text}</div>
     `;
@@ -1644,7 +1926,7 @@ async function phase8() {
   // completion banner
   document.getElementById('completion-banner').classList.add('show');
 
-  await agentBubble('🎉 三段联动方案已生成完毕！\n内容矩阵 8条 + 投放策略 3阶段 + 私信话术 2套，随时可用。');
+  await agentBubble('🎉 三段联动方案已生成完毕！\n数据洞察 3类人群 + 内容矩阵 8条 + 投放策略 3阶段 + 私信话术 3套，随时可用。');
 
   // CTA in chat
   const { row, bubble } = createBubbleRow(false);
@@ -1686,7 +1968,7 @@ async function startDemo() {
 
   buildSkillsList();
 
-  const phases = [phase0, phase1, phase2, phase3, phase4, phase5, phase6, phase7, phase8];
+  const phases = [phase0, phase1, phase2, phase2_5, phase3, phase4, phase5, phase6, phase7, phase8];
 
   for (let i = 0; i < phases.length; i++) {
     currentPhase = i;
