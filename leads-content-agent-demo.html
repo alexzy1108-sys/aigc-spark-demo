@@ -47,7 +47,7 @@ body {
   align-items: center;
   gap: 10px;
 }
-.title-main { font-size: 15px; font-weight: 700; color: #1e2040; }
+.title-main { font-size: 15px; font-weight: 800; color: #1e2040; }
 .title-sub { font-size: 11px; color: #a0a8c8; }
 .titlebar-right {
   margin-left: auto;
@@ -56,18 +56,19 @@ body {
   gap: 10px;
 }
 .btn-demo {
-  padding: 6px 14px;
   background: #e01a3a;
   color: #fff;
   border: none;
-  border-radius: 6px;
-  font-family: inherit;
-  font-size: 12px;
-  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
   cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 2px 8px rgba(224,26,58,0.3);
   transition: background 0.2s;
 }
-.btn-demo:hover { background: #b81228; }
+.btn-demo:hover { background: #c0102a; }
 .btn-replay {
   padding: 6px 12px;
   background: #f5f6fc;
@@ -1075,35 +1076,35 @@ body {
     <div style="font-size:9px;color:#b0b8d8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;padding:0 14px;">AGENT 进度</div>
     <div class="sidebar-steps" style="padding:0 14px;">
       <div class="sidebar-step" id="sidebarStep0">
-        <div class="sidebar-step-dot idle" id="stepDot0"></div>
+        <div class="sidebar-step-dot idle" id="stepDot0" style="color:#d0d8f0;font-size:10px;">1</div>
         <div class="sidebar-step-body">
           <div class="sidebar-step-name" id="stepName0">数据洞察</div>
           <div class="sidebar-step-desc">分析用户决策路径</div>
         </div>
       </div>
       <div class="sidebar-step" id="sidebarStep1">
-        <div class="sidebar-step-dot idle" id="stepDot1"></div>
+        <div class="sidebar-step-dot idle" id="stepDot1" style="color:#d0d8f0;font-size:10px;">2</div>
         <div class="sidebar-step-body">
           <div class="sidebar-step-name" id="stepName1">账号定位</div>
           <div class="sidebar-step-desc">KOB / KOS 双账号</div>
         </div>
       </div>
       <div class="sidebar-step" id="sidebarStep2">
-        <div class="sidebar-step-dot idle" id="stepDot2"></div>
+        <div class="sidebar-step-dot idle" id="stepDot2" style="color:#d0d8f0;font-size:10px;">3</div>
         <div class="sidebar-step-body">
           <div class="sidebar-step-name" id="stepName2">内容矩阵</div>
           <div class="sidebar-step-desc">8条选题分层覆盖</div>
         </div>
       </div>
       <div class="sidebar-step" id="sidebarStep3">
-        <div class="sidebar-step-dot idle" id="stepDot3"></div>
+        <div class="sidebar-step-dot idle" id="stepDot3" style="color:#d0d8f0;font-size:10px;">4</div>
         <div class="sidebar-step-body">
           <div class="sidebar-step-name" id="stepName3">投放策略</div>
           <div class="sidebar-step-desc">三段节奏精细押注</div>
         </div>
       </div>
       <div class="sidebar-step" id="sidebarStep4">
-        <div class="sidebar-step-dot idle" id="stepDot4"></div>
+        <div class="sidebar-step-dot idle" id="stepDot4" style="color:#d0d8f0;font-size:10px;">5</div>
         <div class="sidebar-step-body">
           <div class="sidebar-step-name" id="stepName4">承接话术</div>
           <div class="sidebar-step-desc">按来源定制开场白</div>
@@ -1275,10 +1276,12 @@ function setSkillStatus(idx, state) {
   // Also update step dot
   const dot = document.getElementById('stepDot' + idx);
   const name = document.getElementById('stepName' + idx);
+  const nums = ['1','2','3','4','5'];
   if (dot) {
     dot.className = 'sidebar-step-dot ' + state;
-    if (state === 'done') dot.textContent = '✓';
-    else dot.textContent = '';
+    if (state === 'done') { dot.textContent = '✓'; dot.style.color = '#fff'; }
+    else if (state === 'active') { dot.textContent = nums[idx]; dot.style.color = '#e01a3a'; }
+    else { dot.textContent = nums[idx]; dot.style.color = '#d0d8f0'; }
   }
   if (name) {
     name.className = 'sidebar-step-name ' + (state === 'idle' ? '' : state);
@@ -1474,6 +1477,49 @@ async function startDemo() {
     conclusion.style.opacity = '1';
     await sleepCheck(500);
   }
+
+  // 词云洞察卡片
+  await showAgentBubble(`<div style="margin-top:4px;">
+  <div style="font-size:11px;color:#8090b8;margin-bottom:10px;">📊 平台数据显示，你的目标用户正在这样行动——</div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:620px;">
+    <div style="background:#1a1a2e;border-radius:10px;padding:12px;overflow:hidden;">
+      <div style="font-size:10px;font-weight:700;color:#fff;margin-bottom:8px;letter-spacing:1px;">用户爱点击</div>
+      <div style="font-size:9px;color:#aaa;margin-bottom:6px;">高点击笔记关键词</div>
+      <div style="line-height:1.8;font-family:sans-serif;">
+        <span style="color:#e01a3a;font-size:18px;font-weight:900;">母亲节花束</span>
+        <span style="color:#ff6080;font-size:13px;"> 鲜花定制</span>
+        <span style="color:#e8a0a8;font-size:10px;"> 送妈妈</span><br>
+        <span style="color:#ff8090;font-size:14px;font-weight:700;">礼品推荐</span>
+        <span style="color:#e8c0c8;font-size:10px;"> 花束价格</span>
+        <span style="color:#e06070;font-size:12px;"> 多少钱</span>
+      </div>
+    </div>
+    <div style="background:#1a1a2e;border-radius:10px;padding:12px;overflow:hidden;">
+      <div style="font-size:10px;font-weight:700;color:#fff;margin-bottom:8px;letter-spacing:1px;">用户爱细看</div>
+      <div style="font-size:9px;color:#aaa;margin-bottom:6px;">高互动笔记关键词</div>
+      <div style="line-height:1.8;font-family:sans-serif;">
+        <span style="color:#e01a3a;font-size:16px;font-weight:900;">实拍效果</span>
+        <span style="color:#ff6080;font-size:12px;"> 花材种类</span>
+        <span style="color:#e8a0a8;font-size:10px;"> 保鲜</span><br>
+        <span style="color:#ff8090;font-size:15px;font-weight:700;">包装好看</span>
+        <span style="color:#e8c0c8;font-size:10px;"> 配色</span>
+        <span style="color:#e06070;font-size:13px;"> 当季花</span>
+      </div>
+    </div>
+    <div style="background:#1a1a2e;border-radius:10px;padding:12px;overflow:hidden;">
+      <div style="font-size:10px;font-weight:700;color:#fff;margin-bottom:8px;letter-spacing:1px;">用户爱疑问</div>
+      <div style="font-size:9px;color:#aaa;margin-bottom:6px;">笔记评论区高频词</div>
+      <div style="line-height:1.8;font-family:sans-serif;">
+        <span style="color:#e01a3a;font-size:17px;font-weight:900;">能寄外地吗</span>
+        <span style="color:#ff6080;font-size:11px;"> 价格</span><br>
+        <span style="color:#ff8090;font-size:14px;font-weight:700;">几天能到</span>
+        <span style="color:#e8c0c8;font-size:10px;"> 怎么下单</span>
+        <span style="color:#e06070;font-size:12px;"> 保鲜多久</span>
+      </div>
+    </div>
+  </div>
+</div>`);
+  await sleepCheck(600);
 
   // 人群洞察卡片组
   const crowdRow = addMsgRow('msg-row', makeAgentAvatar() + `
