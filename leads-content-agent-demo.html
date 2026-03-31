@@ -1024,8 +1024,8 @@ body {
     <div class="dot d-g"></div>
   </div>
   <div class="title-center">
-    <span class="title-main">线索内容一体化 AIGC Claw</span>
-    <span class="title-sub">🦞 母亲节大促_0330</span>
+    <span class="title-main">链客 · LinkClaw</span>
+    <span class="title-sub" style="color:#a0a8c8;font-size:12px;">内容 × 投放 × 承接 · 三段打通</span>
   </div>
   <div class="titlebar-right">
     <button class="btn-skip" id="btnSkip" onclick="skipCurrent()">⏭ 跳过</button>
@@ -1038,8 +1038,8 @@ body {
 <!-- 进度条 -->
 <div class="progress-bar" id="progressBar"></div>
 
-<!-- Tab 导航 -->
-<div class="tabs">
+<!-- Tab 导航（已隐藏，保留JS兼容） -->
+<div class="tabs" style="display:none;">
   <div class="tab active" id="tab1">说需求</div>
   <div class="tab" id="tab2">内容方案</div>
   <div class="tab" id="tab3">素材预览</div>
@@ -1051,11 +1051,21 @@ body {
 
   <!-- 左侧商家 sidebar -->
   <div class="sidebar">
-    <div class="sidebar-header" style="display:flex;align-items:center;gap:8px;padding:14px 14px 10px;">
+    <!-- 品牌 logo -->
+    <div style="padding:14px 14px 10px;border-bottom:1px solid #eceef8;margin-bottom:10px;">
+      <div style="display:flex;align-items:center;gap:7px;">
+        <div style="width:28px;height:28px;background:linear-gradient(135deg,#e01a3a,#ff6080);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;">⚡</div>
+        <div>
+          <div style="font-size:13px;font-weight:800;color:#1e2060;letter-spacing:0.3px;">链客</div>
+          <div style="font-size:9px;color:#b0b8d8;letter-spacing:1px;">LINKCLAW</div>
+        </div>
+      </div>
+    </div>
+    <div class="sidebar-header" style="display:flex;align-items:center;gap:8px;padding:10px 14px 8px;">
       <span style="font-size:16px;">🌸</span>
       <div>
-        <div style="font-size:13px;font-weight:700;color:#1e2060;">花开四季</div>
-        <div style="font-size:11px;color:#b0b8d8;margin-top:2px;">鲜花礼品 · 母亲节大促</div>
+        <div style="font-size:12px;font-weight:700;color:#1e2060;">花开四季</div>
+        <div style="font-size:10px;color:#b0b8d8;margin-top:1px;">鲜花礼品 · 母亲节大促</div>
       </div>
     </div>
     <hr class="sidebar-divider">
