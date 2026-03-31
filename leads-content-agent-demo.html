@@ -1444,8 +1444,8 @@ async function startDemo() {
   const hw = document.getElementById('hotWords');
   if (hw) hw.classList.add('visible');
 
-  // 右侧数据洞察汇总
-  document.getElementById('panelInsight').style.display = 'block';
+  // 右侧数据洞察汇总（已隐藏，简化右栏）
+  // document.getElementById('panelInsight').style.display = 'block';
   for (let i = 0; i < 3; i++) {
     await sleepCheck(250);
     document.getElementById('ins' + i).classList.add('visible');
@@ -1627,9 +1627,9 @@ async function startDemo() {
     if (i === 3) scrollToBottom(); // 第二行开始时滚动
   }
 
-  // 右侧内容方案计数
-  document.getElementById('panelContent').style.display = 'block';
-  document.getElementById('contentCounter').classList.add('visible');
+  // 右侧内容方案计数（已隐藏，简化右栏）
+  // document.getElementById('panelContent').style.display = 'block';
+  // document.getElementById('contentCounter').classList.add('visible');
   let count = 0;
   const interval = setInterval(() => {
     count++;
