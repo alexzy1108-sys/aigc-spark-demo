@@ -3,633 +3,1753 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>线索内容一体化 AIGC Claw · 母亲节花束案例</title>
+<title>线索内容一体化 AIGC Claw — Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body { height: 100%; overflow: hidden; }
-body {
-  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Menlo', monospace;
-  background: #f0f2f8;
-  color: #1e2040;
+
+:root {
+  --bg: #f0f2f8;
+  --panel: #ffffff;
+  --red: #e01a3a;
+  --red-light: rgba(224,26,58,0.08);
+  --red-mid: rgba(224,26,58,0.15);
+  --green: #12b76a;
+  --green-light: rgba(18,183,106,0.12);
+  --blue: #2563eb;
+  --blue-light: rgba(37,99,235,0.10);
+  --purple: #7c3aed;
+  --purple-light: rgba(124,58,237,0.10);
+  --orange: #ea580c;
+  --orange-light: rgba(234,88,12,0.10);
+  --text: #1a1a2e;
+  --text2: #555577;
+  --text3: #8888aa;
+  --border: #e2e4ef;
+  --shadow: 0 2px 12px rgba(0,0,50,0.08);
+  --font: 'Fira Code', 'SF Mono', monospace;
+  --radius: 10px;
+}
+
+html, body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  height: 100%;
+  min-height: 100vh;
   font-size: 13px;
-  min-width: 1000px;
-  height: 100vh;
+  line-height: 1.6;
+}
+
+/* ============================================================
+   TOP PROGRESS BAR
+   ============================================================ */
+#progress-bar {
+  position: fixed;
+  top: 0; left: 0;
+  height: 3px;
+  background: var(--red);
+  width: 0%;
+  transition: width 0.4s ease;
+  z-index: 9999;
+  box-shadow: 0 0 8px rgba(224,26,58,0.5);
+}
+
+/* ============================================================
+   COMPLETION BANNER
+   ============================================================ */
+#completion-banner {
+  position: fixed;
+  top: -60px; left: 0; right: 0;
+  height: 48px;
+  background: linear-gradient(90deg, #12b76a, #059669);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 9998;
+  transition: top 0.5s cubic-bezier(0.34,1.56,0.64,1);
+  letter-spacing: 0.5px;
+}
+#completion-banner.show { top: 0; }
+
+/* ============================================================
+   WINDOW CHROME
+   ============================================================ */
+.app-window {
+  max-width: 1280px;
+  margin: 24px auto;
+  border-radius: 14px;
+  box-shadow: 0 8px 40px rgba(0,0,50,0.15);
+  overflow: hidden;
+  background: var(--panel);
   display: flex;
   flex-direction: column;
+  height: calc(100vh - 48px);
 }
-.titlebar {
-  height: 44px; background: #ffffff; border-bottom: 1px solid #e0e4f0;
-  display: flex; align-items: center; padding: 0 18px; flex-shrink: 0;
-  position: relative; user-select: none; box-shadow: 0 1px 0 #e8eaf4;
-}
-.dots { display: flex; gap: 7px; margin-right: 16px; }
-.dot { width: 13px; height: 13px; border-radius: 50%; }
-.d-r { background: #ff5f57; } .d-y { background: #febc2e; } .d-g { background: #28c840; }
-.title-center { position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; }
-.title-main { font-size: 15px; font-weight: 700; letter-spacing: 0.5px; color: #1e2040; }
-.title-sub   { font-size: 12px; color: #9099c0; }
-.title-badge { font-size: 10px; background: #eef0ff; border: 1px solid #c8ccee; border-radius: 3px; padding: 2px 7px; color: #8088c0; letter-spacing: 0.5px; }
-.title-right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
-.conn { font-size: 12px; color: #18a838; display: flex; align-items: center; gap: 5px; }
-.conn-dot { width: 7px; height: 7px; border-radius: 50%; background: #18a838; animation: blink 2s ease infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.35} }
-.tabs { height: 36px; background: #f8f9fe; border-bottom: 1px solid #e0e4f0; display: flex; align-items: flex-end; padding: 0 18px; gap: 2px; flex-shrink: 0; }
-.tab { padding: 6px 15px; font-size: 12px; color: #b0b8d8; border-radius: 6px 6px 0 0; border: 1px solid transparent; border-bottom: none; cursor: pointer; background: transparent; letter-spacing: 0.2px; transition: color 0.15s; }
-.tab.active { background: #f0f2f8; border-color: #dde0f0; border-bottom-color: #f0f2f8; color: #3038a0; font-weight: 600; }
-.main { display: flex; flex: 1; overflow: hidden; }
-.sidebar { width: 210px; background: #ffffff; border-right: 1px solid #e0e4f0; display: flex; flex-direction: column; flex-shrink: 0; }
-.sb-section { padding: 14px 0; border-bottom: 1px solid #eceef8; }
-.sb-section:last-child { flex: 1; overflow-y: auto; border-bottom: none; }
-.sb-label { font-size: 10px; color: #b0b8d8; letter-spacing: 1.8px; text-transform: uppercase; padding: 0 14px 8px; }
-.sb-item { padding: 7px 14px; cursor: pointer; display: flex; align-items: center; gap: 9px; border-left: 2px solid transparent; transition: background 0.1s; }
-.sb-item:hover { background: #f5f6fd; }
-.sb-item.active { background: #f0f2ff; border-left-color: #e01a3a; }
-.sb-name { font-size: 12px; color: #606890; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.sb-meta { font-size: 10px; color: #b8bcd8; margin-top: 2px; }
-.sb-item.active .sb-name { color: #1e2060; font-weight: 600; }
-.sb-check { font-size: 11px; color: #18a838; }
-.sb-spin { font-size: 11px; color: #c08000; animation: pulse 1.5s ease infinite; }
-@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
-.chat { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-.pathbar { padding: 8px 20px; border-bottom: 1px solid #e8eaf8; background: #fafbff; font-size: 11px; color: #b0b8d8; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
-.pathbar-branch { color: #7060e0; }
-.pathbar-right { margin-left: auto; display: flex; gap: 14px; }
-.pathbar-stat { font-size: 10px; color: #c0c8e8; }
-.pathbar-stat span { color: #e05070; }
-.messages { flex: 1; overflow-y: auto; padding: 20px 22px; display: flex; flex-direction: column; gap: 16px; }
-.messages::-webkit-scrollbar { width: 4px; }
-.messages::-webkit-scrollbar-thumb { background: #d8ddf0; border-radius: 2px; }
-.row { display: flex; gap: 11px; }
-.row.user { flex-direction: row-reverse; }
-.avatar { width: 28px; height: 28px; border-radius: 6px; flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; font-size: 13px; background: #eeeffe; border: 1px solid #d0d4f8; }
-.avatar.user { background: #f5eeff; border-color: #d8c8f8; }
-.body { max-width: 72%; display: flex; flex-direction: column; gap: 4px; }
-.row.user .body { align-items: flex-end; }
-.who { font-size: 10px; color: #b0b8d8; padding: 0 4px; }
-.bubble { padding: 11px 14px; border-radius: 9px; line-height: 1.75; white-space: pre-wrap; word-break: break-word; font-size: 12.5px; }
-.bubble.agent { background: #ffffff; border: 1px solid #e0e4f4; color: #303460; box-shadow: 0 1px 4px rgba(60,70,140,0.06); }
-.bubble.user { background: #ede8ff; border: 1px solid #ccc0f0; color: #3820a0; }
-.g { color: #1a9038; } .y { color: #a07000; } .b { color: #2060d0; } .r { color: #d02040; } .d { color: #a0a8c8; } .w { color: #0e1060; font-weight: 600; } .p { color: #7030c0; }
-.itag { display: inline-block; font-size: 10px; background: #e8f5e8; border: 1px solid #b8ddb8; border-radius: 3px; padding: 1px 6px; color: #1a8030; vertical-align: middle; margin-left: 5px; }
-.cap-badges { display: flex; gap: 7px; margin-top: 5px; flex-wrap: wrap; }
-.cap-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; padding: 4px 10px; border-radius: 4px; cursor: default; }
-.cap-voice { background: #f5f0ff; border: 1px solid #d0c0f8; color: #7050c0; }
-.cap-call  { background: #eef3ff; border: 1px solid #c0d0f8; color: #3060c0; }
-.cap-photo { background: #f5fafa; border: 1px solid #c0d8d8; color: #306060; }
-.plan-card { background: #f0fff4; border: 1px solid #b8e8c8; border-left: 3px solid #18a838; border-radius: 9px; padding: 13px 15px; max-width: 420px; display: flex; flex-direction: column; gap: 9px; box-shadow: 0 1px 4px rgba(20,140,60,0.07); }
-.plan-head { font-size: 10px; color: #18a838; letter-spacing: 1.2px; text-transform: uppercase; }
-.plan-row  { display: flex; align-items: center; gap: 9px; font-size: 12.5px; color: #408058; }
-.plan-row .ck { color: #18a838; }
-.plan-row .ptag { margin-left: auto; font-size: 10px; background: #d8f5e0; border: 1px solid #a8dab8; border-radius: 3px; padding: 1px 6px; color: #1a8030; }
-.plan-hr { height: 1px; background: #c8e8d0; }
-.plan-meta { font-size: 11px; color: #80a090; }
-.plan-meta .acc { color: #d02040; }
-.plan-btns { display: flex; gap: 9px; margin-top: 2px; }
-.btn-go { padding: 7px 14px; background: #e01a3a; border: none; border-radius: 6px; color: #fff; font-family: inherit; font-size: 12px; cursor: pointer; transition: background 0.15s; }
-.btn-go:hover { background: #b81228; }
-.btn-alt { padding: 7px 14px; background: #fff; border: 1px solid #d8ddf0; border-radius: 6px; color: #8090b0; font-family: inherit; font-size: 12px; cursor: pointer; }
-.gen { background: #fff; border: 1px solid #e0e4f4; border-radius: 9px; padding: 12px 14px; max-width: 340px; display: flex; flex-direction: column; gap: 7px; box-shadow: 0 1px 4px rgba(60,70,140,0.06); }
-.gen-line { display: flex; align-items: center; gap: 9px; font-size: 12px; }
-.gi-done { color: #18a838; } .gi-spin { color: #c08000; animation: pulse 1.2s ease infinite; } .gi-wait { color: #d8ddf0; }
-.gt-done { color: #b8c0d8; text-decoration: line-through; } .gt-cur { color: #1e2060; } .gt-wait { color: #d0d4e8; }
-.gen-eta { font-size: 10px; color: #b0b8d8; margin-left: auto; }
-.inputbar { padding: 12px 20px 14px; border-top: 1px solid #e0e4f0; background: #ffffff; flex-shrink: 0; }
-.input-hint { font-size: 11px; color: #b8c0d8; margin-bottom: 9px; }
-.input-hint em { color: #8090c0; font-style: normal; }
-.input-row { display: flex; gap: 8px; align-items: center; }
-.prompt-sym { color: #e01a3a; font-size: 16px; flex-shrink: 0; }
-.input-field { flex: 1; background: #f5f6fc; border: 1px solid #d8ddf0; border-radius: 7px; padding: 9px 13px; color: #1e2060; font-family: inherit; font-size: 13px; outline: none; }
-.input-field::placeholder { color: #c0c8e0; }
-.input-actions { display: flex; gap: 7px; flex-shrink: 0; }
-.btn-voice { padding: 9px 13px; background: #f5f0ff; border: 1px solid #d0c0f8; border-radius: 7px; color: #7050c0; font-family: inherit; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
-.btn-call  { padding: 9px 13px; background: #eef3ff; border: 1px solid #c0d0f8; border-radius: 7px; color: #3060c0; font-family: inherit; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
-.btn-send  { padding: 9px 16px; background: #e01a3a; border: none; border-radius: 7px; color: #fff; font-family: inherit; font-size: 12px; cursor: pointer; }
-.right { width: 290px; background: #ffffff; border-left: 1px solid #e0e4f0; display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
-.rs { padding: 14px; border-bottom: 1px solid #eceef8; }
-.rs:last-child { flex: 1; overflow-y: auto; border-bottom: none; }
-.rs-title { font-size: 10px; color: #b0b8d8; letter-spacing: 1.8px; text-transform: uppercase; margin-bottom: 11px; display: flex; align-items: center; gap: 7px; }
-.rs-title::after { content: ''; flex: 1; height: 1px; background: #eceef8; }
-.skill-item { display: flex; align-items: center; gap: 9px; padding: 7px 0; border-bottom: 1px solid #eceef8; font-size: 11px; }
-.skill-item:last-child { border-bottom: none; }
-.skill-icon { font-size: 15px; flex-shrink: 0; }
-.skill-body { flex: 1; min-width: 0; }
-.skill-name { font-size: 11.5px; font-weight: 600; margin-bottom: 2px; }
-.skill-desc { font-size: 10px; color: #a0a8c8; line-height: 1.4; }
-.skill-status { font-size: 13px; flex-shrink: 0; }
-.skill-done .skill-name { color: #1a8030; }
-.skill-done .skill-status { color: #18a838; }
-.skill-running .skill-name { color: #3040b0; }
-.skill-running .skill-status { color: #c08000; animation: pulse 1.2s ease infinite; }
-.skill-pending .skill-name { color: #b0b8d8; }
-.skill-pending .skill-status { color: #d0d4e8; }
-.scene-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; background: #fff0f0; border: 1px solid #f0c0c8; border-radius: 4px; padding: 3px 9px; color: #c02040; margin-bottom: 10px; }
-.pr-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #eceef8; font-size: 12px; }
-.pr-row:last-of-type { border-bottom: none; }
-.pr-name { color: #5060a0; flex: 1; }
-.pr-cnt { color: #b0b8d8; font-size: 11px; }
-.pr-tag { font-size: 10px; color: #8090c0; background: #f0f2ff; border: 1px solid #d0d8f8; border-radius: 3px; padding: 1px 5px; }
-.pl-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 12px; }
-.pl-k { color: #b0b8d8; }
-.pl-v { color: #5060a0; }
-.pl-v.acc { color: #d02040; }
-.asset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
-.asset { background: #f5f6fc; border: 1px solid #e0e4f0; border-radius: 7px; overflow: hidden; }
-.asset-img { aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #c8d0e8; background: repeating-linear-gradient(45deg,#f0f2f8,#f0f2f8 4px,#e8eaf8 4px,#e8eaf8 8px); }
-.asset-info { padding: 6px 8px; }
-.asset-name { font-size: 10px; color: #9098c0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.asset-status { font-size: 10px; color: #c08000; margin-top: 2px; animation: pulse 1.5s ease infinite; }
-.asset-wait { font-size: 10px; color: #c8d0e8; margin-top: 2px; }
-.dm-link { display: block; margin-top: 11px; font-size: 11px; color: #4468cc; cursor: pointer; }
 
-/* ── CTA 一键使用 ── */
-.cta-bar {
-  margin: 10px 0 4px;
-  background: #fff5f6;
-  border: 1px solid #f5c0c8;
-  border-left: 3px solid #e01a3a;
-  border-radius: 8px;
-  padding: 11px 13px;
+.title-bar {
+  background: #eaecf3;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  padding: 10px 16px;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.dot { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+.dot.red    { background: #ff5f57; }
+.dot.yellow { background: #ffbd2e; }
+.dot.green  { background: #28c840; }
+
+.title-center {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text2);
+  letter-spacing: 0.3px;
+}
+
+.title-right {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.ctrl-btn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--panel);
+  font-family: var(--font);
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--text);
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.ctrl-btn:hover { background: var(--bg); }
+.ctrl-btn.primary {
+  background: var(--red);
+  color: #fff;
+  border-color: var(--red);
+}
+.ctrl-btn.primary:hover { background: #c01530; }
+.ctrl-btn.success {
+  background: var(--green);
+  color: #fff;
+  border-color: var(--green);
+}
+
+/* ============================================================
+   TAB NAV
+   ============================================================ */
+.tab-nav {
+  display: flex;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  flex-shrink: 0;
+}
+.tab {
+  padding: 10px 20px;
+  font-size: 12px;
+  cursor: pointer;
+  color: var(--text3);
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.tab:hover { color: var(--text2); }
+.tab.active {
+  color: var(--red);
+  border-bottom-color: var(--red);
+  background: var(--panel);
+}
+.tab.flash-highlight {
+  animation: tabFlash 0.5s ease 3;
+}
+@keyframes tabFlash {
+  0%, 100% { background: transparent; color: var(--text3); }
+  50% { background: var(--red-light); color: var(--red); }
+}
+
+/* ============================================================
+   MAIN LAYOUT
+   ============================================================ */
+.main-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ---- LEFT SIDEBAR ---- */
+.sidebar {
+  width: 220px;
+  border-right: 1px solid var(--border);
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+.sidebar-section {
+  padding: 12px 14px 6px;
+  font-size: 10px;
+  color: var(--text3);
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+}
+.merchant-card {
+  margin: 4px 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.merchant-card.active {
+  border-color: var(--red);
+  background: var(--red-light);
+}
+.merchant-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+}
+.merchant-meta {
+  font-size: 10px;
+  color: var(--text3);
+  margin-top: 2px;
+}
+.task-item {
+  margin: 2px 10px;
+  padding: 7px 12px;
+  border-radius: 7px;
+  font-size: 11px;
+  color: var(--text2);
+  cursor: pointer;
+  transition: background 0.15s;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
 }
-.cta-text { font-size: 11.5px; color: #a02030; }
-.cta-text strong { font-size: 12px; color: #c01830; }
-.cta-text span { font-size: 10.5px; color: #c08088; display: block; margin-top: 2px; }
-.cta-btns { display: flex; gap: 7px; flex-shrink: 0; }
-.cta-copy { padding: 6px 12px; background: #fff; border: 1px solid #e0c8cc; border-radius: 6px; color: #a03040; font-family: inherit; font-size: 11px; cursor: pointer; }
-.cta-use  { padding: 6px 14px; background: #e01a3a; border: none; border-radius: 6px; color: #fff; font-family: inherit; font-size: 11px; cursor: pointer; font-weight: 600; }
-.cta-use:hover { background: #b81228; }
+.task-item:hover { background: var(--panel); }
+.task-badge {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: var(--green-light);
+  color: var(--green);
+  white-space: nowrap;
+}
+.task-badge.in-progress {
+  background: var(--red-light);
+  color: var(--red);
+}
 
-/* voice bubble */
-.bubble-voice {
-  background: #f5f0ff;
-  border: 1px solid #d8c8f8;
-  border-radius: 9px;
-  padding: 9px 13px;
+/* ---- CHAT AREA ---- */
+.chat-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* scrollbar */
+.chat-messages::-webkit-scrollbar { width: 4px; }
+.chat-messages::-webkit-scrollbar-track { background: transparent; }
+.chat-messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.chat-input-bar {
+  border-top: 1px solid var(--border);
+  padding: 12px 16px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+}
+.chat-input {
+  flex: 1;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-family: var(--font);
+  font-size: 12px;
+  color: var(--text);
+  outline: none;
+}
+.chat-input:focus { border-color: var(--red); }
+.send-btn {
+  padding: 8px 16px;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+/* ---- RIGHT PANEL ---- */
+.right-panel {
+  width: 300px;
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+.right-panel::-webkit-scrollbar { width: 4px; }
+.right-panel::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.panel-section {
+  border-bottom: 1px solid var(--border);
+  padding: 14px 16px;
+}
+.panel-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text2);
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   CHAT BUBBLES
+   ============================================================ */
+.bubble-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.bubble-row.show {
+  opacity: 1;
+  transform: translateX(0);
+}
+.bubble-row.user {
+  flex-direction: row-reverse;
+  transform: translateX(20px);
+}
+.bubble-row.user.show {
+  transform: translateX(0);
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 12px;
-  color: #7050c0;
+  justify-content: center;
+  font-size: 16px;
+  background: var(--red-light);
+  border: 1px solid var(--red-mid);
 }
-.voice-bars { display: flex; align-items: flex-end; gap: 2px; height: 16px; }
-.voice-bars span { display: block; width: 3px; background: #b090e8; border-radius: 1px; }
-.voice-bars span:nth-child(1) { height: 6px; }
-.voice-bars span:nth-child(2) { height: 13px; }
-.voice-bars span:nth-child(3) { height: 9px; }
-.voice-bars span:nth-child(4) { height: 16px; }
-.voice-bars span:nth-child(5) { height: 7px; }
-.voice-bars span:nth-child(6) { height: 11px; }
-.voice-timer { font-size: 10px; color: #b0a0d8; margin-left: auto; }
+.avatar.user-avatar {
+  background: var(--blue-light);
+  border-color: rgba(37,99,235,0.2);
+}
+
+.bubble {
+  max-width: 520px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  border-top-left-radius: 4px;
+  padding: 12px 16px;
+  box-shadow: var(--shadow);
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text);
+  position: relative;
+}
+.bubble-row.user .bubble {
+  background: #fff5f7;
+  border-color: var(--red-mid);
+  border-radius: 12px;
+  border-top-right-radius: 4px;
+}
+
+/* typing cursor */
+.cursor {
+  display: inline-block;
+  width: 2px;
+  height: 14px;
+  background: var(--red);
+  vertical-align: middle;
+  margin-left: 2px;
+  animation: blink 0.8s step-end infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+.cursor.hide { display: none; }
+
+/* agent prefix */
+.agent-prefix {
+  color: var(--red);
+  font-size: 10px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+/* ============================================================
+   LOADING DOTS
+   ============================================================ */
+.loading-dots {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  padding: 4px 0;
+}
+.loading-dots span {
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--text3);
+  animation: dotBounce 1.2s ease infinite;
+}
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes dotBounce {
+  0%,80%,100% { transform: translateY(0); opacity:0.4; }
+  40% { transform: translateY(-6px); opacity:1; }
+}
+
+/* ============================================================
+   RECOGNITION CARD
+   ============================================================ */
+.recog-card {
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-top: 10px;
+  border: 1px solid var(--border);
+}
+.recog-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 0;
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  font-size: 12px;
+}
+.recog-row.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+.check-icon {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  background: var(--green);
+  color: #fff;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  opacity: 0;
+  transform: scale(0);
+  transition: opacity 0.2s, transform 0.2s;
+}
+.check-icon.show { opacity: 1; transform: scale(1); }
+.recog-label { color: var(--text3); min-width: 48px; font-size: 11px; }
+.recog-val { font-weight: 600; color: var(--text); }
+
+/* ============================================================
+   DIAGNOSIS CARD
+   ============================================================ */
+.diag-card {
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-top: 10px;
+  border: 1px solid var(--border);
+}
+.diag-row {
+  padding: 5px 0;
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity 0.2s, transform 0.2s;
+  font-size: 12px;
+  border-bottom: 1px solid var(--border);
+}
+.diag-row:last-child { border-bottom: none; }
+.diag-row.show { opacity: 1; transform: translateY(0); }
+.diag-key { font-size: 10px; color: var(--text3); margin-bottom: 2px; }
+.diag-val { font-weight: 600; }
+.diag-highlight {
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: var(--red-light);
+  border-left: 3px solid var(--red);
+  font-size: 11px;
+  color: var(--red);
+  opacity: 0;
+  position: relative;
+  overflow: hidden;
+  transition: opacity 0.4s;
+}
+.diag-highlight.show { opacity: 1; }
+.diag-highlight::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%; width: 100%; height: 100%;
+  background: rgba(224,26,58,0.08);
+  animation: highlightSweep 0.8s ease forwards;
+}
+@keyframes highlightSweep {
+  to { left: 100%; }
+}
+
+/* ============================================================
+   CONTENT MATRIX TABLE
+   ============================================================ */
+.matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+  font-size: 11px;
+}
+.matrix-table th {
+  background: var(--bg);
+  padding: 8px 10px;
+  text-align: left;
+  color: var(--text2);
+  font-weight: 600;
+  border: 1px solid var(--border);
+  font-size: 10px;
+  letter-spacing: 0.3px;
+}
+.matrix-table td {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  vertical-align: top;
+}
+.matrix-row {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.matrix-row.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+.layer-tag {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.layer-tag.top { background: var(--blue-light); color: var(--blue); }
+.layer-tag.mid { background: var(--purple-light); color: var(--purple); }
+.layer-tag.bot { background: var(--red-light); color: var(--red); }
+.direction-tag {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-size: 10px;
+  background: var(--bg);
+  color: var(--text2);
+  border: 1px solid var(--border);
+}
+
+/* ============================================================
+   PLACEMENT TABLE
+   ============================================================ */
+.placement-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 11px;
+}
+.placement-table th {
+  background: var(--bg);
+  padding: 7px 9px;
+  text-align: left;
+  color: var(--text2);
+  font-weight: 600;
+  border: 1px solid var(--border);
+  font-size: 10px;
+}
+.placement-table td {
+  padding: 8px 9px;
+  border: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.5;
+}
+.placement-row {
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.25s, transform 0.25s;
+}
+.placement-row.show { opacity: 1; transform: translateY(0); }
+.period-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-size: 10px;
+  font-weight: 600;
+}
+.period-badge.seed { background: var(--green-light); color: var(--green); }
+.period-badge.harvest { background: var(--purple-light); color: var(--purple); }
+.period-badge.sprint { background: var(--red-light); color: var(--red); }
+
+/* ============================================================
+   SCRIPT CARDS
+   ============================================================ */
+.script-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+.script-card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+.script-card.show { opacity: 1; transform: translateY(0); }
+.script-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.script-source {
+  font-size: 10px;
+  color: var(--text3);
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 2px 8px;
+}
+.copy-btn {
+  font-size: 10px;
+  padding: 3px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--panel);
+  cursor: pointer;
+  font-family: var(--font);
+  color: var(--text2);
+  transition: all 0.2s;
+}
+.copy-btn:hover { border-color: var(--green); color: var(--green); }
+.copy-btn.copied { background: var(--green); color: #fff; border-color: var(--green); }
+.script-text {
+  font-size: 12px;
+  line-height: 1.7;
+  color: var(--text);
+}
+
+/* ============================================================
+   VOICE BUBBLE
+   ============================================================ */
+.voice-bubble {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
+}
+.voice-waves {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 24px;
+}
+.wave-bar {
+  width: 4px;
+  background: var(--red);
+  border-radius: 2px;
+  animation: waveAnim 0.8s ease infinite;
+}
+.wave-bar:nth-child(1) { animation-delay: 0s;    height: 8px; }
+.wave-bar:nth-child(2) { animation-delay: 0.1s;  height: 16px; }
+.wave-bar:nth-child(3) { animation-delay: 0.2s;  height: 22px; }
+.wave-bar:nth-child(4) { animation-delay: 0.15s; height: 14px; }
+.wave-bar:nth-child(5) { animation-delay: 0.05s; height: 10px; }
+@keyframes waveAnim {
+  0%,100% { transform: scaleY(0.5); opacity: 0.6; }
+  50%     { transform: scaleY(1.2); opacity: 1; }
+}
+.voice-timer {
+  font-size: 12px;
+  color: var(--red);
+  font-weight: 600;
+  min-width: 32px;
+}
+
+/* ============================================================
+   GEN PROGRESS BLOCK
+   ============================================================ */
+.gen-block {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  margin-top: 12px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+.gen-block.show { opacity: 1; transform: translateY(0); }
+.gen-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text2);
+  margin-bottom: 10px;
+}
+.gen-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  font-size: 11px;
+  color: var(--text);
+}
+.gen-icon {
+  font-size: 13px;
+  min-width: 16px;
+  text-align: center;
+}
+.gen-icon.spinning {
+  animation: spin 1s linear infinite;
+  display: inline-block;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.gen-step.done { color: var(--text3); text-decoration: line-through; }
+.gen-step.active { color: var(--text); font-weight: 600; }
+.gen-step.pending { color: var(--text3); }
+
+/* ============================================================
+   MATERIAL GRID
+   ============================================================ */
+.material-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+.material-thumb {
+  height: 70px;
+  border-radius: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 0.3s, transform 0.3s;
+}
+.material-thumb.show { opacity: 1; transform: scale(1); }
+.material-thumb.generating {
+  animation: thumbPulse 1.2s ease infinite;
+}
+@keyframes thumbPulse {
+  0%,100% { border-color: var(--border); background: var(--bg); }
+  50% { border-color: var(--red); background: var(--red-light); }
+}
+
+/* ============================================================
+   CTA SECTION
+   ============================================================ */
+.cta-section {
+  padding: 12px 16px;
+  background: var(--green-light);
+  border-radius: 10px;
+  margin-top: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.4s, transform 0.4s;
+}
+.cta-section.show { opacity: 1; transform: translateY(0); }
+.cta-label { font-size: 13px; font-weight: 700; color: var(--green); }
+.cta-btn {
+  padding: 8px 18px;
+  background: var(--red);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font);
+  font-size: 12px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 0.1s;
+}
+.cta-btn:active { transform: scale(0.97); }
+
+/* ============================================================
+   SKILLS LIST (RIGHT PANEL)
+   ============================================================ */
+.skill-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.skill-item:last-child { border-bottom: none; }
+.skill-item.show { opacity: 1; transform: translateX(0); }
+.skill-status {
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  flex-shrink: 0;
+  transition: all 0.3s;
+  color: var(--text3);
+}
+.skill-status.running {
+  border-color: var(--red);
+  color: var(--red);
+  animation: spin 1s linear infinite;
+}
+.skill-status.done {
+  border-color: var(--green);
+  background: var(--green);
+  color: #fff;
+}
+.skill-name { flex: 1; color: var(--text); }
+.skill-desc { font-size: 10px; color: var(--text3); }
+
+/* ============================================================
+   PANEL CONTENT BLOCKS
+   ============================================================ */
+.panel-content {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.panel-content.show { opacity: 1; }
+.panel-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-size: 10px;
+  margin: 2px 2px;
+}
+.panel-mini-table { width: 100%; font-size: 10px; }
+.panel-mini-table td { padding: 4px 0; vertical-align: top; }
+.panel-mini-table td:first-child { color: var(--text3); width: 50px; }
+.panel-mini-table td:last-child { font-weight: 600; }
+
+/* placement mini */
+.placement-mini-row {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 10px;
+}
+.placement-mini-row:last-child { border-bottom: none; }
+.placement-mini-title { font-weight: 600; margin-bottom: 3px; }
+.placement-mini-detail { color: var(--text2); }
+
+/* ============================================================
+   MISC
+   ============================================================ */
+.section-intro {
+  font-size: 12px;
+  margin-bottom: 10px;
+  padding: 10px 14px;
+  background: var(--bg);
+  border-radius: 8px;
+  border-left: 3px solid var(--red);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.section-intro.show { opacity: 1; }
+
 </style>
 </head>
 <body>
 
-<!-- ── TITLEBAR ── -->
-<div class="titlebar">
-  <div class="dots">
-    <div class="dot d-r"></div>
-    <div class="dot d-y"></div>
-    <div class="dot d-g"></div>
-  </div>
-  <div class="title-center">
-    <span class="title-main">线索内容一体化 AIGC Claw 🦞</span>
-    <span class="title-sub">母亲节大促</span>
-    <span class="title-badge">BETA</span>
-  </div>
-  <div class="title-right">
-    <div class="conn"><div class="conn-dot"></div>已连接</div>
-  </div>
+<!-- TOP PROGRESS BAR -->
+<div id="progress-bar"></div>
+
+<!-- COMPLETION BANNER -->
+<div id="completion-banner">
+  ✅ 内容矩阵 + 投放策略 + 私信话术 · 三段联动方案已生成完毕
 </div>
 
-<!-- ── TABS ── -->
-<div class="tabs">
-  <div class="tab active">① 说需求</div>
-  <div class="tab">② 内容方案</div>
-  <div class="tab">③ 生产素材</div>
-  <div class="tab">④ 投放配置</div>
-</div>
+<!-- APP WINDOW -->
+<div class="app-window">
 
-<!-- ── MAIN ── -->
-<div class="main">
+  <!-- TITLE BAR -->
+  <div class="title-bar">
+    <div class="dot red"></div>
+    <div class="dot yellow"></div>
+    <div class="dot green"></div>
+    <div class="title-center">线索内容一体化 AIGC Claw · 智能策略生成工作台</div>
+    <div class="title-right">
+      <button class="ctrl-btn" id="btn-pause" onclick="togglePause()" style="display:none">⏸ 暂停</button>
+      <button class="ctrl-btn" id="btn-skip" onclick="skipPhase()" style="display:none">→ 跳过</button>
+      <button class="ctrl-btn primary" id="btn-start" onclick="startDemo()">▶ 开始演示</button>
+    </div>
+  </div>
 
-  <!-- LEFT SIDEBAR -->
-  <div class="sidebar">
-    <div class="sb-section">
-      <div class="sb-label">当前商家</div>
-      <div class="sb-item active">
-        <div>
-          <div class="sb-name">🌸 花开四季</div>
-          <div class="sb-meta">鲜花礼品 · 2991088</div>
-        </div>
+  <!-- TAB NAV -->
+  <div class="tab-nav">
+    <div class="tab active" id="tab-0">① 说需求</div>
+    <div class="tab" id="tab-1">② 内容方案</div>
+    <div class="tab" id="tab-2">③ 生产素材</div>
+    <div class="tab" id="tab-3">④ 投放配置</div>
+  </div>
+
+  <!-- MAIN LAYOUT -->
+  <div class="main-layout">
+
+    <!-- LEFT SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-section">当前商家</div>
+      <div class="merchant-card active">
+        <div class="merchant-name">🌸 花开四季</div>
+        <div class="merchant-meta">鲜花礼品 · 2991088</div>
+      </div>
+      <div class="sidebar-section" style="margin-top:10px">历史任务</div>
+      <div class="task-item">
+        <span>情人节冲刺_0214</span>
+        <span class="task-badge">6条·完成</span>
+      </div>
+      <div class="task-item">
+        <span>新品上线_0301</span>
+        <span class="task-badge">4条·完成</span>
+      </div>
+      <div class="task-item" style="font-weight:600;color:var(--red)">
+        <span>母亲节大促_0330</span>
+        <span class="task-badge in-progress">生成中...</span>
       </div>
     </div>
-    <div class="sb-section">
-      <div class="sb-label">最近任务</div>
-      <div class="sb-item">
-        <span class="sb-check">✓</span>
-        <div>
-          <div class="sb-name">情人节冲刺_0214</div>
-          <div class="sb-meta">6条 · 已完成</div>
+
+    <!-- CHAT AREA -->
+    <div class="chat-area">
+      <div class="chat-messages" id="chat-messages">
+        <!-- messages injected by JS -->
+      </div>
+      <div class="chat-input-bar">
+        <input class="chat-input" placeholder="输入你的生意目标，或点击右上角「▶ 开始演示」..." readonly>
+        <button class="send-btn">发送</button>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel" id="right-panel">
+      <div class="panel-section">
+        <div class="panel-title">🔧 技能列表</div>
+        <div id="skills-list">
+          <!-- skills injected -->
         </div>
       </div>
-      <div class="sb-item">
-        <span class="sb-check">✓</span>
-        <div>
-          <div class="sb-name">新品上线_0301</div>
-          <div class="sb-meta">4条 · 已完成</div>
-        </div>
-      </div>
-      <div class="sb-item active">
-        <span class="sb-spin">◐</span>
-        <div>
-          <div class="sb-name">母亲节大促_0330</div>
-          <div class="sb-meta">生成中...</div>
-        </div>
+      <div class="panel-section" id="panel-content-area">
+        <div class="panel-title">📋 当前方案</div>
+        <div style="color:var(--text3);font-size:11px">演示开始后，方案会在此实时更新 ✨</div>
       </div>
     </div>
   </div>
 
-  <!-- CHAT AREA -->
-  <div class="chat">
-    <!-- pathbar -->
-    <div class="pathbar">
-      <span>~/session/flowers-0330</span>
-      <span class="pathbar-branch">⎇ main</span>
-      <div class="pathbar-right">
-        <span class="pathbar-stat">🧩 Claw 已规划 <span>5</span> 项技能，执行中...</span>
+</div>
+
+<script>
+/* ============================================================
+   STATE
+   ============================================================ */
+let demoRunning = false;
+let demoPaused  = false;
+let currentPhase = 0;
+let totalPhases  = 9;
+let phaseResolvers = [];
+let countdownTimer = null;
+let voiceTimeLeft = 12;
+
+/* ============================================================
+   UTILS
+   ============================================================ */
+function setProgress(pct) {
+  document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+function sleep(ms) {
+  return new Promise(resolve => {
+    if (phaseResolvers) phaseResolvers.push(resolve);
+    const checkPause = () => {
+      if (demoPaused) {
+        setTimeout(checkPause, 100);
+      } else {
+        setTimeout(() => resolve(), ms);
+      }
+    };
+    setTimeout(checkPause, 0);
+  });
+}
+
+function scrollChat() {
+  const c = document.getElementById('chat-messages');
+  c.scrollTo({ top: c.scrollHeight, behavior: 'smooth' });
+}
+
+/* ---- Bubble helpers ---- */
+function createBubbleRow(isUser = false) {
+  const row = document.createElement('div');
+  row.className = 'bubble-row' + (isUser ? ' user' : '');
+  const av = document.createElement('div');
+  av.className = 'avatar' + (isUser ? ' user-avatar' : '');
+  av.textContent = isUser ? '🌸' : '🦞';
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  row.appendChild(av);
+  row.appendChild(bubble);
+  document.getElementById('chat-messages').appendChild(row);
+  // trigger entrance
+  requestAnimationFrame(() => requestAnimationFrame(() => row.classList.add('show')));
+  scrollChat();
+  return { row, bubble };
+}
+
+async function agentBubble(lines) {
+  const { row, bubble } = createBubbleRow(false);
+  const pre = document.createElement('div');
+  pre.className = 'agent-prefix';
+  pre.textContent = 'AIGC Claw ›';
+  bubble.appendChild(pre);
+
+  const span = document.createElement('span');
+  bubble.appendChild(span);
+  const cursor = document.createElement('span');
+  cursor.className = 'cursor';
+  bubble.appendChild(cursor);
+
+  const text = Array.isArray(lines) ? lines.join('\n') : lines;
+  for (let i = 0; i < text.length; i++) {
+    span.textContent += text[i];
+    scrollChat();
+    await sleep(22);
+  }
+  await sleep(500);
+  cursor.classList.add('hide');
+  return bubble;
+}
+
+async function userBubble(text) {
+  const { row, bubble } = createBubbleRow(true);
+  bubble.innerHTML = `<span style="font-size:12px">${text}</span>`;
+  scrollChat();
+  return bubble;
+}
+
+/* ---- Loading ---- */
+async function loadingBubble(text) {
+  const { row, bubble } = createBubbleRow(false);
+  const pre = document.createElement('div');
+  pre.className = 'agent-prefix';
+  pre.textContent = 'AIGC Claw ›';
+  bubble.appendChild(pre);
+  const label = document.createElement('span');
+  label.textContent = text + ' ';
+  bubble.appendChild(label);
+  const dots = document.createElement('div');
+  dots.className = 'loading-dots';
+  dots.innerHTML = '<span></span><span></span><span></span>';
+  bubble.appendChild(dots);
+  scrollChat();
+  return { row, bubble };
+}
+
+/* ============================================================
+   SKILLS LIST
+   ============================================================ */
+const SKILLS = [
+  { name: '行业识别', desc: '多模态意图理解' },
+  { name: '内容矩阵生成', desc: '热点 + 赛道 + 决策阶段' },
+  { name: '投放策略匹配', desc: '人群 / 节奏 / 出价' },
+  { name: '私信话术生成', desc: '来源差异化承接' },
+  { name: '素材一键生产', desc: 'AIGC 图文' },
+];
+
+function buildSkillsList() {
+  const el = document.getElementById('skills-list');
+  el.innerHTML = '';
+  SKILLS.forEach((s, i) => {
+    const item = document.createElement('div');
+    item.className = 'skill-item';
+    item.id = `skill-${i}`;
+    item.innerHTML = `
+      <div class="skill-status" id="skill-status-${i}">○</div>
+      <div>
+        <div class="skill-name">${s.name}</div>
+        <div class="skill-desc">${s.desc}</div>
       </div>
+    `;
+    el.appendChild(item);
+    setTimeout(() => item.classList.add('show'), i * 150);
+  });
+}
+
+function setSkillRunning(i) {
+  const st = document.getElementById(`skill-status-${i}`);
+  if (st) {
+    st.classList.add('running');
+    st.textContent = '◐';
+  }
+}
+
+function setSkillDone(i) {
+  const st = document.getElementById(`skill-status-${i}`);
+  if (st) {
+    st.classList.remove('running');
+    st.classList.add('done');
+    st.textContent = '✓';
+  }
+}
+
+function setAllSkillsDone() {
+  for (let i = 0; i < SKILLS.length; i++) setSkillDone(i);
+}
+
+/* ============================================================
+   PANEL UPDATE HELPERS
+   ============================================================ */
+function setPanelContent(html) {
+  const area = document.getElementById('panel-content-area');
+  area.style.opacity = '0';
+  setTimeout(() => {
+    area.innerHTML = html;
+    area.style.transition = 'opacity 0.4s';
+    area.style.opacity = '1';
+  }, 200);
+}
+
+function panelRecognition() {
+  setPanelContent(`
+    <div class="panel-title">📋 识别结果</div>
+    <table class="panel-mini-table">
+      <tr><td>行业</td><td>礼品 / 鲜花</td></tr>
+      <tr><td>赛道</td><td>节日礼品</td></tr>
+      <tr><td>品类</td><td>高端定制花束</td></tr>
+      <tr><td>客单</td><td>300-800 元</td></tr>
+      <tr><td>阶段</td><td>母亲节冲刺期</td></tr>
+      <tr><td>目标</td><td>私信留资量</td></tr>
+    </table>
+  `);
+}
+
+function panelContentMatrix() {
+  setPanelContent(`
+    <div class="panel-title">📋 当前内容方案</div>
+    <div style="margin-bottom:6px;font-size:10px;color:var(--text3)">8条内容覆盖全决策链路</div>
+    <div>
+      <span class="panel-tag" style="background:var(--blue-light);color:var(--blue)">拉新种草 ×3</span>
+      <span class="panel-tag" style="background:var(--purple-light);color:var(--purple)">意向筛选 ×3</span>
+      <span class="panel-tag" style="background:var(--red-light);color:var(--red)">促转化 ×2</span>
     </div>
-
-    <!-- messages -->
-    <div class="messages">
-
-      <!-- 1. Agent 开场 -->
-      <div class="row">
-        <div class="avatar">🦞</div>
-        <div class="body">
-          <div class="who">Claw · 线索内容智能体</div>
-          <div class="bubble agent"><span class="g">$</span> 你好，我是线索内容一体化 AIGC Claw 🦞
-
-线索广告效果差，大多数时候问题不在投放——
-是<span class="w">内容、投放、私信承接</span>三段完全割裂，没打通。
-
-你只需要用自己的话说生意上遇到的问题，我帮你：
-
-  <span class="b">①</span> 判断做什么内容 → <span class="g">一键生产素材</span>
-  <span class="b">②</span> 给出投放策略建议 → <span class="g">人群 / 节奏 / 承接动作</span>
-  <span class="b">③</span> 生成私信话术 → <span class="g">按来源用户定制</span>
-
-打字 / 语音 / 电话，怎么方便怎么来。</div>
-          <div class="cap-badges">
-            <span class="cap-badge cap-voice">🎙 语音输入</span>
-            <span class="cap-badge cap-call">📞 电话沟通</span>
-            <span class="cap-badge cap-photo">🖼 素材上传</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 2a. 商家语音气泡 -->
-      <div class="row user">
-        <div class="avatar user">🏪</div>
-        <div class="body">
-          <div class="who">花开四季 · 商家</div>
-          <div class="bubble-voice">
-            <div class="voice-bars">
-              <span></span><span></span><span></span>
-              <span></span><span></span><span></span>
-            </div>
-            <span>语音识别中...</span>
-            <span class="voice-timer">0:12</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- 2b. 商家文字气泡 -->
-      <div class="row user">
-        <div class="avatar user">🏪</div>
-        <div class="body">
-          <div class="bubble user">「我做高端定制花束，主打母亲节礼品，客单300-800，之前投过但来的人质量不高」</div>
-        </div>
-      </div>
-
-      <!-- 3. Agent 识别行业 -->
-      <div class="row">
-        <div class="avatar">🦞</div>
-        <div class="body">
-          <div class="who">Claw · 线索内容智能体</div>
-          <div class="bubble agent"><span class="d">[识别到，确认一下]</span>
-
-<span class="b">行业</span>   <span class="w">礼品 / 鲜花</span>
-<span class="b">赛道</span>   节日礼品
-<span class="b">品类</span>   高端定制花束
-<span class="b">客单</span>   <span class="g">300-800 元</span><span class="itag">已确认</span></div>
-        </div>
-      </div>
-
-      <!-- 4. Agent 诊断 -->
-      <div class="row">
-        <div class="avatar">🦞</div>
-        <div class="body">
-          <div class="who">Claw · 线索内容智能体</div>
-          <div class="bubble agent"><span class="g">[诊断完成]</span>
-
-你的情况：
-  <span class="b">阶段</span>   母亲节冲刺期
-  <span class="b">目标</span>   提升私信留资量
-  <span class="b">问题</span>   <span class="r">来人质量低</span>
-
-根本原因：内容没区分<span class="w">「浏览型」</span>和<span class="w">「决策型」</span>用户，
-统一话术承接导致高意向用户流失。
-
-先从内容层开始——推荐两个方向并跑，看数据再追加：
-
-  <span class="b">①</span> <span class="w">价格对比型</span>   决策用户最吃这个，转化链路短
-  <span class="b">②</span> <span class="w">情感共鸣型</span>   情感驱动用户，私信深度更高</div>
-        </div>
-      </div>
-
-      <!-- 5. 内容矩阵大表 -->
-      <div class="row">
-        <div class="avatar">🦞</div>
-        <div class="body" style="max-width:96%">
-          <div class="who">Claw · 内容方案</div>
-          <div style="background:#fff;border:1px solid #e0e4f4;border-radius:10px;padding:14px 16px;box-shadow:0 1px 4px rgba(60,70,140,0.06)">
-            <div style="font-size:10px;color:#18a838;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:10px">📋 内容矩阵 · 母亲节冲刺 · 基于行业属性 + 站内热点自动生成</div>
-            <table style="width:100%;border-collapse:collapse;font-size:11.5px">
-              <thead>
-                <tr style="background:#f5f6fc">
-                  <th style="padding:6px 10px;text-align:left;color:#8090b0;font-weight:600;border-bottom:1px solid #e8eaf4;white-space:nowrap">内容层级</th>
-                  <th style="padding:6px 10px;text-align:left;color:#8090b0;font-weight:600;border-bottom:1px solid #e8eaf4;white-space:nowrap">营销目的</th>
-                  <th style="padding:6px 10px;text-align:left;color:#8090b0;font-weight:600;border-bottom:1px solid #e8eaf4;white-space:nowrap">选题方向</th>
-                  <th style="padding:6px 10px;text-align:left;color:#8090b0;font-weight:600;border-bottom:1px solid #e8eaf4">笔记标题示例</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td rowspan="3" style="padding:7px 10px;vertical-align:top;border-bottom:1px solid #eceef8;font-weight:600;color:#3040a0;white-space:nowrap">拉新种草层</td>
-                  <td rowspan="3" style="padding:7px 10px;vertical-align:top;border-bottom:1px solid #eceef8;color:#7080a0;font-size:11px">扩大人群触达，<br>建立认知</td>
-                  <td style="padding:7px 10px;border-bottom:1px solid #f0f2f8;white-space:nowrap"><span style="background:#fff0f0;border:1px solid #f5c0c8;border-radius:3px;padding:1px 6px;color:#c02040;font-size:10px">情感共鸣向</span></td>
-                  <td style="padding:7px 10px;border-bottom:1px solid #f0f2f8;color:#303460">《送妈妈的第一束花，我选了这个》</td>
-                </tr>
-                <tr>
-                  <td style="padding:7px 10px;border-bottom:1px solid #f0f2f8;white-space:nowrap"><span style="background:#f0f5ff;border:1px solid #c0d0f8;border-radius:3px;padding:1px 6px;color:#3060c0;font-size:10px">知识科普向</span></td>
-                  <td style="padding:7px 10px;border-bottom:1px solid #f0f2f8;color:#303460">《为什么鲜花要选当季花材？母亲节避坑指南》</td>
-                </tr>
-                <tr>
-                  <td style="padding:7px 10px;border-bottom:1px solid #eceef8;white-space:nowrap"><span style="background:#f0fff4;border:1px solid #b8e8c8;border-radius:3px;padding:1px 6px;color:#1a8030;font-size:10px">场景展示向</span></td>
-                  <td style="padding:7px 10px;border-bottom:1px solid #eceef8;color:#303460">《把妈妈的客厅变成花园只要一束花》</td>
-                </tr>
-                <tr>
-                  <td rowspan="3" style="padding:7px 10px;vertical-align:top;border-bottom:1px solid #eceef8;font-weight:600;color:#3040a0;white-space:nowrap">意向筛选层</td>
-                  <td rowspan="3" style="padding:7px 10px;vertical-align:top;border-bottom:1px solid #eceef8;color:#7080a0;font-size:11px">吸引有购买意向<br>的精准用户</td>
-                  <td style="padding:7px 10px;border-bottom:1px solid #f0f2f8;white-space:nowrap"><span style="background:#f5f0ff;border:1px solid #d0c0f8;border-radius:3px;padding:1px 6px;color:#7050c0;font-size:10px">产品展示向</span></td>
-                  <td style="padding:7px 10px;border-bottom:1px solid #f0f2f8;color:#303460">《实拍！300-800元花束长什么样，帮你选》</td>
-                </tr>
-                <tr>
-                  <td style="padding:7px 10px;border-bottom:1px solid #f0f2f8;white-space:nowrap"><span style="background:#fffbf0;border:1px solid #f0d890;border-radius:3px;padding:1px 6px;color:#a07000;font-size:10px">对比评测向</span></td>
-                  <td style="padding:7px 10px;border-bottom:1px solid #f0f2f8;color:#303460">《超市花 vs 定制花束，差距到底在哪》</td>
-                </tr>
-                <tr>
-                  <td style="padding:7px 10px;border-bottom:1px solid #eceef8;white-space:nowrap"><span style="background:#fff0f0;border:1px solid #f5c0c8;border-radius:3px;padding:1px 6px;color:#c02040;font-size:10px">案例晒单向</span></td>
-                  <td style="padding:7px 10px;border-bottom:1px solid #eceef8;color:#303460">《客户晒单｜妈妈收到后直接哭了》</td>
-                </tr>
-                <tr>
-                  <td rowspan="2" style="padding:7px 10px;vertical-align:top;font-weight:600;color:#3040a0;white-space:nowrap">促转化层</td>
-                  <td rowspan="2" style="padding:7px 10px;vertical-align:top;color:#7080a0;font-size:11px">推动留资/<br>下单决策</td>
-                  <td style="padding:7px 10px;border-bottom:1px solid #f0f2f8;white-space:nowrap"><span style="background:#f0fff4;border:1px solid #b8e8c8;border-radius:3px;padding:1px 6px;color:#1a8030;font-size:10px">活动利益向</span></td>
-                  <td style="padding:7px 10px;border-bottom:1px solid #f0f2f8;color:#303460">《母亲节提前订享8折，今天截止》</td>
-                </tr>
-                <tr>
-                  <td style="padding:7px 10px;white-space:nowrap"><span style="background:#f0f5ff;border:1px solid #c0d0f8;border-radius:3px;padding:1px 6px;color:#3060c0;font-size:10px">答疑消顾向</span></td>
-                  <td style="padding:7px 10px;color:#303460">《外地也能送？花束能保鲜几天？5个问题全答了》</td>
-                </tr>
-              </tbody>
-            </table>
-            <div style="margin-top:12px;padding-top:10px;border-top:1px solid #eceef8;display:flex;gap:9px">
-              <button class="btn-go">确认，开始生产 →</button>
-              <button class="btn-alt">我来改改</button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 6. Agent 追问 -->
-      <div class="row">
-        <div class="avatar">🦞</div>
-        <div class="body">
-          <div class="who">Claw · 线索内容智能体</div>
-          <div class="bubble agent"><span class="y">?</span> 有没有花束实拍图？直接发过来就行。
-
-没有也行，我帮你生成场景图。</div>
-        </div>
-      </div>
-
-      <!-- 7. 商家回复 -->
-      <div class="row user">
-        <div class="avatar user">🏪</div>
-        <div class="body">
-          <div class="who">花开四季 · 商家</div>
-          <div class="bubble user">有，发你 📎</div>
-        </div>
-      </div>
-
-      <!-- 8. 生成中 gen block -->
-      <div class="row">
-        <div class="avatar">🦞</div>
-        <div class="body">
-          <div class="who">Claw · 正在生产</div>
-          <div class="gen">
-            <div class="gen-line">
-              <span class="gi-done">✓</span>
-              <span class="gt-done">解析套路结构...</span>
-            </div>
-            <div class="gen-line">
-              <span class="gi-done">✓</span>
-              <span class="gt-done">匹配卖点话术...</span>
-            </div>
-            <div class="gen-line">
-              <span class="gi-done">✓</span>
-              <span class="gt-done">过滤违规词...</span>
-            </div>
-            <div class="gen-line">
-              <span class="gi-spin">◐</span>
-              <span class="gt-cur">生成图文素材...</span>
-              <span class="gen-eta">约 28s</span>
-            </div>
-            <div class="gen-line">
-              <span class="gi-wait">○</span>
-              <span class="gt-wait">写入素材库...</span>
-              <span class="gen-eta">等待</span>
-            </div>
-            <div class="gen-line">
-              <span class="gi-wait">○</span>
-              <span class="gt-wait">生成私信话术...</span>
-              <span class="gen-eta">等待</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-    </div><!-- /messages -->
-
-    <!-- INPUT BAR -->
-    <div class="inputbar">
-      <div class="input-hint">正在生成中 · <em>可继续补充需求或追加素材</em></div>
-      <div class="input-row">
-        <span class="prompt-sym">›</span>
-        <input class="input-field" type="text" placeholder="追加需求 / 补充说明..." />
-        <div class="input-actions">
-          <button class="btn-voice">🎙 语音</button>
-          <button class="btn-call">📞 电话</button>
-          <button class="btn-send">发送</button>
-        </div>
-      </div>
+    <div style="margin-top:10px;font-size:10px;color:var(--text2);line-height:1.8">
+      ① 情感共鸣向<br>② 知识科普向<br>③ 场景展示向<br>
+      ④ 产品展示向<br>⑤ 对比评测向<br>⑥ 案例晒单向<br>
+      ⑦ 活动利益向<br>⑧ 答疑消顾向
     </div>
-  </div><!-- /chat -->
+  `);
+}
 
-  <!-- RIGHT PANEL -->
-  <div class="right">
-
-    <!-- Claw 技能 -->
-    <div class="rs">
-      <div class="rs-title">Claw 规划的技能</div>
-
-      <div class="skill-item skill-done">
-        <span class="skill-icon">🎯</span>
-        <div class="skill-body">
-          <div class="skill-name">意图理解</div>
-          <div class="skill-desc">识别生意阶段 · 营销目的 · 隐含约束</div>
-        </div>
-        <span class="skill-status">✓</span>
-      </div>
-
-      <div class="skill-item skill-done">
-        <span class="skill-icon">🔍</span>
-        <div class="skill-body">
-          <div class="skill-name">行业赛道识别</div>
-          <div class="skill-desc">礼品/鲜花 · 节日礼品 · 高端花束</div>
-        </div>
-        <span class="skill-status">✓</span>
-      </div>
-
-      <div class="skill-item skill-running">
-        <span class="skill-icon">🖼</span>
-        <div class="skill-body">
-          <div class="skill-name">AIGC 图文生产</div>
-          <div class="skill-desc">调用生花 · 批量生产可投素材</div>
-        </div>
-        <span class="skill-status">◐</span>
-      </div>
-
-      <div class="skill-item skill-pending">
-        <span class="skill-icon">📣</span>
-        <div class="skill-body">
-          <div class="skill-name">投放策略建议</div>
-          <div class="skill-desc">人群定向 · 节奏安排 · 转化动作</div>
-        </div>
-        <span class="skill-status">○</span>
-      </div>
-
-      <div class="skill-item skill-pending">
-        <span class="skill-icon">💬</span>
-        <div class="skill-body">
-          <div class="skill-name">私信话术生成</div>
-          <div class="skill-desc">按来源用户定制分层话术</div>
-        </div>
-        <span class="skill-status">○</span>
-      </div>
+function panelPlacement() {
+  setPanelContent(`
+    <div class="panel-title">📋 投放建议</div>
+    <div class="placement-mini-row">
+      <div class="placement-mini-title">🌱 种草期（前14天）</div>
+      <div class="placement-mini-detail">曝光为主，预算30% · 25-40岁女性</div>
     </div>
-
-    <!-- 当前内容方案 -->
-    <div class="rs">
-      <div class="rs-title">投放策略矩阵</div>
-      <div class="scene-tag">🚀 母亲节冲刺 · 差异化定向</div>
-      <table style="width:100%;border-collapse:collapse;font-size:10.5px;margin-top:4px">
-        <thead>
-          <tr style="background:#f5f6fc">
-            <th style="padding:5px 7px;text-align:left;color:#8090b0;font-weight:600;border-bottom:1px solid #e8eaf4">内容</th>
-            <th style="padding:5px 7px;text-align:left;color:#8090b0;font-weight:600;border-bottom:1px solid #e8eaf4">转化动作</th>
-            <th style="padding:5px 7px;text-align:left;color:#8090b0;font-weight:600;border-bottom:1px solid #e8eaf4">人群定向</th>
-            <th style="padding:5px 7px;text-align:left;color:#8090b0;font-weight:600;border-bottom:1px solid #e8eaf4">投放节奏</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td style="padding:6px 7px;border-bottom:1px solid #f0f2f8;color:#c02040;font-weight:600;white-space:nowrap">情感共鸣/<br>种草笔记</td>
-            <td style="padding:6px 7px;border-bottom:1px solid #f0f2f8;color:#303460">私信开口</td>
-            <td style="padding:6px 7px;border-bottom:1px solid #f0f2f8;color:#5060a0;font-size:10px;line-height:1.5">25-40岁女性，近期搜索"母亲节礼物""送妈妈"关键词</td>
-            <td style="padding:6px 7px;border-bottom:1px solid #f0f2f8;color:#7080a0;font-size:10px;line-height:1.5">母亲节14天前开始投，以曝光为主，预算占比30%</td>
-          </tr>
-          <tr>
-            <td style="padding:6px 7px;border-bottom:1px solid #f0f2f8;color:#3060c0;font-weight:600;white-space:nowrap">产品对比/<br>案例晒单</td>
-            <td style="padding:6px 7px;border-bottom:1px solid #f0f2f8;color:#303460">私信留资</td>
-            <td style="padding:6px 7px;border-bottom:1px solid #f0f2f8;color:#5060a0;font-size:10px;line-height:1.5">互动过种草笔记的人群 + 近期浏览过鲜花类笔记的用户</td>
-            <td style="padding:6px 7px;border-bottom:1px solid #f0f2f8;color:#7080a0;font-size:10px;line-height:1.5">母亲节前7天加量，精准收割，预算占比50%</td>
-          </tr>
-          <tr>
-            <td style="padding:6px 7px;color:#1a8030;font-weight:600;white-space:nowrap">活动利益/<br>限时优惠</td>
-            <td style="padding:6px 7px;color:#303460">表单留资/<br>直接下单</td>
-            <td style="padding:6px 7px;color:#5060a0;font-size:10px;line-height:1.5">已进线未留资用户 + 访问过主页的高意向人群</td>
-            <td style="padding:6px 7px;color:#7080a0;font-size:10px;line-height:1.5">母亲节前3天冲量，出价上浮20%，预算占比20%</td>
-          </tr>
-        </tbody>
-      </table>
+    <div class="placement-mini-row">
+      <div class="placement-mini-title">💡 收割期（前7天）</div>
+      <div class="placement-mini-detail">精准收割，预算50% · 高意向互动用户</div>
     </div>
-
-    <!-- 素材预览 -->
-    <div class="rs" style="flex:1; overflow-y:auto;">
-      <div class="rs-title">素材预览</div>
-      <div class="asset-grid">
-        <div class="asset">
-          <div class="asset-img">🌸</div>
-          <div class="asset-info">
-            <div class="asset-name">价格对比_0330_01</div>
-            <div class="asset-status">生成中...</div>
-          </div>
-        </div>
-        <div class="asset">
-          <div class="asset-img">💝</div>
-          <div class="asset-info">
-            <div class="asset-name">情感共鸣_0330_01</div>
-            <div class="asset-status">生成中...</div>
-          </div>
-        </div>
-        <div class="asset">
-          <div class="asset-img">⏳</div>
-          <div class="asset-info">
-            <div class="asset-name">排队中...</div>
-            <div class="asset-wait">等待</div>
-          </div>
-        </div>
-        <div class="asset">
-          <div class="asset-img">⏳</div>
-          <div class="asset-info">
-            <div class="asset-name">排队中...</div>
-            <div class="asset-wait">等待</div>
-          </div>
-        </div>
-      </div>
-
-      <a class="dm-link">💬 私信话术生成后可在这里查看 →</a>
-
-      <!-- CTA 区域 -->
-      <div class="cta-bar">
-        <div class="cta-text">
-          <strong>🚀 方案已就绪，一键应用</strong>
-          <span>内容 × 6条 · 投放 × 2套 · 私信话术 × 2版</span>
-        </div>
-        <div class="cta-btns">
-          <button class="cta-copy">📋 复制完整方案</button>
-          <button class="cta-use">一键使用 →</button>
-        </div>
-      </div>
+    <div class="placement-mini-row">
+      <div class="placement-mini-title">🚀 冲刺期（前3天）</div>
+      <div class="placement-mini-detail">出价上浮20%，预算20% · 进线未留资</div>
     </div>
+  `);
+}
 
-  </div><!-- /right -->
+function panelMaterial() {
+  setPanelContent(`
+    <div class="panel-title">🖼 素材预览</div>
+    <div class="material-grid" id="panel-mat-grid">
+      <div class="material-thumb generating show">🌸</div>
+      <div class="material-thumb generating show">💐</div>
+      <div class="material-thumb show" style="opacity:1;transform:scale(1)">🎁</div>
+      <div class="material-thumb show" style="opacity:0.4;transform:scale(1)">⏳</div>
+    </div>
+    <div style="margin-top:8px;font-size:10px;color:var(--text3)">前2张生成中，后2张等待...</div>
+  `);
+}
 
-</div><!-- /main -->
+/* ============================================================
+   PHASE IMPLEMENTATIONS
+   ============================================================ */
+
+/* Phase 0: Agent Opening */
+async function phase0() {
+  setProgress(5);
+  setSkillRunning(0);
+  await agentBubble(
+    '$ 你好，我是线索内容一体化 AIGC Claw 🦞\n\n' +
+    '线索广告效果差，大多数时候问题不在投放——\n' +
+    '是内容、投放、私信承接三段完全割裂，没打通。\n\n' +
+    '你只需要用自己的话说生意上遇到的问题，我帮你：\n\n' +
+    '  ① 判断做什么内容 → 一键生产素材\n' +
+    '  ② 给出投放策略建议 → 人群 / 节奏 / 承接动作\n' +
+    '  ③ 生成私信话术 → 按来源用户定制\n\n' +
+    '打字 / 语音 / 电话，怎么方便怎么来。'
+  );
+  setProgress(12);
+}
+
+/* Phase 1: User Input (voice + text) */
+async function phase1() {
+  setProgress(20);
+  // voice bubble
+  const { row: vRow, bubble: vBubble } = createBubbleRow(true);
+  vBubble.innerHTML = `
+    <div class="voice-bubble">
+      <div class="voice-waves">
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+      </div>
+      <div class="voice-timer" id="voice-timer">0:12</div>
+      <span style="font-size:11px;color:var(--text3)">语音输入中...</span>
+    </div>
+  `;
+  scrollChat();
+
+  // countdown 0:12 → 0:00
+  voiceTimeLeft = 12;
+  await new Promise(resolve => {
+    countdownTimer = setInterval(() => {
+      if (demoPaused) return;
+      voiceTimeLeft--;
+      const el = document.getElementById('voice-timer');
+      if (el) el.textContent = '0:' + String(voiceTimeLeft).padStart(2,'0');
+      if (voiceTimeLeft <= 0) {
+        clearInterval(countdownTimer);
+        resolve();
+      }
+    }, 300); // sped up for demo
+  });
+
+  // remove voice bubble
+  vRow.style.transition = 'opacity 0.3s';
+  vRow.style.opacity = '0';
+  await sleep(300);
+  vRow.remove();
+
+  // user text bubble
+  await userBubble('我做高端定制花束，主打母亲节礼品，客单300-800，之前投过但来的人质量不高');
+  setProgress(28);
+}
+
+/* Phase 2: Recognition */
+async function phase2() {
+  setProgress(36);
+  setSkillRunning(0);
+  const { row: lRow, bubble: lBubble } = await loadingBubble('正在识别...');
+  await sleep(1600);
+
+  // swap loading → recognition card
+  lRow.remove();
+  const { row, bubble } = createBubbleRow(false);
+  const pre = document.createElement('div');
+  pre.className = 'agent-prefix';
+  pre.textContent = 'AIGC Claw ›';
+  bubble.appendChild(pre);
+  const intro = document.createElement('div');
+  intro.style.cssText = 'font-size:12px;margin-bottom:6px';
+  intro.textContent = '✅ 识别完成，业务信息已提取：';
+  bubble.appendChild(intro);
+
+  const card = document.createElement('div');
+  card.className = 'recog-card';
+  const rows = [
+    { label: '行业', val: '礼品 / 鲜花' },
+    { label: '赛道', val: '节日礼品' },
+    { label: '品类', val: '高端定制花束' },
+    { label: '客单', val: '300-800 元' },
+  ];
+  rows.forEach(r => {
+    const rr = document.createElement('div');
+    rr.className = 'recog-row';
+    rr.innerHTML = `
+      <div class="check-icon" id="chk-${r.label}">✓</div>
+      <span class="recog-label">${r.label}</span>
+      <span class="recog-val">${r.val}</span>
+    `;
+    card.appendChild(rr);
+  });
+  bubble.appendChild(card);
+  scrollChat();
+
+  // animate rows
+  for (const r of rows) {
+    await sleep(220);
+    const rEl = card.querySelector('.recog-row:not(.show)');
+    if (rEl) {
+      rEl.classList.add('show');
+      const chk = rEl.querySelector('.check-icon');
+      if (chk) setTimeout(() => chk.classList.add('show'), 80);
+    }
+    scrollChat();
+  }
+  setSkillDone(0);
+  setProgress(44);
+  panelRecognition();
+}
+
+/* Phase 3: Diagnosis */
+async function phase3() {
+  setProgress(50);
+  const { row: lRow } = await loadingBubble('诊断中...');
+  await sleep(1800);
+  lRow.remove();
+
+  const { row, bubble } = createBubbleRow(false);
+  const pre = document.createElement('div');
+  pre.className = 'agent-prefix';
+  pre.textContent = 'AIGC Claw ›';
+  bubble.appendChild(pre);
+  const intro = document.createElement('span');
+  intro.style.cssText = 'font-size:12px';
+  intro.textContent = '📊 诊断结果：';
+  bubble.appendChild(intro);
+
+  const card = document.createElement('div');
+  card.className = 'diag-card';
+
+  const diagRows = [
+    { key: '阶段', val: '母亲节冲刺期', color: '' },
+    { key: '目标', val: '提升私信留资量', color: '' },
+    { key: '问题', val: '来人质量低', color: '' },
+  ];
+  diagRows.forEach(d => {
+    const rr = document.createElement('div');
+    rr.className = 'diag-row';
+    rr.innerHTML = `<div class="diag-key">${d.key}</div><div class="diag-val">${d.val}</div>`;
+    card.appendChild(rr);
+  });
+
+  const hl = document.createElement('div');
+  hl.className = 'diag-highlight';
+  hl.innerHTML = '⚠️ 根本原因：内容未区分用户决策阶段，承接话术千篇一律';
+  card.appendChild(hl);
+
+  bubble.appendChild(card);
+  scrollChat();
+
+  for (const dr of card.querySelectorAll('.diag-row')) {
+    await sleep(280);
+    dr.classList.add('show');
+    scrollChat();
+  }
+  await sleep(400);
+  hl.classList.add('show');
+  scrollChat();
+  setProgress(56);
+}
+
+/* Phase 4: Content Matrix */
+async function phase4() {
+  setProgress(62);
+  setSkillRunning(1);
+
+  await agentBubble('好，基于你的行业数据和站内热点，为你生成内容矩阵 👇');
+
+  const { row, bubble } = createBubbleRow(false);
+  const pre = document.createElement('div');
+  pre.className = 'agent-prefix';
+  pre.textContent = 'AIGC Claw ›';
+  bubble.appendChild(pre);
+
+  const table = document.createElement('table');
+  table.className = 'matrix-table';
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>层级</th>
+        <th>营销目的</th>
+        <th>选题方向</th>
+        <th>笔记标题示例</th>
+      </tr>
+    </thead>
+    <tbody id="matrix-tbody"></tbody>
+  `;
+  bubble.appendChild(table);
+  scrollChat();
+
+  const matrixData = [
+    { layer: '拉新种草层', cls: 'top', purpose: '扩大触达建立认知', dir: '情感共鸣向', title: '《送妈妈的第一束花，我选了这个》' },
+    { layer: '拉新种草层', cls: 'top', purpose: '扩大触达建立认知', dir: '知识科普向', title: '《为什么鲜花要选当季花材？母亲节避坑指南》' },
+    { layer: '拉新种草层', cls: 'top', purpose: '扩大触达建立认知', dir: '场景展示向', title: '《把妈妈的客厅变成花园只要一束花》' },
+    { layer: '意向筛选层', cls: 'mid', purpose: '吸引精准用户',     dir: '产品展示向', title: '《实拍！300-800元花束长什么样，帮你选》' },
+    { layer: '意向筛选层', cls: 'mid', purpose: '吸引精准用户',     dir: '对比评测向', title: '《超市花 vs 定制花束，差距到底在哪》' },
+    { layer: '意向筛选层', cls: 'mid', purpose: '吸引精准用户',     dir: '案例晒单向', title: '《客户晒单｜妈妈收到后直接哭了》' },
+    { layer: '促转化层',   cls: 'bot', purpose: '推动留资/下单',    dir: '活动利益向', title: '《母亲节提前订享8折，今天截止》' },
+    { layer: '促转化层',   cls: 'bot', purpose: '推动留资/下单',    dir: '答疑消顾向', title: '《外地也能送？花束能保鲜几天？5个问题全答了》' },
+  ];
+
+  const tbody = document.getElementById('matrix-tbody');
+  for (const d of matrixData) {
+    await sleep(160);
+    const tr = document.createElement('tr');
+    tr.className = 'matrix-row';
+    tr.innerHTML = `
+      <td><span class="layer-tag ${d.cls}">${d.layer}</span></td>
+      <td>${d.purpose}</td>
+      <td><span class="direction-tag">${d.dir}</span></td>
+      <td style="font-size:11px;color:var(--text)">${d.title}</td>
+    `;
+    tbody.appendChild(tr);
+    requestAnimationFrame(() => requestAnimationFrame(() => tr.classList.add('show')));
+    scrollChat();
+  }
+
+  setSkillDone(1);
+  setProgress(70);
+  panelContentMatrix();
+
+  // switch to tab 2
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-1').classList.add('active');
+}
+
+/* Phase 5: Placement */
+async function phase5() {
+  setProgress(76);
+  setSkillRunning(2);
+
+  const { row: lRow } = await loadingBubble('匹配投放策略...');
+  await sleep(1700);
+  lRow.remove();
+
+  await agentBubble('📈 基于你的客单和冲刺时间节点，为你匹配三阶段投放策略：');
+
+  const { row, bubble } = createBubbleRow(false);
+  const pre = document.createElement('div');
+  pre.className = 'agent-prefix';
+  pre.textContent = 'AIGC Claw ›';
+  bubble.appendChild(pre);
+
+  const table = document.createElement('table');
+  table.className = 'placement-table';
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>阶段</th>
+        <th>内容类型</th>
+        <th>转化动作</th>
+        <th>人群定向</th>
+        <th>投放节奏</th>
+      </tr>
+    </thead>
+    <tbody id="placement-tbody"></tbody>
+  `;
+  bubble.appendChild(table);
+  scrollChat();
+
+  const placementData = [
+    { period: '种草期', cls: 'seed', content: '种草/情感类', action: '私信开口', crowd: '25-40岁女性，搜索过"母亲节礼物"', rhythm: '前14天曝光为主，预算30%' },
+    { period: '收割期', cls: 'harvest', content: '对比/晒单类', action: '私信留资', crowd: '互动过种草笔记+浏览鲜花类用户', rhythm: '前7天精准收割，预算50%' },
+    { period: '冲刺期', cls: 'sprint', content: '活动/利益类', action: '表单/下单', crowd: '已进线未留资+高意向访客', rhythm: '前3天冲量，出价上浮20%，预算20%' },
+  ];
+
+  const tbody = document.getElementById('placement-tbody');
+  for (const d of placementData) {
+    await sleep(350);
+    const tr = document.createElement('tr');
+    tr.className = 'placement-row';
+    tr.innerHTML = `
+      <td><span class="period-badge ${d.cls}">${d.period}</span></td>
+      <td>${d.content}</td>
+      <td style="font-weight:600;color:var(--red)">${d.action}</td>
+      <td style="font-size:10px">${d.crowd}</td>
+      <td style="font-size:10px">${d.rhythm}</td>
+    `;
+    tbody.appendChild(tr);
+    requestAnimationFrame(() => requestAnimationFrame(() => tr.classList.add('show')));
+    scrollChat();
+  }
+
+  setSkillDone(2);
+  setProgress(82);
+  panelPlacement();
+
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-3').classList.add('active');
+}
+
+/* Phase 6: Scripts */
+async function phase6() {
+  setProgress(87);
+  setSkillRunning(3);
+
+  const { row: lRow } = await loadingBubble('生成差异化话术...');
+  await sleep(1600);
+  lRow.remove();
+
+  const { row, bubble } = createBubbleRow(false);
+  const pre = document.createElement('div');
+  pre.className = 'agent-prefix';
+  pre.textContent = 'AIGC Claw ›';
+  bubble.appendChild(pre);
+  const intro = document.createElement('div');
+  intro.style.cssText = 'font-size:12px;margin-bottom:10px';
+  intro.textContent = '💬 根据内容来源，为你生成2套差异化私信话术：';
+  bubble.appendChild(intro);
+
+  const scripts = [
+    {
+      source: '来自 种草/情感内容',
+      text: '你好～看到你在看我们的母亲节花束，有特别想了解的款式吗？说说你妈妈喜欢什么风格，我帮你挑 🌸',
+      id: 'script-a',
+    },
+    {
+      source: '来自 对比/促转化内容',
+      text: '你好～预算大概在哪个区间？我们有300-500的清新款和600-800的高端定制款，直接告诉我，我给你发实拍图',
+      id: 'script-b',
+    },
+  ];
+
+  const cardsDiv = document.createElement('div');
+  cardsDiv.className = 'script-cards';
+  bubble.appendChild(cardsDiv);
+  scrollChat();
+
+  for (const s of scripts) {
+    await sleep(500);
+    const card = document.createElement('div');
+    card.className = 'script-card';
+    card.innerHTML = `
+      <div class="script-header">
+        <span class="script-source">${s.source}</span>
+        <button class="copy-btn" onclick="copyScript('${s.id}', this)">📋 复制</button>
+      </div>
+      <div class="script-text" id="${s.id}">${s.text}</div>
+    `;
+    cardsDiv.appendChild(card);
+    requestAnimationFrame(() => requestAnimationFrame(() => card.classList.add('show')));
+    scrollChat();
+  }
+
+  setSkillDone(3);
+  setProgress(91);
+}
+
+function copyScript(id, btn) {
+  const text = document.getElementById(id)?.textContent || '';
+  navigator.clipboard.writeText(text).catch(() => {});
+  btn.textContent = '✅ 已复制';
+  btn.classList.add('copied');
+  setTimeout(() => {
+    btn.textContent = '📋 复制';
+    btn.classList.remove('copied');
+  }, 2000);
+}
+
+/* Phase 7: Generate Material */
+async function phase7() {
+  setProgress(95);
+  setSkillRunning(4);
+
+  const { row, bubble } = createBubbleRow(false);
+  const pre = document.createElement('div');
+  pre.className = 'agent-prefix';
+  pre.textContent = 'AIGC Claw ›';
+  bubble.appendChild(pre);
+  const intro = document.createElement('span');
+  intro.style.cssText = 'font-size:12px';
+  intro.textContent = '🎨 正在一键生产素材...';
+  bubble.appendChild(intro);
+
+  const genBlock = document.createElement('div');
+  genBlock.className = 'gen-block';
+  genBlock.innerHTML = `
+    <div class="gen-title">素材生产进度</div>
+    <div class="gen-step done"><span class="gen-icon">✓</span> 分析选题方向</div>
+    <div class="gen-step done"><span class="gen-icon">✓</span> 确定内容框架</div>
+    <div class="gen-step done"><span class="gen-icon">✓</span> 提取关键素材</div>
+    <div class="gen-step active"><span class="gen-icon spinning">◐</span> 生成图文内容</div>
+    <div class="gen-step pending"><span class="gen-icon">○</span> 质量审核</div>
+    <div class="gen-step pending"><span class="gen-icon">○</span> 打包交付</div>
+  `;
+  bubble.appendChild(genBlock);
+  scrollChat();
+  requestAnimationFrame(() => requestAnimationFrame(() => genBlock.classList.add('show')));
+
+  // flash tab
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-2').classList.add('active');
+  document.getElementById('tab-2').classList.add('flash-highlight');
+  setTimeout(() => document.getElementById('tab-2').classList.remove('flash-highlight'), 2000);
+
+  panelMaterial();
+  setSkillDone(4);
+  setProgress(98);
+}
+
+/* Phase 8: Complete */
+async function phase8() {
+  setProgress(100);
+  setAllSkillsDone();
+
+  // completion banner
+  document.getElementById('completion-banner').classList.add('show');
+
+  await agentBubble('🎉 三段联动方案已生成完毕！\n内容矩阵 8条 + 投放策略 3阶段 + 私信话术 2套，随时可用。');
+
+  // CTA in chat
+  const { row, bubble } = createBubbleRow(false);
+  const ctaSection = document.createElement('div');
+  ctaSection.className = 'cta-section';
+  ctaSection.innerHTML = `
+    <span class="cta-label">🚀 方案已就绪</span>
+    <button class="cta-btn" onclick="alert('一键使用功能即将上线 🚀')">一键使用 →</button>
+  `;
+  bubble.style.background = 'transparent';
+  bubble.style.border = 'none';
+  bubble.style.boxShadow = 'none';
+  bubble.style.padding = '0';
+  bubble.appendChild(ctaSection);
+  scrollChat();
+  requestAnimationFrame(() => requestAnimationFrame(() => ctaSection.classList.add('show')));
+
+  // update start button
+  document.getElementById('btn-start').textContent = '↺ 重新演示';
+  document.getElementById('btn-start').className = 'ctrl-btn success';
+  document.getElementById('btn-start').onclick = () => resetDemo();
+  document.getElementById('btn-pause').style.display = 'none';
+  document.getElementById('btn-skip').style.display = 'none';
+
+  demoRunning = false;
+}
+
+/* ============================================================
+   DEMO ORCHESTRATION
+   ============================================================ */
+async function startDemo() {
+  if (demoRunning) return;
+  demoRunning = true;
+  demoPaused = false;
+
+  document.getElementById('btn-start').style.display = 'none';
+  document.getElementById('btn-pause').style.display = '';
+  document.getElementById('btn-skip').style.display = '';
+
+  buildSkillsList();
+
+  const phases = [phase0, phase1, phase2, phase3, phase4, phase5, phase6, phase7, phase8];
+
+  for (let i = 0; i < phases.length; i++) {
+    currentPhase = i;
+    await phases[i]();
+    if (i < phases.length - 1) {
+      await sleep(1500);
+    }
+  }
+}
+
+function togglePause() {
+  demoPaused = !demoPaused;
+  document.getElementById('btn-pause').textContent = demoPaused ? '▶ 继续' : '⏸ 暂停';
+}
+
+function skipPhase() {
+  // Fast-forward: unpause and resolve all pending sleeps immediately
+  demoPaused = false;
+  // We do this by draining timers - just unpause and inject fast skip
+  // The simplest approach: skip by setting a flag and resolving next sleep instantly
+  // For now, unpause and continue
+  demoPaused = false;
+  document.getElementById('btn-pause').textContent = '⏸ 暂停';
+}
+
+function resetDemo() {
+  demoRunning = false;
+  demoPaused = false;
+  currentPhase = 0;
+  if (countdownTimer) clearInterval(countdownTimer);
+
+  // reset progress
+  setProgress(0);
+
+  // hide banner
+  document.getElementById('completion-banner').classList.remove('show');
+
+  // clear chat
+  document.getElementById('chat-messages').innerHTML = '';
+
+  // reset right panel
+  document.getElementById('skills-list').innerHTML = '';
+  document.getElementById('panel-content-area').innerHTML = `
+    <div class="panel-title">📋 当前方案</div>
+    <div style="color:var(--text3);font-size:11px">演示开始后，方案会在此实时更新 ✨</div>
+  `;
+
+  // reset tabs
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.remove('active', 'flash-highlight');
+    if (i === 0) t.classList.add('active');
+  });
+
+  // reset buttons
+  const btn = document.getElementById('btn-start');
+  btn.textContent = '▶ 开始演示';
+  btn.className = 'ctrl-btn primary';
+  btn.style.display = '';
+  btn.onclick = startDemo;
+  document.getElementById('btn-pause').style.display = 'none';
+  document.getElementById('btn-skip').style.display = 'none';
+  document.getElementById('btn-pause').textContent = '⏸ 暂停';
+}
+</script>
 </body>
 </html>
