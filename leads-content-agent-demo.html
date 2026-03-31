@@ -252,7 +252,6 @@ body {
   font-size: 13px;
   color: #1a1d3a;
   box-shadow: 0 2px 16px rgba(60,70,140,0.08), 0 1px 2px rgba(0,0,0,0.04);
-  width: fit-content;
 }
 .bubble.user {
   background: linear-gradient(135deg, #7c5cfc, #9f7dff);
@@ -906,11 +905,9 @@ body {
 .step-intro-card {
   background: linear-gradient(135deg, rgba(255,255,255,0.97), rgba(248,249,254,0.97));
   border: 1px solid rgba(224,228,244,0.8);
-  border-radius: 16px;
-  padding: 16px 18px;
-  width: 560px;
-  max-width: 100%;
-  box-shadow: 0 4px 20px rgba(60,70,140,0.08);
+  border-radius: 12px;
+  padding: 14px 16px;
+  box-shadow: 0 2px 12px rgba(60,70,140,0.07);
 }
 .step-intro-label {
   font-size: 10px;
@@ -918,7 +915,7 @@ body {
   font-weight: 700;
   letter-spacing: 1px;
   text-transform: uppercase;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
   display: flex;
   align-items: center;
   gap: 5px;
@@ -933,11 +930,12 @@ body {
   flex-shrink: 0;
 }
 .step-intro-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: #1a1d3a;
-  margin-bottom: 8px;
-  line-height: 1.4;
+  font-size: 15px;
+  font-weight: 800;
+  color: #0d0f1e;
+  margin-bottom: 10px;
+  line-height: 1.35;
+  letter-spacing: -0.2px;
 }
 .step-intro-cols {
   display: grid;
@@ -1071,10 +1069,10 @@ body {
     <!-- 品牌 logo -->
     <div style="padding:16px 16px 12px;border-bottom:1px solid #eceef8;margin-bottom:8px;">
       <div style="display:flex;align-items:center;gap:9px;">
-        <div style="width:32px;height:32px;background:linear-gradient(135deg,#e01a3a,#ff5070);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;box-shadow:0 2px 8px rgba(224,26,58,0.3);">⚡</div>
+        <div style="width:28px;height:28px;background:linear-gradient(135deg,#e01a3a,#ff5070);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;box-shadow:0 2px 8px rgba(224,26,58,0.3);">⚡</div>
         <div>
-          <div style="font-size:14px;font-weight:800;color:#1e2060;letter-spacing:0.5px;">LinkClaw</div>
-          <div style="font-size:9px;color:#b0b8d8;letter-spacing:1px;margin-top:1px;">小红书线索内容一体化</div>
+          <div style="font-size:12px;font-weight:800;color:#1a1d3a;letter-spacing:-0.2px;">线索内容一体化</div>
+          <div style="font-size:9px;color:#b0b8d8;letter-spacing:0.5px;margin-top:1px;">LinkClaw AIGC</div>
         </div>
       </div>
     </div>
@@ -1248,7 +1246,12 @@ function makeUserAvatar() {
 }
 
 async function showAgentBubble(html, instant = false) {
-  const row = addMsgRow('msg-row', makeAgentAvatar() + `<div class="bubble agent">${html}</div>`);
+  // step-intro-card 和 deploy-cards 不需要外层 bubble，直接渲染
+  const isCard = html.trim().startsWith('<div class="step-intro-card">') || html.trim().startsWith('<div class="deploy-cards">');
+  const inner = isCard
+    ? `<div style="max-width:620px;">${html}</div>`
+    : `<div class="bubble agent">${html}</div>`;
+  const row = addMsgRow('msg-row', makeAgentAvatar() + inner);
   if (!instant) await sleepCheck(100);
   row.classList.add('visible');
   scrollToBottom();
@@ -1502,27 +1505,18 @@ async function startDemo() {
     wordCloud.innerHTML = `
       <div style="border-top:1px solid #eceef8;padding-top:10px;margin-bottom:10px;">
         <div style="font-size:11px;color:#8090b8;margin-bottom:8px;">📊 平台数据显示，你的目标用户正在这样行动——</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
-          <div style="display:flex;align-items:center;gap:6px;background:#f5f6fc;border-radius:8px;padding:6px 10px;border:1px solid #eceef8;">
-            <span style="font-size:16px;">👁</span>
-            <div>
-              <div style="font-size:10px;font-weight:700;color:#1a1d3a;">月均搜索量</div>
-              <div style="font-size:13px;font-weight:900;color:#e01a3a;line-height:1.1;">120万+</div>
-            </div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <div style="background:#fff5f6;border:1px solid #ffd0d8;border-radius:8px;padding:8px 12px;text-align:center;min-width:90px;">
+            <div style="font-size:11px;color:#a0a8c8;margin-bottom:2px;">月均搜索量</div>
+            <div style="font-size:16px;font-weight:900;color:#e01a3a;line-height:1.1;">120万+</div>
           </div>
-          <div style="display:flex;align-items:center;gap:6px;background:#f5f6fc;border-radius:8px;padding:6px 10px;border:1px solid #eceef8;">
-            <span style="font-size:16px;">💬</span>
-            <div>
-              <div style="font-size:10px;font-weight:700;color:#1a1d3a;">评论区互动率</div>
-              <div style="font-size:13px;font-weight:900;color:#7c5cfc;line-height:1.1;">8.4%</div>
-            </div>
+          <div style="background:#f5f0ff;border:1px solid #d8c8fc;border-radius:8px;padding:8px 12px;text-align:center;min-width:90px;">
+            <div style="font-size:11px;color:#a0a8c8;margin-bottom:2px;">评论互动率</div>
+            <div style="font-size:16px;font-weight:900;color:#7c5cfc;line-height:1.1;">8.4%</div>
           </div>
-          <div style="display:flex;align-items:center;gap:6px;background:#f5f6fc;border-radius:8px;padding:6px 10px;border:1px solid #eceef8;">
-            <span style="font-size:16px;">🎯</span>
-            <div>
-              <div style="font-size:10px;font-weight:700;color:#1a1d3a;">高意向用户占比</div>
-              <div style="font-size:13px;font-weight:900;color:#18a838;line-height:1.1;">34%</div>
-            </div>
+          <div style="background:#f0fff4;border:1px solid #c0e8c8;border-radius:8px;padding:8px 12px;text-align:center;min-width:90px;">
+            <div style="font-size:11px;color:#a0a8c8;margin-bottom:2px;">高意向用户</div>
+            <div style="font-size:16px;font-weight:900;color:#18a838;line-height:1.1;">34%</div>
           </div>
         </div>
       </div>
