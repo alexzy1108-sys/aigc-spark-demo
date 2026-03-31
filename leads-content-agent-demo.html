@@ -236,7 +236,7 @@ body {
 
 /* 气泡 */
 .bubble {
-  max-width: 720px;
+  max-width: 660px;
   border-radius: 9px;
 }
 .bubble.agent {
@@ -475,7 +475,7 @@ body {
   border-radius: 9px;
   overflow: hidden;
   border: 1px solid #e0e4f4;
-  max-width: 720px;
+  max-width: 660px;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -541,7 +541,7 @@ body {
   border-radius: 9px;
   overflow: hidden;
   border: 1px solid #e0e4f4;
-  max-width: 720px;
+  max-width: 660px;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -898,7 +898,7 @@ body {
   border: 1px solid #e0e4f4;
   border-radius: 8px;
   padding: 10px 13px;
-  max-width: 480px;
+  max-width: 100%;
 }
 .step-intro-label {
   font-size: 10px;
@@ -924,7 +924,7 @@ body {
   font-size: 12px;
   font-weight: 700;
   color: #1e2060;
-  margin-bottom: 7px;
+  margin-bottom: 4px;
 }
 .step-intro-cols {
   display: grid;
@@ -934,10 +934,10 @@ body {
 .step-intro-col {
   background: #f8f9fe;
   border-radius: 8px;
-  padding: 10px 12px;
+  padding: 8px 10px;
   border: 1px solid #eceef8;
 }
-.step-intro-col-header { display:flex; align-items:center; gap:7px; margin-bottom:7px; }
+.step-intro-col-header { display:flex; align-items:center; gap:6px; margin-bottom:4px; }
 .step-intro-col-title {
   font-size: 12px;
   font-weight: 700;
@@ -953,8 +953,8 @@ body {
 }
 .step-intro-col-badge.kob { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
 .step-intro-col-badge.kos { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
-.step-intro-col-desc { font-size: 11px; color: #7080a8; line-height: 1.7; }
-.step-intro-desc { font-size: 12px; color: #7080a8; line-height: 1.7; }
+.step-intro-col-desc { font-size: 11px; color: #7080a8; line-height: 1.45; }
+.step-intro-desc { font-size: 11px; color: #7080a8; line-height: 1.45; margin-bottom:6px; }
 
 /* ── 投放卡片组 ── */
 .deploy-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-width:660px; }
@@ -1469,7 +1469,7 @@ async function startDemo() {
     await sleepCheck(600);
     // 结论
     const conclusion = document.createElement('div');
-    conclusion.style.cssText = 'margin-top:10px;padding:8px 10px;background:#fff5f6;border-left:3px solid #e01a3a;border-radius:4px;opacity:0;transition:all 0.4s ease;';
+    conclusion.style.cssText = 'margin-top:8px;margin-bottom:0;padding:7px 10px;background:#fff5f6;border-left:3px solid #e01a3a;border-radius:4px;opacity:0;transition:all 0.4s ease;';
     conclusion.innerHTML = `<span style="color:#c02030;font-size:12px;font-weight:600;">结论：</span><span style="color:#303460;font-size:12px;">奔驰用户基数庞大，需要细拆用户希望获得什么信息——单一账号不能满足用户复杂信息需求。</span>`;
     bbl.appendChild(conclusion);
     scrollToBottom();
@@ -1481,9 +1481,9 @@ async function startDemo() {
   // 词云洞察 — 追加到同一个 insightBubble 里，保持视觉连贯
   {
     const wordCloud = document.createElement('div');
-    wordCloud.style.cssText = 'margin-top:12px;opacity:0;transition:opacity 0.4s ease;';
+    wordCloud.style.cssText = 'margin-top:6px;opacity:0;transition:opacity 0.4s ease;';
     wordCloud.innerHTML = `
-      <div style="border-top:1px solid #eceef8;padding-top:10px;margin-bottom:10px;font-size:11px;color:#8090b8;">📊 平台数据显示，你的目标用户正在这样行动——</div>
+      <div style="border-top:1px solid #eceef8;padding-top:8px;margin-bottom:8px;font-size:11px;color:#8090b8;">📊 平台数据显示，你的目标用户正在这样行动——</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">
         <div style="background:#1a1a2e;border-radius:8px;padding:10px 11px;display:flex;flex-direction:column;">
           <div style="font-size:10px;font-weight:700;color:#fff;letter-spacing:1px;">用户爱点击</div>
@@ -1679,9 +1679,9 @@ async function startDemo() {
   const noteCards = [
     {
       id: 'nc0',
-      coverImg: 'https://xhs-doc.xhscdn.com/104004dg31ubek8eqhm05ki7chg?imageview2/2/w/400',
-      coverGrad: '',
-      coverText: '',
+      coverImg: '',
+      coverGrad: 'linear-gradient(135deg,#1a0a0a,#4a1a1a)',
+      coverText: '💯 预算50W',
       layerCls: 'nc-seed', layerLabel: '种草层',
       acctCls: 'nc-kos', acctLabel: 'KOS人感',
       title: '《预算50W，超适合女生的轿跑》',
@@ -1709,9 +1709,9 @@ async function startDemo() {
     },
     {
       id: 'nc3',
-      coverImg: 'https://xhs-doc.xhscdn.com/104004dg31ubf2781hm0egavkis?imageview2/2/w/400',
-      coverGrad: '',
-      coverText: '',
+      coverImg: '',
+      coverGrad: 'linear-gradient(135deg,#2a0a1a,#5a1a3a)',
+      coverText: '👸 女生快乐',
       layerCls: 'nc-filter', layerLabel: '筛选层',
       acctCls: 'nc-kos', acctLabel: 'KOS人感',
       title: '《女生拥有奔驰CLE的快乐》',
