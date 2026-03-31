@@ -3,1269 +3,589 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>线索内容一体化 AIGC Claw</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>线索内容一体化 AIGC Claw · 母亲节花束案例</title>
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Menlo', monospace;
+  background: #f0f2f8;
+  color: #1e2040;
+  font-size: 13px;
+  min-width: 1000px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+.titlebar {
+  height: 44px; background: #ffffff; border-bottom: 1px solid #e0e4f0;
+  display: flex; align-items: center; padding: 0 18px; flex-shrink: 0;
+  position: relative; user-select: none; box-shadow: 0 1px 0 #e8eaf4;
+}
+.dots { display: flex; gap: 7px; margin-right: 16px; }
+.dot { width: 13px; height: 13px; border-radius: 50%; }
+.d-r { background: #ff5f57; } .d-y { background: #febc2e; } .d-g { background: #28c840; }
+.title-center { position: absolute; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; }
+.title-main { font-size: 15px; font-weight: 700; letter-spacing: 0.5px; color: #1e2040; }
+.title-sub   { font-size: 12px; color: #9099c0; }
+.title-badge { font-size: 10px; background: #eef0ff; border: 1px solid #c8ccee; border-radius: 3px; padding: 2px 7px; color: #8088c0; letter-spacing: 0.5px; }
+.title-right { margin-left: auto; display: flex; gap: 10px; align-items: center; }
+.conn { font-size: 12px; color: #18a838; display: flex; align-items: center; gap: 5px; }
+.conn-dot { width: 7px; height: 7px; border-radius: 50%; background: #18a838; animation: blink 2s ease infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.35} }
+.tabs { height: 36px; background: #f8f9fe; border-bottom: 1px solid #e0e4f0; display: flex; align-items: flex-end; padding: 0 18px; gap: 2px; flex-shrink: 0; }
+.tab { padding: 6px 15px; font-size: 12px; color: #b0b8d8; border-radius: 6px 6px 0 0; border: 1px solid transparent; border-bottom: none; cursor: pointer; background: transparent; letter-spacing: 0.2px; transition: color 0.15s; }
+.tab.active { background: #f0f2f8; border-color: #dde0f0; border-bottom-color: #f0f2f8; color: #3038a0; font-weight: 600; }
+.main { display: flex; flex: 1; overflow: hidden; }
+.sidebar { width: 210px; background: #ffffff; border-right: 1px solid #e0e4f0; display: flex; flex-direction: column; flex-shrink: 0; }
+.sb-section { padding: 14px 0; border-bottom: 1px solid #eceef8; }
+.sb-section:last-child { flex: 1; overflow-y: auto; border-bottom: none; }
+.sb-label { font-size: 10px; color: #b0b8d8; letter-spacing: 1.8px; text-transform: uppercase; padding: 0 14px 8px; }
+.sb-item { padding: 7px 14px; cursor: pointer; display: flex; align-items: center; gap: 9px; border-left: 2px solid transparent; transition: background 0.1s; }
+.sb-item:hover { background: #f5f6fd; }
+.sb-item.active { background: #f0f2ff; border-left-color: #e01a3a; }
+.sb-name { font-size: 12px; color: #606890; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sb-meta { font-size: 10px; color: #b8bcd8; margin-top: 2px; }
+.sb-item.active .sb-name { color: #1e2060; font-weight: 600; }
+.sb-check { font-size: 11px; color: #18a838; }
+.sb-spin { font-size: 11px; color: #c08000; animation: pulse 1.5s ease infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.chat { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.pathbar { padding: 8px 20px; border-bottom: 1px solid #e8eaf8; background: #fafbff; font-size: 11px; color: #b0b8d8; display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+.pathbar-branch { color: #7060e0; }
+.pathbar-right { margin-left: auto; display: flex; gap: 14px; }
+.pathbar-stat { font-size: 10px; color: #c0c8e8; }
+.pathbar-stat span { color: #e05070; }
+.messages { flex: 1; overflow-y: auto; padding: 20px 22px; display: flex; flex-direction: column; gap: 16px; }
+.messages::-webkit-scrollbar { width: 4px; }
+.messages::-webkit-scrollbar-thumb { background: #d8ddf0; border-radius: 2px; }
+.row { display: flex; gap: 11px; }
+.row.user { flex-direction: row-reverse; }
+.avatar { width: 28px; height: 28px; border-radius: 6px; flex-shrink: 0; margin-top: 2px; display: flex; align-items: center; justify-content: center; font-size: 13px; background: #eeeffe; border: 1px solid #d0d4f8; }
+.avatar.user { background: #f5eeff; border-color: #d8c8f8; }
+.body { max-width: 72%; display: flex; flex-direction: column; gap: 4px; }
+.row.user .body { align-items: flex-end; }
+.who { font-size: 10px; color: #b0b8d8; padding: 0 4px; }
+.bubble { padding: 11px 14px; border-radius: 9px; line-height: 1.75; white-space: pre-wrap; word-break: break-word; font-size: 12.5px; }
+.bubble.agent { background: #ffffff; border: 1px solid #e0e4f4; color: #303460; box-shadow: 0 1px 4px rgba(60,70,140,0.06); }
+.bubble.user { background: #ede8ff; border: 1px solid #ccc0f0; color: #3820a0; }
+.g { color: #1a9038; } .y { color: #a07000; } .b { color: #2060d0; } .r { color: #d02040; } .d { color: #a0a8c8; } .w { color: #0e1060; font-weight: 600; } .p { color: #7030c0; }
+.itag { display: inline-block; font-size: 10px; background: #e8f5e8; border: 1px solid #b8ddb8; border-radius: 3px; padding: 1px 6px; color: #1a8030; vertical-align: middle; margin-left: 5px; }
+.cap-badges { display: flex; gap: 7px; margin-top: 5px; flex-wrap: wrap; }
+.cap-badge { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; padding: 4px 10px; border-radius: 4px; cursor: default; }
+.cap-voice { background: #f5f0ff; border: 1px solid #d0c0f8; color: #7050c0; }
+.cap-call  { background: #eef3ff; border: 1px solid #c0d0f8; color: #3060c0; }
+.cap-photo { background: #f5fafa; border: 1px solid #c0d8d8; color: #306060; }
+.plan-card { background: #f0fff4; border: 1px solid #b8e8c8; border-left: 3px solid #18a838; border-radius: 9px; padding: 13px 15px; max-width: 420px; display: flex; flex-direction: column; gap: 9px; box-shadow: 0 1px 4px rgba(20,140,60,0.07); }
+.plan-head { font-size: 10px; color: #18a838; letter-spacing: 1.2px; text-transform: uppercase; }
+.plan-row  { display: flex; align-items: center; gap: 9px; font-size: 12.5px; color: #408058; }
+.plan-row .ck { color: #18a838; }
+.plan-row .ptag { margin-left: auto; font-size: 10px; background: #d8f5e0; border: 1px solid #a8dab8; border-radius: 3px; padding: 1px 6px; color: #1a8030; }
+.plan-hr { height: 1px; background: #c8e8d0; }
+.plan-meta { font-size: 11px; color: #80a090; }
+.plan-meta .acc { color: #d02040; }
+.plan-btns { display: flex; gap: 9px; margin-top: 2px; }
+.btn-go { padding: 7px 14px; background: #e01a3a; border: none; border-radius: 6px; color: #fff; font-family: inherit; font-size: 12px; cursor: pointer; transition: background 0.15s; }
+.btn-go:hover { background: #b81228; }
+.btn-alt { padding: 7px 14px; background: #fff; border: 1px solid #d8ddf0; border-radius: 6px; color: #8090b0; font-family: inherit; font-size: 12px; cursor: pointer; }
+.gen { background: #fff; border: 1px solid #e0e4f4; border-radius: 9px; padding: 12px 14px; max-width: 340px; display: flex; flex-direction: column; gap: 7px; box-shadow: 0 1px 4px rgba(60,70,140,0.06); }
+.gen-line { display: flex; align-items: center; gap: 9px; font-size: 12px; }
+.gi-done { color: #18a838; } .gi-spin { color: #c08000; animation: pulse 1.2s ease infinite; } .gi-wait { color: #d8ddf0; }
+.gt-done { color: #b8c0d8; text-decoration: line-through; } .gt-cur { color: #1e2060; } .gt-wait { color: #d0d4e8; }
+.gen-eta { font-size: 10px; color: #b0b8d8; margin-left: auto; }
+.inputbar { padding: 12px 20px 14px; border-top: 1px solid #e0e4f0; background: #ffffff; flex-shrink: 0; }
+.input-hint { font-size: 11px; color: #b8c0d8; margin-bottom: 9px; }
+.input-hint em { color: #8090c0; font-style: normal; }
+.input-row { display: flex; gap: 8px; align-items: center; }
+.prompt-sym { color: #e01a3a; font-size: 16px; flex-shrink: 0; }
+.input-field { flex: 1; background: #f5f6fc; border: 1px solid #d8ddf0; border-radius: 7px; padding: 9px 13px; color: #1e2060; font-family: inherit; font-size: 13px; outline: none; }
+.input-field::placeholder { color: #c0c8e0; }
+.input-actions { display: flex; gap: 7px; flex-shrink: 0; }
+.btn-voice { padding: 9px 13px; background: #f5f0ff; border: 1px solid #d0c0f8; border-radius: 7px; color: #7050c0; font-family: inherit; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+.btn-call  { padding: 9px 13px; background: #eef3ff; border: 1px solid #c0d0f8; border-radius: 7px; color: #3060c0; font-family: inherit; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
+.btn-send  { padding: 9px 16px; background: #e01a3a; border: none; border-radius: 7px; color: #fff; font-family: inherit; font-size: 12px; cursor: pointer; }
+.right { width: 290px; background: #ffffff; border-left: 1px solid #e0e4f0; display: flex; flex-direction: column; flex-shrink: 0; overflow: hidden; }
+.rs { padding: 14px; border-bottom: 1px solid #eceef8; }
+.rs:last-child { flex: 1; overflow-y: auto; border-bottom: none; }
+.rs-title { font-size: 10px; color: #b0b8d8; letter-spacing: 1.8px; text-transform: uppercase; margin-bottom: 11px; display: flex; align-items: center; gap: 7px; }
+.rs-title::after { content: ''; flex: 1; height: 1px; background: #eceef8; }
+.skill-item { display: flex; align-items: center; gap: 9px; padding: 7px 0; border-bottom: 1px solid #eceef8; font-size: 11px; }
+.skill-item:last-child { border-bottom: none; }
+.skill-icon { font-size: 15px; flex-shrink: 0; }
+.skill-body { flex: 1; min-width: 0; }
+.skill-name { font-size: 11.5px; font-weight: 600; margin-bottom: 2px; }
+.skill-desc { font-size: 10px; color: #a0a8c8; line-height: 1.4; }
+.skill-status { font-size: 13px; flex-shrink: 0; }
+.skill-done .skill-name { color: #1a8030; }
+.skill-done .skill-status { color: #18a838; }
+.skill-running .skill-name { color: #3040b0; }
+.skill-running .skill-status { color: #c08000; animation: pulse 1.2s ease infinite; }
+.skill-pending .skill-name { color: #b0b8d8; }
+.skill-pending .skill-status { color: #d0d4e8; }
+.scene-tag { display: inline-flex; align-items: center; gap: 5px; font-size: 11px; background: #fff0f0; border: 1px solid #f0c0c8; border-radius: 4px; padding: 3px 9px; color: #c02040; margin-bottom: 10px; }
+.pr-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; border-bottom: 1px solid #eceef8; font-size: 12px; }
+.pr-row:last-of-type { border-bottom: none; }
+.pr-name { color: #5060a0; flex: 1; }
+.pr-cnt { color: #b0b8d8; font-size: 11px; }
+.pr-tag { font-size: 10px; color: #8090c0; background: #f0f2ff; border: 1px solid #d0d8f8; border-radius: 3px; padding: 1px 5px; }
+.pl-row { display: flex; justify-content: space-between; padding: 4px 0; font-size: 12px; }
+.pl-k { color: #b0b8d8; }
+.pl-v { color: #5060a0; }
+.pl-v.acc { color: #d02040; }
+.asset-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px; }
+.asset { background: #f5f6fc; border: 1px solid #e0e4f0; border-radius: 7px; overflow: hidden; }
+.asset-img { aspect-ratio: 4/3; display: flex; align-items: center; justify-content: center; font-size: 20px; color: #c8d0e8; background: repeating-linear-gradient(45deg,#f0f2f8,#f0f2f8 4px,#e8eaf8 4px,#e8eaf8 8px); }
+.asset-info { padding: 6px 8px; }
+.asset-name { font-size: 10px; color: #9098c0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.asset-status { font-size: 10px; color: #c08000; margin-top: 2px; animation: pulse 1.5s ease infinite; }
+.asset-wait { font-size: 10px; color: #c8d0e8; margin-top: 2px; }
+.dm-link { display: block; margin-top: 11px; font-size: 11px; color: #4468cc; cursor: pointer; }
 
-  :root {
-    --bg: #0d1117;
-    --bg2: #161b22;
-    --bg3: #1c2128;
-    --bg4: #21262d;
-    --border: #30363d;
-    --border2: #3d444d;
-    --text: #e6edf3;
-    --text2: #8b949e;
-    --text3: #6e7681;
-    --red: #FF2442;
-    --red2: #ff4d65;
-    --red-dim: rgba(255,36,66,0.12);
-    --red-glow: rgba(255,36,66,0.25);
-    --green: #3fb950;
-    --blue: #58a6ff;
-    --purple: #bc8cff;
-    --yellow: #e3b341;
-    --mono: 'JetBrains Mono', monospace;
-    --sans: 'Inter', sans-serif;
-  }
+/* ── CTA 一键使用 ── */
+.cta-bar {
+  margin: 10px 0 4px;
+  background: #fff5f6;
+  border: 1px solid #f5c0c8;
+  border-left: 3px solid #e01a3a;
+  border-radius: 8px;
+  padding: 11px 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.cta-text { font-size: 11.5px; color: #a02030; }
+.cta-text strong { font-size: 12px; color: #c01830; }
+.cta-text span { font-size: 10.5px; color: #c08088; display: block; margin-top: 2px; }
+.cta-btns { display: flex; gap: 7px; flex-shrink: 0; }
+.cta-copy { padding: 6px 12px; background: #fff; border: 1px solid #e0c8cc; border-radius: 6px; color: #a03040; font-family: inherit; font-size: 11px; cursor: pointer; }
+.cta-use  { padding: 6px 14px; background: #e01a3a; border: none; border-radius: 6px; color: #fff; font-family: inherit; font-size: 11px; cursor: pointer; font-weight: 600; }
+.cta-use:hover { background: #b81228; }
 
-  html, body {
-    height: 100%;
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--sans);
-    font-size: 14px;
-    line-height: 1.6;
-    overflow: hidden;
-  }
-
-  /* ── TOP BAR ── */
-  .topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    height: 48px;
-    background: var(--bg2);
-    border-bottom: 1px solid var(--border);
-    flex-shrink: 0;
-  }
-  .topbar-logo {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 600;
-    font-size: 14px;
-    letter-spacing: -0.01em;
-  }
-  .logo-icon {
-    width: 28px; height: 28px;
-    background: linear-gradient(135deg, var(--red), #ff6b84);
-    border-radius: 7px;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 15px;
-    box-shadow: 0 0 12px var(--red-glow);
-  }
-  .topbar-badge {
-    font-size: 11px;
-    padding: 2px 8px;
-    background: var(--red-dim);
-    color: var(--red2);
-    border: 1px solid rgba(255,36,66,0.3);
-    border-radius: 20px;
-    font-weight: 500;
-    margin-left: 4px;
-  }
-  .topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-  .ctrl-btn {
-    padding: 5px 14px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    border: 1px solid var(--border2);
-    background: var(--bg3);
-    color: var(--text2);
-    transition: all 0.2s;
-    font-family: var(--sans);
-  }
-  .ctrl-btn:hover { border-color: var(--red); color: var(--red); background: var(--red-dim); }
-  .ctrl-btn.primary {
-    background: var(--red);
-    border-color: var(--red);
-    color: #fff;
-    box-shadow: 0 0 14px var(--red-glow);
-  }
-  .ctrl-btn.primary:hover { background: var(--red2); box-shadow: 0 0 20px var(--red-glow); }
-  .ctrl-btn:disabled { opacity: 0.4; cursor: default; pointer-events: none; }
-
-  /* ── LAYOUT ── */
-  .app {
-    display: flex;
-    height: calc(100vh - 48px);
-  }
-
-  /* ── LEFT: CHAT ── */
-  .chat-panel {
-    width: 440px;
-    min-width: 340px;
-    display: flex;
-    flex-direction: column;
-    border-right: 1px solid var(--border);
-    background: var(--bg);
-  }
-  .chat-header {
-    padding: 14px 18px;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg2);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .agent-avatar {
-    width: 32px; height: 32px;
-    background: linear-gradient(135deg, #1a2030, #2a3245);
-    border: 1.5px solid var(--red);
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-    box-shadow: 0 0 8px var(--red-glow);
-    flex-shrink: 0;
-  }
-  .agent-info .name { font-weight: 600; font-size: 13px; }
-  .agent-info .status {
-    font-size: 11px; color: var(--green);
-    display: flex; align-items: center; gap: 4px;
-  }
-  .status-dot {
-    width: 6px; height: 6px;
-    border-radius: 50%;
-    background: var(--green);
-    box-shadow: 0 0 6px var(--green);
-    animation: pulse-dot 2s infinite;
-  }
-  @keyframes pulse-dot {
-    0%,100%{opacity:1} 50%{opacity:0.4}
-  }
-
-  .chat-messages {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    scroll-behavior: smooth;
-  }
-  .chat-messages::-webkit-scrollbar { width: 4px; }
-  .chat-messages::-webkit-scrollbar-track { background: transparent; }
-  .chat-messages::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
-
-  /* Bubble */
-  .msg { display: flex; gap: 8px; max-width: 100%; }
-  .msg.agent { align-self: flex-start; }
-  .msg.user { align-self: flex-end; flex-direction: row-reverse; }
-
-  .msg-avatar {
-    width: 28px; height: 28px;
-    border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px;
-    flex-shrink: 0;
-    margin-top: 2px;
-  }
-  .msg.agent .msg-avatar {
-    background: linear-gradient(135deg, #1a2030, #2a3245);
-    border: 1px solid rgba(255,36,66,0.4);
-  }
-  .msg.user .msg-avatar {
-    background: linear-gradient(135deg, #1c2830, #243040);
-    border: 1px solid var(--border2);
-  }
-
-  .bubble {
-    max-width: 300px;
-    padding: 10px 14px;
-    border-radius: 14px;
-    font-size: 13px;
-    line-height: 1.65;
-    position: relative;
-  }
-  .msg.agent .bubble {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-top-left-radius: 4px;
-    color: var(--text);
-  }
-  .msg.user .bubble {
-    background: linear-gradient(135deg, #1e2d40, #162230);
-    border: 1px solid rgba(88,166,255,0.2);
-    border-top-right-radius: 4px;
-    color: var(--text);
-  }
-
-  /* loading bubble */
-  .loading-bubble {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 10px 14px;
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    border-top-left-radius: 4px;
-    color: var(--text2);
-    font-size: 12px;
-    font-family: var(--mono);
-  }
-  .loading-dots {
-    display: flex; gap: 3px;
-  }
-  .loading-dots span {
-    width: 5px; height: 5px;
-    border-radius: 50%;
-    background: var(--red);
-    animation: ldot 1.2s infinite;
-  }
-  .loading-dots span:nth-child(2){animation-delay:.2s}
-  .loading-dots span:nth-child(3){animation-delay:.4s}
-  @keyframes ldot { 0%,80%,100%{opacity:0.2;transform:scale(0.8)} 40%{opacity:1;transform:scale(1)} }
-
-  .cursor {
-    display: inline-block;
-    width: 2px; height: 13px;
-    background: var(--red);
-    margin-left: 1px;
-    vertical-align: text-bottom;
-    animation: blink 0.8s step-end infinite;
-  }
-  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
-
-  /* tag inside bubble */
-  .tag {
-    display: inline-block;
-    padding: 1px 6px;
-    border-radius: 4px;
-    font-size: 11px;
-    font-weight: 600;
-    font-family: var(--mono);
-    margin-right: 4px;
-  }
-  .tag-red { background: var(--red-dim); color: var(--red2); border: 1px solid rgba(255,36,66,0.25); }
-  .tag-blue { background: rgba(88,166,255,0.1); color: var(--blue); border: 1px solid rgba(88,166,255,0.25); }
-  .tag-green { background: rgba(63,185,80,0.1); color: var(--green); border: 1px solid rgba(63,185,80,0.25); }
-  .tag-purple { background: rgba(188,140,255,0.1); color: var(--purple); border: 1px solid rgba(188,140,255,0.25); }
-
-  .bullet-line { padding-left: 2px; margin-bottom: 2px; color: var(--text); }
-  .bullet-line .arr { color: var(--red); margin-right: 4px; }
-  .diag-label { color: var(--text2); }
-
-  /* ── RIGHT: BOARD ── */
-  .board-panel {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    background: var(--bg);
-  }
-  .board-header {
-    padding: 14px 20px;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg2);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .board-title {
-    font-size: 13px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: var(--text);
-  }
-  .board-icon {
-    width: 20px; height: 20px;
-    border-radius: 5px;
-    background: var(--red-dim);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px;
-  }
-  .stage-pills {
-    display: flex;
-    gap: 6px;
-  }
-  .stage-pill {
-    padding: 3px 10px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-weight: 500;
-    border: 1px solid var(--border2);
-    color: var(--text3);
-    background: var(--bg3);
-    transition: all 0.3s;
-  }
-  .stage-pill.active {
-    background: var(--red-dim);
-    border-color: rgba(255,36,66,0.35);
-    color: var(--red2);
-  }
-  .stage-pill.done {
-    background: rgba(63,185,80,0.08);
-    border-color: rgba(63,185,80,0.3);
-    color: var(--green);
-  }
-
-  .board-content {
-    flex: 1;
-    overflow-y: auto;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  .board-content::-webkit-scrollbar { width: 4px; }
-  .board-content::-webkit-scrollbar-track { background: transparent; }
-  .board-content::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
-
-  /* Empty state */
-  .empty-state {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    color: var(--text3);
-    gap: 12px;
-    padding: 40px;
-  }
-  .empty-icon { font-size: 48px; opacity: 0.4; }
-  .empty-text { font-size: 13px; text-align: center; line-height: 1.8; }
-
-  /* Section card */
-  .section-card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    overflow: hidden;
-    opacity: 0;
-    transform: translateY(12px);
-    animation: fadeUp 0.4s ease forwards;
-  }
-  @keyframes fadeUp { to { opacity:1; transform:translateY(0); } }
-
-  .section-head {
-    padding: 12px 16px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--bg3);
-  }
-  .section-num {
-    width: 22px; height: 22px;
-    border-radius: 6px;
-    background: var(--red-dim);
-    border: 1px solid rgba(255,36,66,0.3);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--red2);
-    font-family: var(--mono);
-  }
-  .section-title { font-weight: 600; font-size: 13px; }
-  .section-sub { font-size: 11px; color: var(--text2); margin-left: auto; }
-
-  .section-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 12px; }
-
-  /* Content card pair */
-  .content-cards { display: flex; gap: 10px; }
-  .content-card {
-    flex: 1;
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px;
-    position: relative;
-    overflow: hidden;
-  }
-  .content-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-  }
-  .content-card.card-a::before { background: linear-gradient(90deg, var(--red), #ff6b84); }
-  .content-card.card-b::before { background: linear-gradient(90deg, var(--purple), #d4a7ff); }
-
-  .card-label {
-    font-size: 10px;
-    font-weight: 700;
-    font-family: var(--mono);
-    letter-spacing: 0.08em;
-    margin-bottom: 6px;
-    display: flex;
-    align-items: center;
-    gap: 5px;
-  }
-  .card-a .card-label { color: var(--red); }
-  .card-b .card-label { color: var(--purple); }
-
-  .card-title-text {
-    font-size: 12.5px;
-    font-weight: 600;
-    color: var(--text);
-    margin-bottom: 8px;
-    line-height: 1.5;
-  }
-  .card-meta { display: flex; flex-direction: column; gap: 4px; }
-  .card-meta-row {
-    display: flex;
-    align-items: flex-start;
-    gap: 5px;
-    font-size: 11.5px;
-    color: var(--text2);
-    line-height: 1.5;
-  }
-  .meta-key {
-    color: var(--text3);
-    flex-shrink: 0;
-    min-width: 42px;
-    font-size: 11px;
-  }
-
-  /* Placement rows */
-  .placement-grid { display: flex; flex-direction: column; gap: 10px; }
-  .placement-row {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 9px;
-    padding: 11px 13px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    position: relative;
-    overflow: hidden;
-  }
-  .placement-row::after {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 3px;
-  }
-  .placement-row.row-a::after { background: var(--red); }
-  .placement-row.row-b::after { background: var(--purple); }
-
-  .pl-header { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; }
-  .pl-tag {
-    font-size: 10px;
-    padding: 1px 6px;
-    border-radius: 3px;
-    font-family: var(--mono);
-    font-weight: 600;
-  }
-  .row-a .pl-tag { background: var(--red-dim); color: var(--red2); }
-  .row-b .pl-tag { background: rgba(188,140,255,0.1); color: var(--purple); }
-
-  .pl-items { display: flex; flex-direction: column; gap: 3px; }
-  .pl-item {
-    display: flex; align-items: flex-start; gap: 6px;
-    font-size: 11.5px; color: var(--text2);
-  }
-  .pl-dot { color: var(--text3); flex-shrink: 0; margin-top: 1px; }
-
-  /* Script cards */
-  .script-cards { display: flex; flex-direction: column; gap: 10px; }
-  .script-card {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-radius: 9px;
-    padding: 12px 13px;
-    position: relative;
-    overflow: hidden;
-  }
-  .script-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-  }
-  .script-card.sc-a::before { background: var(--red); }
-  .script-card.sc-b::before { background: var(--purple); }
-  .script-from { font-size: 10.5px; color: var(--text3); margin-bottom: 6px; display: flex; align-items: center; gap: 5px; }
-  .script-text {
-    font-size: 13px;
-    color: var(--text);
-    line-height: 1.7;
-    background: var(--bg4);
-    border: 1px solid var(--border);
-    border-radius: 7px;
-    padding: 10px 12px;
-    position: relative;
-  }
-  .script-text::before {
-    content: '"';
-    position: absolute;
-    top: -2px; left: 8px;
-    font-size: 28px;
-    color: var(--border2);
-    font-family: Georgia, serif;
-    line-height: 1;
-  }
-  .copy-btn {
-    position: absolute;
-    top: 8px; right: 8px;
-    padding: 3px 8px;
-    font-size: 10px;
-    border: 1px solid var(--border2);
-    background: var(--bg3);
-    color: var(--text3);
-    border-radius: 4px;
-    cursor: pointer;
-    font-family: var(--mono);
-    transition: all 0.2s;
-  }
-  .copy-btn:hover { border-color: var(--blue); color: var(--blue); }
-
-  /* Complete banner */
-  .complete-banner {
-    background: linear-gradient(135deg, rgba(63,185,80,0.08), rgba(63,185,80,0.03));
-    border: 1px solid rgba(63,185,80,0.25);
-    border-radius: 10px;
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    opacity: 0;
-    animation: fadeUp 0.5s ease 0.1s forwards;
-  }
-  .complete-icon { font-size: 20px; }
-  .complete-text { font-size: 12.5px; color: var(--green); }
-  .complete-text strong { font-weight: 600; }
-  .complete-text span { color: var(--text2); font-size: 11.5px; display: block; margin-top: 2px; }
-
-  /* Progress bar at top of board */
-  .progress-bar {
-    height: 2px;
-    background: var(--border);
-    position: relative;
-    overflow: hidden;
-  }
-  .progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--red), #ff6b84);
-    width: 0%;
-    transition: width 0.6s ease;
-    box-shadow: 0 0 8px var(--red-glow);
-  }
-
-  /* Separator line in bubble */
-  .bubble-sep { border: none; border-top: 1px solid var(--border); margin: 8px 0; opacity: 0.5; }
-
-  /* Diag highlight box */
-  .diag-box {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    border-left: 2px solid var(--red);
-    border-radius: 6px;
-    padding: 8px 10px;
-    margin-top: 6px;
-    font-size: 12px;
-    color: var(--text2);
-    line-height: 1.7;
-  }
-
-  /* Timestamp */
-  .ts {
-    font-size: 10px;
-    color: var(--text3);
-    text-align: center;
-    font-family: var(--mono);
-    margin: 4px 0;
-  }
-
-  .hidden { display: none !important; }
-  .visible { display: flex !important; }
-
-  /* Step indicator in board header */
-  .step-info {
-    font-size: 11px;
-    color: var(--text3);
-    font-family: var(--mono);
-  }
-
-  /* CTA Button */
-  .cta-banner {
-    background: linear-gradient(135deg, rgba(255,36,66,0.08), rgba(255,36,66,0.03));
-    border: 1px solid rgba(255,36,66,0.3);
-    border-radius: 12px;
-    padding: 16px 18px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    opacity: 0;
-    animation: fadeUp 0.5s ease 0.3s forwards;
-    margin-top: 4px;
-  }
-  .cta-left { flex: 1; }
-  .cta-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
-  .cta-sub { font-size: 11.5px; color: var(--text2); }
-  .cta-sub .cta-tag {
-    display: inline-flex; align-items: center; gap: 4px;
-    background: rgba(63,185,80,0.1); color: var(--green);
-    border: 1px solid rgba(63,185,80,0.25); border-radius: 4px;
-    padding: 1px 6px; font-size: 11px; margin-right: 4px;
-  }
-  .cta-buttons { display: flex; gap: 8px; flex-shrink: 0; }
-  .cta-btn-copy {
-    padding: 7px 14px;
-    border-radius: 7px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    border: 1px solid var(--border2);
-    background: var(--bg3);
-    color: var(--text2);
-    transition: all 0.2s;
-    font-family: var(--sans);
-    white-space: nowrap;
-  }
-  .cta-btn-copy:hover { border-color: var(--blue); color: var(--blue); }
-  .cta-btn-use {
-    padding: 7px 18px;
-    border-radius: 7px;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    border: none;
-    background: var(--red);
-    color: #fff;
-    transition: all 0.2s;
-    font-family: var(--sans);
-    box-shadow: 0 0 16px var(--red-glow);
-    white-space: nowrap;
-  }
-  .cta-btn-use:hover { background: var(--red2); box-shadow: 0 0 24px var(--red-glow); transform: translateY(-1px); }
-
-  /* Replay button */
-  .replay-btn {
-    display: none;
-    align-items: center;
-    gap: 6px;
-    padding: 5px 14px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    border: 1px solid var(--border2);
-    background: var(--bg3);
-    color: var(--text2);
-    transition: all 0.2s;
-    font-family: var(--sans);
-    margin-right: 8px;
-  }
-  .replay-btn:hover { border-color: var(--blue); color: var(--blue); }
-  .replay-btn.show { display: flex; }
-
-  /* Auto badge */
-  .auto-badge {
-    font-size: 10px;
-    padding: 2px 7px;
-    background: rgba(63,185,80,0.1);
-    color: var(--green);
-    border: 1px solid rgba(63,185,80,0.25);
-    border-radius: 10px;
-    font-family: var(--mono);
-    font-weight: 500;
-  }
+/* voice bubble */
+.bubble-voice {
+  background: #f5f0ff;
+  border: 1px solid #d8c8f8;
+  border-radius: 9px;
+  padding: 9px 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: #7050c0;
+}
+.voice-bars { display: flex; align-items: flex-end; gap: 2px; height: 16px; }
+.voice-bars span { display: block; width: 3px; background: #b090e8; border-radius: 1px; }
+.voice-bars span:nth-child(1) { height: 6px; }
+.voice-bars span:nth-child(2) { height: 13px; }
+.voice-bars span:nth-child(3) { height: 9px; }
+.voice-bars span:nth-child(4) { height: 16px; }
+.voice-bars span:nth-child(5) { height: 7px; }
+.voice-bars span:nth-child(6) { height: 11px; }
+.voice-timer { font-size: 10px; color: #b0a0d8; margin-left: auto; }
 </style>
 </head>
 <body>
 
-<!-- TOP BAR -->
-<div class="topbar">
-  <div class="topbar-logo">
-    <div class="logo-icon">🦞</div>
-    线索内容一体化 AIGC Claw
-    <span class="topbar-badge">Beta</span>
+<!-- ── TITLEBAR ── -->
+<div class="titlebar">
+  <div class="dots">
+    <div class="dot d-r"></div>
+    <div class="dot d-y"></div>
+    <div class="dot d-g"></div>
   </div>
-  <div class="topbar-right">
-    <span class="auto-badge" id="autoBadge">⚡ 自动播放</span>
-    <button class="replay-btn" id="replayBtn" onclick="resetDemo()">↺ 重新演示</button>
-    <button class="ctrl-btn" id="nextBtn" onclick="nextStep()" disabled>下一步 →</button>
-    <button class="ctrl-btn primary" id="startBtn" onclick="startDemo()">▶ 开始演示</button>
+  <div class="title-center">
+    <span class="title-main">线索内容一体化 AIGC Claw 🦞</span>
+    <span class="title-sub">母亲节大促</span>
+    <span class="title-badge">BETA</span>
+  </div>
+  <div class="title-right">
+    <div class="conn"><div class="conn-dot"></div>已连接</div>
   </div>
 </div>
 
-<div class="app">
+<!-- ── TABS ── -->
+<div class="tabs">
+  <div class="tab active">① 说需求</div>
+  <div class="tab">② 内容方案</div>
+  <div class="tab">③ 生产素材</div>
+  <div class="tab">④ 投放配置</div>
+</div>
 
-  <!-- LEFT: CHAT -->
-  <div class="chat-panel">
-    <div class="chat-header">
-      <div class="agent-avatar">🦞</div>
-      <div class="agent-info">
-        <div class="name">线索内容 Agent</div>
-        <div class="status"><span class="status-dot"></span>在线 · 就绪</div>
-      </div>
-      <div style="margin-left:auto;font-size:11px;color:var(--text3);font-family:var(--mono)">花束 Demo</div>
-    </div>
-    <div class="chat-messages" id="chatMessages">
-      <div class="empty-state" id="emptyChat">
-        <div class="empty-icon">🦞</div>
-        <div class="empty-text">点击「开始演示」<br>启动 Agent 对话流程</div>
-      </div>
-    </div>
-  </div>
+<!-- ── MAIN ── -->
+<div class="main">
 
-  <!-- RIGHT: BOARD -->
-  <div class="board-panel">
-    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-    <div class="board-header">
-      <div class="board-title">
-        <div class="board-icon">📋</div>
-        方案看板
-      </div>
-      <div class="stage-pills">
-        <div class="stage-pill" id="pill1">① 内容选题</div>
-        <div class="stage-pill" id="pill2">② 投放策略</div>
-        <div class="stage-pill" id="pill3">③ 私信话术</div>
-      </div>
-      <div class="step-info" id="stepInfo">就绪</div>
-    </div>
-    <div class="board-content" id="boardContent">
-      <div class="empty-state" id="emptyBoard">
-        <div class="empty-icon">📋</div>
-        <div class="empty-text">方案看板将在对话推进时<br>实时同步更新</div>
+  <!-- LEFT SIDEBAR -->
+  <div class="sidebar">
+    <div class="sb-section">
+      <div class="sb-label">当前商家</div>
+      <div class="sb-item active">
+        <div>
+          <div class="sb-name">🌸 花开四季</div>
+          <div class="sb-meta">鲜花礼品 · 2991088</div>
+        </div>
       </div>
     </div>
-  </div>
-
-</div>
-
-<script>
-// ── STATE ──
-let currentStep = 0;
-let isRunning = false;
-let autoMode = true;
-let autoTimer = null;
-let stepDone = [false,false,false,false,false,false];
-
-const STEPS = 6; // 0..5
-
-// ── UTILS ──
-function $(id){ return document.getElementById(id); }
-
-function scrollChat(){
-  const c = $('chatMessages');
-  setTimeout(()=>{ c.scrollTop = c.scrollHeight; }, 50);
-}
-function scrollBoard(){
-  const b = $('boardContent');
-  setTimeout(()=>{ b.scrollTop = b.scrollHeight; }, 50);
-}
-
-function setProgress(pct){
-  $('progressFill').style.width = pct + '%';
-}
-
-function setPills(active){
-  // active: 1,2,3 => which is active; > that => done; < that => plain
-  for(let i=1;i<=3;i++){
-    const p = $('pill'+i);
-    p.className = 'stage-pill';
-    if(i < active) p.classList.add('done');
-    else if(i === active) p.classList.add('active');
-  }
-}
-
-// ── TYPE ANIMATION ──
-function typeText(el, text, speed=18, onDone){
-  let i=0;
-  el.innerHTML = '';
-  const cursor = document.createElement('span');
-  cursor.className = 'cursor';
-  el.appendChild(cursor);
-  const iv = setInterval(()=>{
-    if(i < text.length){
-      cursor.insertAdjacentText('beforebegin', text[i]);
-      i++;
-      scrollChat();
-    } else {
-      clearInterval(iv);
-      cursor.remove();
-      if(onDone) onDone();
-    }
-  }, speed);
-  return iv;
-}
-
-// ── ADD MESSAGE ──
-function addMsg(who, htmlContent, onDone){
-  $('emptyChat').style.display = 'none';
-  const wrap = document.createElement('div');
-  wrap.className = 'msg ' + who;
-
-  const av = document.createElement('div');
-  av.className = 'msg-avatar';
-  av.textContent = who === 'agent' ? '🦞' : '🏪';
-
-  const bub = document.createElement('div');
-  bub.className = 'bubble';
-  bub.innerHTML = htmlContent;
-
-  wrap.appendChild(av);
-  wrap.appendChild(bub);
-  $('chatMessages').appendChild(wrap);
-  scrollChat();
-  if(onDone) setTimeout(onDone, 100);
-  return bub;
-}
-
-function addTypingMsg(who, text, speed, onDone){
-  $('emptyChat').style.display = 'none';
-  const wrap = document.createElement('div');
-  wrap.className = 'msg ' + who;
-
-  const av = document.createElement('div');
-  av.className = 'msg-avatar';
-  av.textContent = who === 'agent' ? '🦞' : '🏪';
-
-  const bub = document.createElement('div');
-  bub.className = 'bubble';
-
-  wrap.appendChild(av);
-  wrap.appendChild(bub);
-  $('chatMessages').appendChild(wrap);
-  scrollChat();
-
-  typeText(bub, text, speed, onDone);
-}
-
-function addLoading(label, onDone, duration=1800){
-  $('emptyChat').style.display = 'none';
-  const wrap = document.createElement('div');
-  wrap.className = 'msg agent';
-  wrap.id = 'loadingMsg';
-
-  const av = document.createElement('div');
-  av.className = 'msg-avatar';
-  av.textContent = '🦞';
-
-  const lb = document.createElement('div');
-  lb.className = 'loading-bubble';
-  lb.innerHTML = `<div class="loading-dots"><span></span><span></span><span></span></div><span style="font-size:12px">${label}</span>`;
-
-  wrap.appendChild(av);
-  wrap.appendChild(lb);
-  $('chatMessages').appendChild(wrap);
-  scrollChat();
-
-  setTimeout(()=>{
-    const lm = $('loadingMsg');
-    if(lm) lm.remove();
-    if(onDone) onDone();
-  }, duration);
-}
-
-function addTs(text){
-  const ts = document.createElement('div');
-  ts.className = 'ts';
-  ts.textContent = text;
-  $('chatMessages').appendChild(ts);
-}
-
-// ── BOARD SECTIONS ──
-function addBoardSection(id, num, title, sub, bodyHTML){
-  $('emptyBoard').style.display = 'none';
-  const card = document.createElement('div');
-  card.className = 'section-card';
-  card.id = id;
-  card.innerHTML = `
-    <div class="section-head">
-      <div class="section-num">${num}</div>
-      <div class="section-title">${title}</div>
-      <div class="section-sub">${sub}</div>
-    </div>
-    <div class="section-body">${bodyHTML}</div>
-  `;
-  $('boardContent').appendChild(card);
-  scrollBoard();
-}
-
-// ── STEP DEFINITIONS ──
-
-function step0(cb){
-  // Agent greeting
-  addTs('刚刚');
-  const text = `你好，我是线索内容一体化 Agent 🦞\n内容、投放、私信——三件事你只需要说一次目标，我帮你全部做完。\n说说你现在遇到的问题吧。`;
-  addTypingMsg('agent', text, 20, ()=>{
-    $('stepInfo').textContent = '0/5 · 开场';
-    setProgress(5);
-    if(cb) setTimeout(cb, 600);
-  });
-}
-
-function step1(cb){
-  // User input - 自然语言、细粒度表达
-  setTimeout(()=>{
-    addMsg('user', '我做高端定制花束，主打母亲节礼品，客单300-800，之前投过但来的人质量不高', ()=>{
-      $('stepInfo').textContent = '1/5 · 商家输入';
-      setProgress(12);
-      if(cb) setTimeout(cb, 400);
-    });
-  }, 500);
-}
-
-function step2(cb){
-  // 先识别行业-赛道-品类，再诊断
-  addLoading('识别中...', ()=>{
-    const identifyHtml = `<div style="font-size:12px;color:var(--text2);margin-bottom:8px">已识别你的业务信息：</div>
-<div class="diag-box">
-  <div class="bullet-line"><span class="arr">▸</span><span class="diag-label">行业：</span><span class="tag tag-red">礼品 / 鲜花</span></div>
-  <div class="bullet-line"><span class="arr">▸</span><span class="diag-label">赛道：</span><span class="tag tag-purple">节日礼品</span></div>
-  <div class="bullet-line"><span class="arr">▸</span><span class="diag-label">品类：</span><span class="tag tag-blue">高端定制花束</span></div>
-  <div class="bullet-line"><span class="arr">▸</span><span class="diag-label">客单：</span>300-800 元</div>
-</div>`;
-    addMsg('agent', identifyHtml, ()=>{
-      // 稍作停顿再诊断
-      setTimeout(()=>{
-        addLoading('诊断中...', ()=>{
-          const html = `<div>诊断完成。你的情况：</div>
-<div class="diag-box">
-  <div class="bullet-line"><span class="arr">▸</span><span class="diag-label">阶段：</span>母亲节冲刺期</div>
-  <div class="bullet-line"><span class="arr">▸</span><span class="diag-label">目标：</span>提升私信留资量</div>
-  <div class="bullet-line"><span class="arr">▸</span><span class="diag-label">问题：</span>来人质量低</div>
-</div>
-<div style="margin-top:9px;font-size:12.5px;color:var(--text2);line-height:1.7">根本原因：内容没区分「浏览型」和「决策型」用户，统一话术承接导致高意向用户流失。</div>
-<div style="margin-top:7px;font-size:12.5px;color:var(--text)">从内容层开始——这是最快能见效的。推荐两个方向并跑：</div>`;
-          addMsg('agent', html, ()=>{
-            $('stepInfo').textContent = '2/5 · 诊断完成';
-            setProgress(30);
-            if(cb) setTimeout(cb, 500);
-          });
-        }, 1600);
-      }, 600);
-    });
-  }, 1800);
-}
-
-function step3(cb){
-  // Content plan
-  addLoading('生成选题方案...', ()=>{
-    const html = `<div style="font-size:12px;color:var(--text2);margin-bottom:8px">为你的花束业务生成了 <span style="color:var(--text);font-weight:600">2 个内容方向</span>，可同期并跑：</div>
-<div class="content-cards">
-  <div class="content-card card-a">
-    <div class="card-label">A · 价格对比型</div>
-    <div class="card-title-text">「母亲节花束300-800元怎么选？这张图帮你省时间」</div>
-    <div class="card-meta">
-      <div class="card-meta-row"><span class="meta-key">画像</span>已有购买意向，正在比价，关注性价比</div>
-      <div class="card-meta-row"><span class="meta-key">私信</span><span style="color:var(--green)">链路短，直接询价</span></div>
+    <div class="sb-section">
+      <div class="sb-label">最近任务</div>
+      <div class="sb-item">
+        <span class="sb-check">✓</span>
+        <div>
+          <div class="sb-name">情人节冲刺_0214</div>
+          <div class="sb-meta">6条 · 已完成</div>
+        </div>
+      </div>
+      <div class="sb-item">
+        <span class="sb-check">✓</span>
+        <div>
+          <div class="sb-name">新品上线_0301</div>
+          <div class="sb-meta">4条 · 已完成</div>
+        </div>
+      </div>
+      <div class="sb-item active">
+        <span class="sb-spin">◐</span>
+        <div>
+          <div class="sb-name">母亲节大促_0330</div>
+          <div class="sb-meta">生成中...</div>
+        </div>
+      </div>
     </div>
   </div>
-  <div class="content-card card-b">
-    <div class="card-label">B · 情感共鸣型</div>
-    <div class="card-title-text">「妈妈说不用买花，但收到那一刻她哭了」</div>
-    <div class="card-meta">
-      <div class="card-meta-row"><span class="meta-key">画像</span>情感驱动，决策早期，价格不敏感</div>
-      <div class="card-meta-row"><span class="meta-key">私信</span><span style="color:var(--purple)">需先共情再推荐</span></div>
+
+  <!-- CHAT AREA -->
+  <div class="chat">
+    <!-- pathbar -->
+    <div class="pathbar">
+      <span>~/session/flowers-0330</span>
+      <span class="pathbar-branch">⎇ main</span>
+      <div class="pathbar-right">
+        <span class="pathbar-stat">🧩 Claw 已规划 <span>5</span> 项技能，执行中...</span>
+      </div>
     </div>
-  </div>
-</div>`;
-    addMsg('agent', html, ()=>{
-      // Board
-      setPills(1);
-      addBoardSection('sec-content', '①', '内容选题方案', '2 个方向并跑', `
-<div class="content-cards">
-  <div class="content-card card-a">
-    <div class="card-label">A · 价格对比型</div>
-    <div class="card-title-text">「母亲节花束300-800元怎么选？这张图帮你省时间」</div>
-    <div class="card-meta">
-      <div class="card-meta-row"><span class="meta-key">用户画像</span>已有购买意向，做比价决策，关注性价比</div>
-      <div class="card-meta-row"><span class="meta-key">私信预期</span><span style="color:var(--green)">进来就问价格，转化链路短 ✓</span></div>
+
+    <!-- messages -->
+    <div class="messages">
+
+      <!-- 1. Agent 开场 -->
+      <div class="row">
+        <div class="avatar">🦞</div>
+        <div class="body">
+          <div class="who">Claw · 线索内容智能体</div>
+          <div class="bubble agent"><span class="g">$</span> 你好，我是线索内容一体化 AIGC Claw 🦞
+
+线索广告效果差，大多数时候问题不在投放——
+是<span class="w">内容、投放、私信承接</span>三段完全割裂，没打通。
+
+你只需要用自己的话说生意上遇到的问题，我帮你：
+
+  <span class="b">①</span> 判断做什么内容 → <span class="g">一键生产素材</span>
+  <span class="b">②</span> 给出投放策略建议 → <span class="g">人群 / 节奏 / 承接动作</span>
+  <span class="b">③</span> 生成私信话术 → <span class="g">按来源用户定制</span>
+
+打字 / 语音 / 电话，怎么方便怎么来。</div>
+          <div class="cap-badges">
+            <span class="cap-badge cap-voice">🎙 语音输入</span>
+            <span class="cap-badge cap-call">📞 电话沟通</span>
+            <span class="cap-badge cap-photo">🖼 素材上传</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2a. 商家语音气泡 -->
+      <div class="row user">
+        <div class="avatar user">🏪</div>
+        <div class="body">
+          <div class="who">花开四季 · 商家</div>
+          <div class="bubble-voice">
+            <div class="voice-bars">
+              <span></span><span></span><span></span>
+              <span></span><span></span><span></span>
+            </div>
+            <span>语音识别中...</span>
+            <span class="voice-timer">0:12</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 2b. 商家文字气泡 -->
+      <div class="row user">
+        <div class="avatar user">🏪</div>
+        <div class="body">
+          <div class="bubble user">「我做高端定制花束，主打母亲节礼品，客单300-800，之前投过但来的人质量不高」</div>
+        </div>
+      </div>
+
+      <!-- 3. Agent 识别行业 -->
+      <div class="row">
+        <div class="avatar">🦞</div>
+        <div class="body">
+          <div class="who">Claw · 线索内容智能体</div>
+          <div class="bubble agent"><span class="d">[识别到，确认一下]</span>
+
+<span class="b">行业</span>   <span class="w">礼品 / 鲜花</span>
+<span class="b">赛道</span>   节日礼品
+<span class="b">品类</span>   高端定制花束
+<span class="b">客单</span>   <span class="g">300-800 元</span><span class="itag">已确认</span></div>
+        </div>
+      </div>
+
+      <!-- 4. Agent 诊断 -->
+      <div class="row">
+        <div class="avatar">🦞</div>
+        <div class="body">
+          <div class="who">Claw · 线索内容智能体</div>
+          <div class="bubble agent"><span class="g">[诊断完成]</span>
+
+你的情况：
+  <span class="b">阶段</span>   母亲节冲刺期
+  <span class="b">目标</span>   提升私信留资量
+  <span class="b">问题</span>   <span class="r">来人质量低</span>
+
+根本原因：内容没区分<span class="w">「浏览型」</span>和<span class="w">「决策型」</span>用户，
+统一话术承接导致高意向用户流失。
+
+先从内容层开始——推荐两个方向并跑，看数据再追加：
+
+  <span class="b">①</span> <span class="w">价格对比型</span>   决策用户最吃这个，转化链路短
+  <span class="b">②</span> <span class="w">情感共鸣型</span>   情感驱动用户，私信深度更高</div>
+        </div>
+      </div>
+
+      <!-- 5. Plan card -->
+      <div class="row">
+        <div class="avatar">🦞</div>
+        <div class="body">
+          <div class="who">Claw · 内容方案</div>
+          <div class="plan-card">
+            <div class="plan-head">📋 内容方案 · 母亲节冲刺</div>
+            <div class="plan-row">
+              <span class="ck">✓</span>
+              <span>💰 价格对比型 × 3条</span>
+              <span class="ptag">链路短</span>
+            </div>
+            <div class="plan-row">
+              <span class="ck">✓</span>
+              <span>💝 情感共鸣型 × 3条</span>
+              <span class="ptag">高深度</span>
+            </div>
+            <div class="plan-hr"></div>
+            <div class="plan-meta">承接：<span class="acc">私信</span> · 并跑 10 天 · 看数据再集中资源</div>
+            <div class="plan-btns">
+              <button class="btn-go">确认，开始生产 →</button>
+              <button class="btn-alt">我来改改</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. Agent 追问 -->
+      <div class="row">
+        <div class="avatar">🦞</div>
+        <div class="body">
+          <div class="who">Claw · 线索内容智能体</div>
+          <div class="bubble agent"><span class="y">?</span> 有没有花束实拍图？直接发过来就行。
+
+没有也行，我帮你生成场景图。</div>
+        </div>
+      </div>
+
+      <!-- 7. 商家回复 -->
+      <div class="row user">
+        <div class="avatar user">🏪</div>
+        <div class="body">
+          <div class="who">花开四季 · 商家</div>
+          <div class="bubble user">有，发你 📎</div>
+        </div>
+      </div>
+
+      <!-- 8. 生成中 gen block -->
+      <div class="row">
+        <div class="avatar">🦞</div>
+        <div class="body">
+          <div class="who">Claw · 正在生产</div>
+          <div class="gen">
+            <div class="gen-line">
+              <span class="gi-done">✓</span>
+              <span class="gt-done">解析套路结构...</span>
+            </div>
+            <div class="gen-line">
+              <span class="gi-done">✓</span>
+              <span class="gt-done">匹配卖点话术...</span>
+            </div>
+            <div class="gen-line">
+              <span class="gi-done">✓</span>
+              <span class="gt-done">过滤违规词...</span>
+            </div>
+            <div class="gen-line">
+              <span class="gi-spin">◐</span>
+              <span class="gt-cur">生成图文素材...</span>
+              <span class="gen-eta">约 28s</span>
+            </div>
+            <div class="gen-line">
+              <span class="gi-wait">○</span>
+              <span class="gt-wait">写入素材库...</span>
+              <span class="gen-eta">等待</span>
+            </div>
+            <div class="gen-line">
+              <span class="gi-wait">○</span>
+              <span class="gt-wait">生成私信话术...</span>
+              <span class="gen-eta">等待</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /messages -->
+
+    <!-- INPUT BAR -->
+    <div class="inputbar">
+      <div class="input-hint">正在生成中 · <em>可继续补充需求或追加素材</em></div>
+      <div class="input-row">
+        <span class="prompt-sym">›</span>
+        <input class="input-field" type="text" placeholder="追加需求 / 补充说明..." />
+        <div class="input-actions">
+          <button class="btn-voice">🎙 语音</button>
+          <button class="btn-call">📞 电话</button>
+          <button class="btn-send">发送</button>
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="content-card card-b">
-    <div class="card-label">B · 情感共鸣型</div>
-    <div class="card-title-text">「妈妈说不用买花，但收到那一刻她哭了」</div>
-    <div class="card-meta">
-      <div class="card-meta-row"><span class="meta-key">用户画像</span>情感驱动，决策早期，价格不敏感</div>
-      <div class="card-meta-row"><span class="meta-key">私信预期</span><span style="color:var(--purple)">需要先共情再推荐方案</span></div>
+  </div><!-- /chat -->
+
+  <!-- RIGHT PANEL -->
+  <div class="right">
+
+    <!-- Claw 技能 -->
+    <div class="rs">
+      <div class="rs-title">Claw 规划的技能</div>
+
+      <div class="skill-item skill-done">
+        <span class="skill-icon">🎯</span>
+        <div class="skill-body">
+          <div class="skill-name">意图理解</div>
+          <div class="skill-desc">识别生意阶段 · 营销目的 · 隐含约束</div>
+        </div>
+        <span class="skill-status">✓</span>
+      </div>
+
+      <div class="skill-item skill-done">
+        <span class="skill-icon">🔍</span>
+        <div class="skill-body">
+          <div class="skill-name">行业赛道识别</div>
+          <div class="skill-desc">礼品/鲜花 · 节日礼品 · 高端花束</div>
+        </div>
+        <span class="skill-status">✓</span>
+      </div>
+
+      <div class="skill-item skill-running">
+        <span class="skill-icon">🖼</span>
+        <div class="skill-body">
+          <div class="skill-name">AIGC 图文生产</div>
+          <div class="skill-desc">调用生花 · 批量生产可投素材</div>
+        </div>
+        <span class="skill-status">◐</span>
+      </div>
+
+      <div class="skill-item skill-pending">
+        <span class="skill-icon">📣</span>
+        <div class="skill-body">
+          <div class="skill-name">投放策略建议</div>
+          <div class="skill-desc">人群定向 · 节奏安排 · 转化动作</div>
+        </div>
+        <span class="skill-status">○</span>
+      </div>
+
+      <div class="skill-item skill-pending">
+        <span class="skill-icon">💬</span>
+        <div class="skill-body">
+          <div class="skill-name">私信话术生成</div>
+          <div class="skill-desc">按来源用户定制分层话术</div>
+        </div>
+        <span class="skill-status">○</span>
+      </div>
     </div>
-  </div>
-</div>
-      `);
-      $('stepInfo').textContent = '3/5 · 内容方案';
-      setProgress(50);
-      if(cb) setTimeout(cb, 500);
-    });
-  }, 2200);
-}
 
-function step4(cb){
-  // Placement
-  addLoading('匹配投放策略...', ()=>{
-    const html = `<div style="font-size:12px;color:var(--text2);margin-bottom:8px">已为两条内容匹配差异化投放策略：</div>
-<div class="placement-grid">
-  <div class="placement-row row-a">
-    <div class="pl-header"><span class="pl-tag">A</span>价格对比型</div>
-    <div class="pl-items">
-      <div class="pl-item"><span class="pl-dot">·</span><b style="color:var(--text);margin-right:3px">转化动作：</b>私信（直接引导询价）</div>
-      <div class="pl-item"><span class="pl-dot">·</span><b style="color:var(--text);margin-right:3px">人群：</b>25-45岁女性，近期节日礼品消费行为</div>
-      <div class="pl-item"><span class="pl-dot">·</span><b style="color:var(--text);margin-right:3px">节奏：</b>前10天开始，最后3天加大预算</div>
+    <!-- 当前内容方案 -->
+    <div class="rs">
+      <div class="rs-title">当前内容方案</div>
+      <div class="scene-tag">🚀 母亲节冲刺</div>
+      <div class="pr-row">
+        <span class="pr-name">💰 价格对比型</span>
+        <span class="pr-cnt">× 3</span>
+        <span class="pr-tag">链路短</span>
+      </div>
+      <div class="pr-row">
+        <span class="pr-name">💝 情感共鸣型</span>
+        <span class="pr-cnt">× 3</span>
+        <span class="pr-tag">高深度</span>
+      </div>
+
+      <div class="rs-title" style="margin-top:12px;">投放建议</div>
+      <div class="pl-row">
+        <span class="pl-k">承接动作</span>
+        <span class="pl-v acc">私信 ●</span>
+      </div>
+      <div class="pl-row">
+        <span class="pl-k">人群定向</span>
+        <span class="pl-v">25-45岁女性 + 节日礼品消费</span>
+      </div>
+      <div class="pl-row">
+        <span class="pl-k">预算节奏</span>
+        <span class="pl-v">10天并跑测试</span>
+      </div>
     </div>
-  </div>
-  <div class="placement-row row-b">
-    <div class="pl-header"><span class="pl-tag">B</span>情感共鸣型</div>
-    <div class="pl-items">
-      <div class="pl-item"><span class="pl-dot">·</span><b style="color:var(--text);margin-right:3px">转化动作：</b>私信（共情后引导咨询）</div>
-      <div class="pl-item"><span class="pl-dot">·</span><b style="color:var(--text);margin-right:3px">人群：</b>18-35岁女性，亲情/情感类内容互动行为</div>
-      <div class="pl-item"><span class="pl-dot">·</span><b style="color:var(--text);margin-right:3px">节奏：</b>提前15天预热，种草周期更长</div>
+
+    <!-- 素材预览 -->
+    <div class="rs" style="flex:1; overflow-y:auto;">
+      <div class="rs-title">素材预览</div>
+      <div class="asset-grid">
+        <div class="asset">
+          <div class="asset-img">🌸</div>
+          <div class="asset-info">
+            <div class="asset-name">价格对比_0330_01</div>
+            <div class="asset-status">生成中...</div>
+          </div>
+        </div>
+        <div class="asset">
+          <div class="asset-img">💝</div>
+          <div class="asset-info">
+            <div class="asset-name">情感共鸣_0330_01</div>
+            <div class="asset-status">生成中...</div>
+          </div>
+        </div>
+        <div class="asset">
+          <div class="asset-img">⏳</div>
+          <div class="asset-info">
+            <div class="asset-name">排队中...</div>
+            <div class="asset-wait">等待</div>
+          </div>
+        </div>
+        <div class="asset">
+          <div class="asset-img">⏳</div>
+          <div class="asset-info">
+            <div class="asset-name">排队中...</div>
+            <div class="asset-wait">等待</div>
+          </div>
+        </div>
+      </div>
+
+      <a class="dm-link">💬 私信话术生成后可在这里查看 →</a>
+
+      <!-- CTA 区域 -->
+      <div class="cta-bar">
+        <div class="cta-text">
+          <strong>🚀 方案已就绪，一键应用</strong>
+          <span>内容 × 6条 · 投放 × 2套 · 私信话术 × 2版</span>
+        </div>
+        <div class="cta-btns">
+          <button class="cta-copy">📋 复制完整方案</button>
+          <button class="cta-use">一键使用 →</button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>`;
-    addMsg('agent', html, ()=>{
-      setPills(2);
-      addBoardSection('sec-placement', '②', '投放策略建议', '差异化定向', `
-<div class="placement-grid">
-  <div class="placement-row row-a">
-    <div class="pl-header"><span class="pl-tag">A</span>价格对比型 · 投放配置</div>
-    <div class="pl-items">
-      <div class="pl-item"><span class="pl-dot">·</span><b style="color:var(--text);margin-right:3px">转化动作</b>私信（直接引导询价）</div>
-      <div class="pl-item"><span class="pl-dot">·</span><b style="color:var(--text);margin-right:3px">目标人群</b>25-45岁女性，近期节日礼品消费行为</div>
-      <div class="pl-item"><span class="pl-dot">·</span><b style="color:var(--text);margin-right:3px">投放节奏</b>母亲节前10天开始，最后3天加大预算</div>
-    </div>
-  </div>
-  <div class="placement-row row-b">
-    <div class="pl-header"><span class="pl-tag">B</span>情感共鸣型 · 投放配置</div>
-    <div class="pl-items">
-      <div class="pl-item"><span class="pl-dot">·</span><b style="color:var(--text);margin-right:3px">转化动作</b>私信（共情后引导咨询）</div>
-      <div class="pl-item"><span class="pl-dot">·</span><b style="color:var(--text);margin-right:3px">目标人群</b>18-35岁女性，亲情/情感类内容互动行为</div>
-      <div class="pl-item"><span class="pl-dot">·</span><b style="color:var(--text);margin-right:3px">投放节奏</b>提前15天预热，需要更长种草周期</div>
-    </div>
-  </div>
-</div>
-      `);
-      $('stepInfo').textContent = '4/5 · 投放策略';
-      setProgress(72);
-      if(cb) setTimeout(cb, 500);
-    });
-  }, 2000);
-}
 
-function step5(cb){
-  // Scripts
-  addLoading('生成差异化话术...', ()=>{
-    const html = `<div style="font-size:12px;color:var(--text2);margin-bottom:8px">两套话术已按内容来源定制，私信承接率更高：</div>
-<div class="script-cards">
-  <div class="script-card sc-a">
-    <div class="script-from"><span class="pl-tag" style="background:var(--red-dim);color:var(--red2);font-family:var(--mono);font-size:10px;padding:1px 5px;border-radius:3px">A</span> 来自价格对比内容的用户</div>
-    <div class="script-text">你好～看到你在看我们母亲节花束对比，有没有特别想了解哪个价位的？直接说预算，我帮你推荐最合适的款式 🌸</div>
-  </div>
-  <div class="script-card sc-b">
-    <div class="script-from"><span class="pl-tag" style="background:rgba(188,140,255,0.1);color:var(--purple);font-family:var(--mono);font-size:10px;padding:1px 5px;border-radius:3px">B</span> 来自情感共鸣内容的用户</div>
-    <div class="script-text">你好～妈妈收到花一定很开心 💐 你想送什么场合？我帮你想一个她一定会喜欢的方案～</div>
-  </div>
-</div>`;
-    addMsg('agent', html, ()=>{
-      // Final board section
-      setPills(3);
-      addBoardSection('sec-script', '③', '私信开场话术', '按来源定制', `
-<div class="script-cards">
-  <div class="script-card sc-a">
-    <div class="script-from">
-      <span style="background:var(--red-dim);color:var(--red2);font-family:var(--mono);font-size:10px;padding:1px 5px;border-radius:3px;font-weight:600">A</span>
-      &nbsp;来自「价格对比型」内容的用户
-    </div>
-    <div class="script-text" style="position:relative">
-      你好～看到你在看我们母亲节花束对比，有没有特别想了解哪个价位的？直接说预算，我帮你推荐最合适的款式 🌸
-      <button class="copy-btn" onclick="copyText(this, '你好～看到你在看我们母亲节花束对比，有没有特别想了解哪个价位的？直接说预算，我帮你推荐最合适的款式 🌸')">复制</button>
-    </div>
-  </div>
-  <div class="script-card sc-b">
-    <div class="script-from">
-      <span style="background:rgba(188,140,255,0.1);color:var(--purple);font-family:var(--mono);font-size:10px;padding:1px 5px;border-radius:3px;font-weight:600">B</span>
-      &nbsp;来自「情感共鸣型」内容的用户
-    </div>
-    <div class="script-text" style="position:relative">
-      你好～妈妈收到花一定很开心 💐 你想送什么场合？我帮你想一个她一定会喜欢的方案～
-      <button class="copy-btn" onclick="copyText(this, '你好～妈妈收到花一定很开心 💐 你想送什么场合？我帮你想一个她一定会喜欢的方案～')">复制</button>
-    </div>
-  </div>
-</div>
-      `);
+  </div><!-- /right -->
 
-      // Complete banner + CTA in board
-      setTimeout(()=>{
-        $('emptyBoard') && ($('emptyBoard').style.display = 'none');
-        const banner = document.createElement('div');
-        banner.className = 'complete-banner';
-        banner.innerHTML = `<div class="complete-icon">✅</div>
-<div class="complete-text">
-  <strong>三段方案生成完毕</strong>
-  <span>内容选题 · 投放策略 · 私信话术 已全部联动输出</span>
-</div>`;
-        $('boardContent').appendChild(banner);
-
-        // CTA 一键使用
-        const cta = document.createElement('div');
-        cta.className = 'cta-banner';
-        cta.innerHTML = `
-<div class="cta-left">
-  <div class="cta-title">🚀 方案已就绪，一键应用到你的投放计划</div>
-  <div class="cta-sub">
-    <span class="cta-tag">✓ 内容 × 2</span>
-    <span class="cta-tag">✓ 投放 × 2套</span>
-    <span class="cta-tag">✓ 话术 × 2版</span>
-  </div>
-</div>
-<div class="cta-buttons">
-  <button class="cta-btn-copy" onclick="copyAllPlan()">📋 复制完整方案</button>
-  <button class="cta-btn-use" onclick="goToClaw()">一键使用 →</button>
-</div>`;
-        $('boardContent').appendChild(cta);
-        scrollBoard();
-      }, 300);
-
-      // Final agent summary
-      setTimeout(()=>{
-        addMsg('agent', `<div>三段方案全部完成 ✦</div>
-<div class="diag-box" style="margin-top:8px">
-  <div class="bullet-line"><span class="arr">▸</span><b>内容</b>：2个方向已生成，覆盖比价 + 情感两类用户</div>
-  <div class="bullet-line"><span class="arr">▸</span><b>投放</b>：差异化人群 + 节奏已配好，不用统一烧</div>
-  <div class="bullet-line"><span class="arr">▸</span><b>私信</b>：按来源定制话术，承接更精准</div>
-</div>
-<div style="margin-top:8px;font-size:12px;color:var(--text2)">右侧看板可随时查看完整方案 →</div>`, ()=>{
-          $('stepInfo').textContent = '5/5 · 完成';
-          setProgress(100);
-          $('nextBtn').disabled = true;
-          $('replayBtn').classList.add('show');
-          $('autoBadge').style.display = 'none';
-          isRunning = false;
-        });
-      }, 800);
-
-      if(cb) setTimeout(cb, 200);
-    });
-  }, 2200);
-}
-
-// ── FLOW CONTROL ──
-const stepFns = [step0, step1, step2, step3, step4, step5];
-
-function runStep(n, autoContinue){
-  if(n >= STEPS) return;
-  isRunning = true;
-  $('nextBtn').disabled = true;
-
-  stepFns[n](()=>{
-    currentStep = n + 1;
-    if(currentStep < STEPS){
-      if(autoContinue){
-        autoTimer = setTimeout(()=>{ runStep(currentStep, true); }, 1800);
-      } else {
-        isRunning = false;
-        $('nextBtn').disabled = false;
-      }
-    }
-  });
-}
-
-function startDemo(){
-  $('startBtn').disabled = true;
-  $('startBtn').textContent = '演示中...';
-  $('autoBadge').style.display = 'inline-block';
-  currentStep = 0;
-  autoMode = true;
-  runStep(0, true);
-}
-
-function nextStep(){
-  if(isRunning) return;
-  if(currentStep >= STEPS) return;
-  clearTimeout(autoTimer);
-  runStep(currentStep, false);
-}
-
-function resetDemo(){
-  clearTimeout(autoTimer);
-  isRunning = false;
-  currentStep = 0;
-  autoMode = false;
-
-  // Reset chat
-  const chat = $('chatMessages');
-  chat.innerHTML = '';
-  const empty1 = document.createElement('div');
-  empty1.id = 'emptyChat';
-  empty1.className = 'empty-state';
-  empty1.innerHTML = '<div class="empty-icon">🦞</div><div class="empty-text">点击「开始演示」<br>启动 Agent 对话流程</div>';
-  chat.appendChild(empty1);
-
-  // Reset board
-  const board = $('boardContent');
-  board.innerHTML = '';
-  const empty2 = document.createElement('div');
-  empty2.id = 'emptyBoard';
-  empty2.className = 'empty-state';
-  empty2.innerHTML = '<div class="empty-icon">📋</div><div class="empty-text">方案看板将在对话推进时<br>实时同步更新</div>';
-  board.appendChild(empty2);
-
-  // Reset UI
-  $('progressFill').style.width = '0%';
-  $('stepInfo').textContent = '就绪';
-  for(let i=1;i<=3;i++) $('pill'+i).className = 'stage-pill';
-  $('startBtn').disabled = false;
-  $('startBtn').textContent = '▶ 开始演示';
-  $('nextBtn').disabled = true;
-  $('replayBtn').classList.remove('show');
-  $('autoBadge').style.display = 'none';
-}
-
-// ── CTA ──
-function copyAllPlan(){
-  const plan = `【线索内容一体化方案 · 高端定制花束 · 母亲节】
-
-① 内容选题
-A. 价格对比型：「母亲节花束300-800元怎么选？这张图帮你省时间」
-   用户画像：已有购买意向，做比价决策，关注性价比
-B. 情感共鸣型：「妈妈说不用买花，但收到那一刻她哭了」
-   用户画像：情感驱动，决策早期，价格不敏感
-
-② 投放策略
-A. 转化动作：私信 | 人群：25-45岁女性，节日礼品消费行为 | 节奏：前10天开始，最后3天加大预算
-B. 转化动作：私信 | 人群：18-35岁女性，亲情/情感内容互动行为 | 节奏：提前15天预热
-
-③ 私信话术
-A（来自价格对比内容）：你好～看到你在看我们母亲节花束对比，有没有特别想了解哪个价位的？直接说预算，我帮你推荐最合适的款式 🌸
-B（来自情感共鸣内容）：你好～妈妈收到花一定很开心 💐 你想送什么场合？我帮你想一个她一定会喜欢的方案～`;
-  navigator.clipboard.writeText(plan).then(()=>{
-    alert('完整方案已复制到剪贴板 ✓');
-  });
-}
-
-function goToClaw(){
-  alert('跳转到 AIGC Claw 工作台（Demo 演示）');
-}
-
-// ── COPY ──
-function copyText(btn, text){
-  navigator.clipboard.writeText(text).then(()=>{
-    btn.textContent = '已复制 ✓';
-    btn.style.color = 'var(--green)';
-    btn.style.borderColor = 'var(--green)';
-    setTimeout(()=>{
-      btn.textContent = '复制';
-      btn.style.color = '';
-      btn.style.borderColor = '';
-    }, 2000);
-  });
-}
-</script>
+</div><!-- /main -->
 </body>
 </html>
