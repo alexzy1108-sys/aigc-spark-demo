@@ -1164,11 +1164,15 @@ body {
 ══════════════════════════════════════════════════════ */
 .ops-dashboard {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);
   gap: 12px;
-  max-width: 900px;
+  width: 100%;
   margin-top: 10px;
 }
+/* 实时操盘行允许更宽 */
+.msg-row.ops-wide { max-width: none; }
+.msg-row.ops-wide .bubble.agent,
+.msg-row.ops-wide > div:not(.avatar) { max-width: 900px; }
 .ops-col {
   background: #0d1030;
   border-radius: 12px;
@@ -1207,8 +1211,8 @@ body {
 .ops-item.visible { opacity: 1; transform: translateX(0); }
 .ops-item-icon { font-size: 13px; flex-shrink: 0; }
 .ops-item-body { flex: 1; }
-.ops-item-name { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.8); }
-.ops-item-sub { font-size: 10px; color: rgba(255,255,255,0.35); margin-top: 1px; }
+.ops-item-name { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.8); word-break: break-all; }
+.ops-item-sub { font-size: 10px; color: rgba(255,255,255,0.35); margin-top: 1px; word-break: break-all; }
 .ops-item-badge {
   font-size: 10px; font-weight: 700; color: #7af0b0;
   background: rgba(24,168,56,0.15); border: 1px solid rgba(24,168,56,0.3);
@@ -2491,8 +2495,9 @@ async function appendOpsDashboard() {
   await new Promise(r => setTimeout(r, 600));
 
   // 仪表盘三列
-  const dashRow = addMsgRow('msg-row', makeAgentAvatar() + `<div style="max-width:900px;padding:0;">
-    <div class="ops-dashboard" id="opsDashboard">
+  const dashRow = addMsgRow('msg-row ops-wide', makeAgentAvatar() + `<div style="width:860px;min-width:0;padding:0;">
+    <div class="ops-dashboard" id="opsDashboard" style="width:100%;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);">
+
       <!-- 左列：用户行为回传 -->
       <div class="ops-col">
         <div class="ops-col-header">
@@ -2679,7 +2684,7 @@ async function appendOpsDashboard() {
   await new Promise(r => setTimeout(r, 1200));
 
   // ── 效果度量区块 ──
-  const metricsRow = addMsgRow('msg-row', makeAgentAvatar() + `<div style="max-width:900px;padding:0;">
+  const metricsRow = addMsgRow('msg-row ops-wide', makeAgentAvatar() + `<div style="width:860px;min-width:0;padding:0;">
     <div class="metrics-block">
       <div class="metrics-block-title">LinkClaw 操盘第14天 · 效果度量</div>
       <div class="metrics-grid">
