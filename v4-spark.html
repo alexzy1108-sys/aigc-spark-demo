@@ -2111,6 +2111,48 @@ const SKILLS = {
       previewTexts: ['从4.5到7分，我用了3个月！真实备考日记分享，希望能帮到和我一样焦虑的你...', '曾经的口语学渣，如今已拿到雅思7分offer，这段经历我想记录下来...']
     }
   ],
+  '下载行业': [
+    {
+      icon: '📱',
+      name: '功能演示型',
+      ctr: '4.2%',
+      ctrUp: true,
+      desc: '直接展示 App 核心功能截图，突出使用场景',
+      minImages: 3,
+      tags: ['下载行业', '高跑量', '私有'],
+      previewTexts: ['打开千问App，秒解所有难题！界面超清爽，功能强大到让你上瘾...', '用了Boss直聘1周，收到了12个面试邀约！这个功能太好用了...']
+    },
+    {
+      icon: '💬',
+      name: 'HR招聘话术型',
+      ctr: '3.9%',
+      ctrUp: true,
+      desc: '模拟HR视角，展示招聘沟通场景，适合求职/招聘类App',
+      minImages: 1,
+      tags: ['下载行业', 'HR话术', '私有'],
+      previewTexts: ['我是HR，用Boss直聘2个月，这样和候选人沟通转化率高3倍！', '招聘效率翻倍的秘密：Boss直聘这个功能每个HR都应该会用...']
+    },
+    {
+      icon: '🎯',
+      name: '用户真实体验型',
+      ctr: '3.6%',
+      ctrUp: false,
+      desc: 'UGC风格，真实用户截图+评价，增强可信度',
+      minImages: 2,
+      tags: ['下载行业', '真实种草', '私有'],
+      previewTexts: ['用闲鱼卖出去了200件闲置！这3个技巧让我的商品曝光翻了10倍...', '在千问App问了一个困扰我3年的问题，AI给的回答让我直接收藏...']
+    },
+    {
+      icon: '⚡',
+      name: '使用前后对比型',
+      ctr: '3.4%',
+      ctrUp: false,
+      desc: '使用App前后效果对比，强化下载动机',
+      minImages: 2,
+      tags: ['下载行业', '对比', '私有'],
+      previewTexts: ['没用闲鱼之前：家里一堆闲置吃灰；用了之后：每个月多赚3000块！', '装了千问App以后，再也不怕写作业了，每道题都能给出解题步骤...']
+    }
+  ],
   '电商行业': [
     {
       icon: '🛒',
@@ -2147,6 +2189,7 @@ const SKILLS = {
 
 const SELLING_POINTS = {
   '线索行业': ['性价比', '真实提分', '名师1对1', '小班精讲', '课程体系完善'],
+  '下载行业': ['免费使用', '功能强大', '界面简洁', '日活超千万', 'AI智能推荐', '安全可靠'],
   '电商行业': ['质量超好', '颜值高', '性价比', '显瘦', '面料舒适']
 };
 
@@ -2156,6 +2199,12 @@ const RESULT_CARDS = {
     { grad: 'linear-gradient(135deg, #667eea, #764ba2)', title: '💡 从4.5到7分｜我用了这套课表对比法', preview: '三个月备考，我是如何一步步从4.5分到7分的？这套课表对比法真的太实用了，分享给同样在备考的你。' },
     { grad: 'linear-gradient(135deg, #11998e, #38ef7d)', title: '⭐ 名师1对1+小班精讲 学员真实反馈', preview: '收集了100+学员真实反馈，名师1对1和小班精讲到底哪个更适合你？数据说话！' },
     { grad: 'linear-gradient(135deg, #f093fb, #f5576c)', title: '🎯 雅思口语备考全攻略 性价比之选', preview: '性价比最高的雅思口语备考方案大公开！综合考量价格、效果、服务，这门课真的绝了。' }
+  ],
+  '下载行业': [
+    { grad: 'linear-gradient(135deg, #FF6B6B, #FF2442)', title: '📱 功能实测｜界面超清爽，用了就停不下来', preview: '详测了这款App的核心功能，日活超千万不是没有理由的，这几个功能真的让我效率翻倍！' },
+    { grad: 'linear-gradient(135deg, #667eea, #764ba2)', title: '💼 HR实测｜用这个App找到优质候选人', preview: '作为HR，用了Boss直聘2个月后，面试邀约回复率提升了40%！这几个沟通技巧一定要学会...' },
+    { grad: 'linear-gradient(135deg, #11998e, #38ef7d)', title: '💰 在闲鱼3个月变现2万｜真实经验分享', preview: '从一开始不知道怎么拍照、定价，到现在每个月稳定出几十单，我总结了这套闲鱼卖货方法论...' },
+    { grad: 'linear-gradient(135deg, #f093fb, #f5576c)', title: '🤖 千问App真实体验｜AI回答质量超预期', preview: '测试了20个各类问题，从日常到专业，千问的回答质量真的让我惊喜，尤其是这几个场景...' }
   ],
   '电商行业': [
     { grad: 'linear-gradient(135deg, #FF6B6B, #FF2442)', title: '🛒 秋季连衣裙种草｜质量超好显瘦神器', preview: '找了好久终于找到这件宝藏连衣裙，面料舒适颜值超高，穿上去真的显瘦，姐妹们快冲！' },
@@ -2325,6 +2374,9 @@ function showInputPhase(phase) {
     } else if (state.industry === '线索行业') {
       document.getElementById('bottomInput').classList.add('hidden-bar');
       buildLeadInputInChat();
+    } else if (state.industry === '下载行业') {
+      document.getElementById('bottomInput').classList.add('hidden-bar');
+      buildDownloadAppInputInChat();
     } else {
       // 其他行业：保留原有纯手动输入
       document.getElementById('bottomInput').classList.add('hidden-bar');
@@ -2366,6 +2418,12 @@ function buildIndustryInChat() {
         <span style="font-size:20px;">🛍️</span>
         <div style="font-weight:600;font-size:13px;color:#13131F;margin-top:4px;">电商行业</div>
         <div style="font-size:11px;color:#9CA3AF;margin-top:2px;">服饰·美妆·食品</div>
+      </button>
+      <button class="industry-chip-inline" onclick="selectIndustryChat('下载行业','📲')" style="position:relative;">
+        <span style="font-size:20px;">📲</span>
+        <div style="font-weight:600;font-size:13px;color:#13131F;margin-top:4px;">下载行业</div>
+        <div style="font-size:11px;color:#9CA3AF;margin-top:2px;">App·工具·游戏</div>
+        <div style="position:absolute;top:-6px;right:-6px;background:linear-gradient(135deg,#FF2442,#a855f7);color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;white-space:nowrap;">NEW</div>
       </button>
     </div>
   `;
@@ -2418,6 +2476,8 @@ function selectIndustry(industry, icon) {
         ? `好的！电商行业 ✓ 请选择你要推广的商品 SPU：`
         : industry === '线索行业'
         ? `好的！线索行业 ✓ 请选择或输入你要推广的课程/服务：`
+        : industry === '下载行业'
+        ? `好的！下载行业 ✓ 请输入你要推广的 App 名称：`
         : `好的！${industry} ✓ 接下来告诉我，你想推广什么产品或服务？`;
       addAIBubble(prompt1, () => {
         showInputPhase(1);
@@ -2734,6 +2794,10 @@ function selectSkillFromOverlay(index) {
 
 function generateMockSkills() {
   const industry = state.industry || '线索行业';
+  if (industry === '下载行业') {
+    const dlSkills = SKILLS['下载行业_current'] || SKILLS['下载行业'];
+    return dlSkills.slice(0, 50);
+  }
   const baseSkills = industry === '线索行业' ? [
     { name: '课表对比型', emoji: '📊', ctr: '3.8%', desc: '多班型课程横向对比，直观呈现价格/效果差异', tags: ['线索', '高跑量'] },
     { name: '老师自述型', emoji: '👩‍🏫', ctr: '3.2%', desc: '第一人称「XX老师」声明师资，突出专业背书', tags: ['线索', '师资背书'] },
@@ -2985,6 +3049,244 @@ function buildLeadInputInChat() {
   });
 }
 
+/* 下载行业：App名称输入 + 推荐套路（私有标签）*/
+const DOWNLOAD_APP_PRESETS = [
+  { id: 'A001', name: '千问 App', sub: 'AI问答·工具', icon: '🤖', grad: 'linear-gradient(135deg,#667eea,#764ba2)' },
+  { id: 'A002', name: 'Boss直聘', sub: '招聘·求职', icon: '💼', grad: 'linear-gradient(135deg,#f093fb,#f5576c)' },
+  { id: 'A003', name: '闲鱼', sub: '二手交易·闲置', icon: '🐠', grad: 'linear-gradient(135deg,#43e97b,#38f9d7)' },
+  { id: 'A004', name: '小红书', sub: '内容种草·社区', icon: '📕', grad: 'linear-gradient(135deg,#FF6B6B,#FF2442)' },
+  { id: 'A005', name: '抖音', sub: '短视频·娱乐', icon: '🎵', grad: 'linear-gradient(135deg,#13131F,#4facfe)' },
+  { id: 'A006', name: '美团', sub: '外卖·本地生活', icon: '🛵', grad: 'linear-gradient(135deg,#fa8231,#f7b731)' },
+];
+
+// App名称 → 对应专属套路映射
+const DOWNLOAD_APP_SKILLS = {
+  'Boss直聘': [
+    { icon: '💬', name: 'HR招聘话术型', ctr: '4.1%', ctrUp: true, desc: '模拟HR与求职者真实沟通场景，展示平台高效匹配能力', tags: ['下载行业', 'HR话术', '私有'], isPrivate: true },
+    { icon: '🎯', name: '求职成功案例型', ctr: '3.8%', ctrUp: true, desc: '真实求职者从投简历到收到Offer的完整故事', tags: ['下载行业', '真实案例', '私有'], isPrivate: true },
+    { icon: '📊', name: '岗位比较型', ctr: '3.3%', ctrUp: false, desc: '同类岗位薪资/福利横向对比，突出平台岗位质量优势', tags: ['下载行业', '对比', '私有'], isPrivate: true },
+  ],
+  '闲鱼': [
+    { icon: '💰', name: '闲置变现攻略型', ctr: '4.3%', ctrUp: true, desc: '展示真实闲置物品卖出的完整过程，引发用户共鸣', tags: ['下载行业', '变现', '私有'], isPrivate: true },
+    { icon: '📦', name: '捡漏好物型', ctr: '3.9%', ctrUp: true, desc: '展示在闲鱼淘到高性价比好物的惊喜体验', tags: ['下载行业', '捡漏', '私有'], isPrivate: true },
+    { icon: '🛍️', name: '买家秀对比型', ctr: '3.5%', ctrUp: false, desc: '原价与闲鱼价格对比，强化省钱效果', tags: ['下载行业', '对比', '私有'], isPrivate: true },
+  ],
+  '千问 App': [
+    { icon: '🤖', name: 'AI能力展示型', ctr: '4.0%', ctrUp: true, desc: '直接展示千问回答真实问题的截图，体现AI能力', tags: ['下载行业', 'AI展示', '私有'], isPrivate: true },
+    { icon: '📚', name: '使用场景型', ctr: '3.6%', ctrUp: false, desc: '列举千问在学习/工作/生活中的具体使用场景', tags: ['下载行业', '场景', '私有'], isPrivate: true },
+    { icon: '⚡', name: '效率对比型', ctr: '3.4%', ctrUp: false, desc: '使用AI前后解决问题的时间对比，强化效率卖点', tags: ['下载行业', '效率', '私有'], isPrivate: true },
+  ],
+};
+
+// 获取App对应的私有套路（无匹配则返回默认下载行业套路）
+function getDownloadSkills(appName) {
+  // 模糊匹配
+  const keys = Object.keys(DOWNLOAD_APP_SKILLS);
+  const matched = keys.find(k => appName.includes(k) || k.includes(appName.split(' ')[0]));
+  if (matched) return DOWNLOAD_APP_SKILLS[matched];
+  // 默认套路
+  return SKILLS['下载行业'];
+}
+
+let _selectedDownloadAppId = null;
+let _selectedDownloadAppName = null;
+
+function buildDownloadAppInputInChat() {
+  _selectedDownloadAppId = null;
+  _selectedDownloadAppName = null;
+
+  const wrap = document.createElement('div');
+  wrap.className = 'msg-row';
+  wrap.id = 'downloadAppChatRow';
+
+  const presetsHtml = DOWNLOAD_APP_PRESETS.map(app => `
+    <div class="spu-card" id="dlAppCard_${app.id}" onclick="selectDownloadApp('${app.id}','${app.name.replace(/'/g,'&#39;')}')">
+      <div class="spu-card-check">✓</div>
+      <div class="spu-card-icon" style="background:${app.grad};">${app.icon}</div>
+      <div class="spu-card-name">${app.name}</div>
+      <div class="spu-card-sub">${app.sub}</div>
+    </div>
+  `).join('');
+
+  wrap.innerHTML = `
+    <div style="max-width:680px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
+      <div style="font-size:13px;color:#6B7280;margin-bottom:10px;">📲 方式一：选择常见 App（点击后自动填入）</div>
+      <div class="spu-cards-wrap" id="dlAppCardsWrap" style="margin-bottom:14px;">
+        ${presetsHtml}
+      </div>
+      <div style="height:1px;background:#F3F4F6;margin-bottom:12px;"></div>
+      <div style="font-size:13px;color:#6B7280;margin-bottom:8px;">✏️ 方式二：手动输入 App 名称</div>
+      <div style="display:flex;gap:8px;align-items:center;">
+        <input id="dlAppInput" type="text" placeholder="如：千问App、Boss直聘、闲鱼、抖音..."
+          style="flex:1;padding:9px 14px;border:1.5px solid #E5E7EB;border-radius:20px;font-size:13px;color:#13131F;outline:none;font-family:inherit;background:#F9FAFB;transition:border-color 0.15s;"
+          onfocus="this.style.borderColor='#FF2442'" onblur="this.style.borderColor='#E5E7EB'"
+          oninput="syncDlAppInput(this.value)" />
+        <button onclick="confirmDownloadApp()" style="padding:9px 18px;background:#FF2442;color:#fff;border:none;border-radius:20px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:500;white-space:nowrap;">确认 →</button>
+      </div>
+      <div style="font-size:11px;color:#9CA3AF;margin-top:8px;">💡 选好后会为你匹配专属私有套路，包含行业话术标签</div>
+    </div>
+  `;
+  document.getElementById('chatArea').appendChild(wrap);
+  scrollChat();
+
+  document.getElementById('dlAppInput')?.addEventListener('keydown', e => {
+    if (e.key === 'Enter') confirmDownloadApp();
+  });
+}
+
+function syncDlAppInput(val) {
+  // 如果用户手动输入时取消卡片选中
+  if (_selectedDownloadAppId && val) {
+    const prev = document.getElementById('dlAppCard_' + _selectedDownloadAppId);
+    if (prev) prev.classList.remove('selected');
+    _selectedDownloadAppId = null;
+    _selectedDownloadAppName = null;
+  }
+}
+
+function selectDownloadApp(id, name) {
+  if (_selectedDownloadAppId) {
+    const prev = document.getElementById('dlAppCard_' + _selectedDownloadAppId);
+    if (prev) prev.classList.remove('selected');
+  }
+  if (_selectedDownloadAppId === id) {
+    _selectedDownloadAppId = null;
+    _selectedDownloadAppName = null;
+    const inp = document.getElementById('dlAppInput');
+    if (inp) inp.value = '';
+    return;
+  }
+  _selectedDownloadAppId = id;
+  _selectedDownloadAppName = name;
+  const card = document.getElementById('dlAppCard_' + id);
+  if (card) card.classList.add('selected');
+  const inp = document.getElementById('dlAppInput');
+  if (inp) inp.value = name;
+}
+
+function confirmDownloadApp() {
+  const cardName = _selectedDownloadAppId ? _selectedDownloadAppName : null;
+  const inputVal = document.getElementById('dlAppInput')?.value?.trim();
+  const val = cardName || inputVal;
+  if (!val) { showToast('请选择或输入 App 名称', 'error'); return; }
+
+  document.getElementById('downloadAppChatRow')?.remove();
+  _selectedDownloadAppId = null;
+  _selectedDownloadAppName = null;
+
+  // 保存App名到product，然后进入套路选择阶段
+  state.product = val;
+  state.phase = 2;
+
+  addUserBubble(`推广 App：${val}`);
+  showInputPhase(-1);
+
+  // 根据App名匹配专属私有套路
+  const appSkills = getDownloadSkills(val);
+  // 临时注入到 SKILLS，以便 showSkillCards 使用
+  SKILLS['下载行业_current'] = appSkills;
+
+  setTimeout(() => {
+    addThinkingBubble();
+    setTimeout(() => {
+      removeThinking();
+      addAIBubble(`${val} ✓ 根据你的 App，为你匹配以下专属【私有】套路，已打上行业话术标签，请选择一个：`, () => {
+        showDownloadSkillCards(appSkills);
+        showInputPhase(2);
+        setRightSkillCards();
+      });
+    }, 800);
+  }, 100);
+}
+
+function showDownloadSkillCards(skills) {
+  const chatArea = document.getElementById('chatArea');
+  const topWrap = document.createElement('div');
+  topWrap.className = 'msg-row';
+  topWrap.id = 'chatSkillCards';
+  topWrap.style.cssText = 'display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;';
+  topWrap.innerHTML = skills.map((s, i) => buildDownloadSkillCardHtml(s, i, i === 0)).join('');
+  chatArea.appendChild(topWrap);
+  scrollChat();
+}
+
+function buildDownloadSkillCardHtml(s, index, isFeatured) {
+  const ctrColor = s.ctrUp ? '#22c55e' : '#8888AA';
+  const cardClass = isFeatured ? 'skill-card-chat featured' : 'skill-card-chat';
+  const btnText = isFeatured ? '✓ 选择这个套路' : '选择这个套路';
+  const privateBadge = s.isPrivate ? `<span style="display:inline-flex;align-items:center;gap:3px;background:linear-gradient(135deg,#667eea,#a855f7);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:6px;">🔒 私有</span>` : '';
+  const tagsHtml = s.tags.map(t => {
+    if (t === '私有') return `<span style="background:linear-gradient(135deg,#667eea22,#a855f722);color:#7c3aed;border:1px solid #a855f7;border-radius:10px;padding:2px 7px;font-size:11px;">🔒 ${t}</span>`;
+    return `<span>🏷️ ${t}</span>`;
+  }).join('');
+  return `
+    <div class="${cardClass}" id="chatDlSkill_${index}">
+      ${isFeatured ? '<div class="skill-recommend-label">⭐ 系统推荐</div>' : ''}
+      <div class="skill-card-header">
+        <span class="skill-card-name">${s.icon} ${s.name}${privateBadge}</span>
+        <span class="skill-ctr" style="color:${ctrColor}">CTR ${s.ctr} ${s.ctrUp ? '<span class="up">↑高</span>' : ''}</span>
+      </div>
+      <div class="skill-card-desc" style="margin:8px 0 6px;">${s.desc}</div>
+      <div class="skill-meta-row">
+        ${tagsHtml}
+        <span>📊 历史跑量：${s.ctrUp ? '高' : '中'}</span>
+      </div>
+      <div class="skill-card-actions" style="margin-top:8px">
+        <button class="skill-action-btn primary" onclick="confirmDownloadSkill(${index})">${btnText}</button>
+      </div>
+    </div>
+  `;
+}
+
+function confirmDownloadSkill(index) {
+  const skills = SKILLS['下载行业_current'] || SKILLS['下载行业'];
+  const s = skills[index];
+  state.skill = s;
+  state.phase = 3;
+
+  // Dim 其他卡片
+  document.querySelectorAll('[id^="chatDlSkill_"]').forEach((el, i) => {
+    if (i === index) el.classList.add('selected');
+    else el.classList.add('dimmed');
+  });
+  document.getElementById('skillExpandBtn')?.style && (document.getElementById('skillExpandBtn').style.display = 'none');
+
+  addUserBubble(`确认使用：${s.icon} ${s.name}`);
+  showInputPhase(-1);
+
+  // 步骤条推进
+  const s1c = document.getElementById('step1Circle');
+  const s1l = document.getElementById('step1Label');
+  const s2c = document.getElementById('step2Circle');
+  const s2l = document.getElementById('step2Label');
+  const sl12 = document.getElementById('stepLine12');
+  if (s1c) { s1c.classList.remove('active'); s1c.classList.add('done'); }
+  if (s1l) { s1l.classList.remove('active'); s1l.classList.add('done'); }
+  if (sl12) sl12.classList.add('done');
+  if (s2c) s2c.classList.add('active');
+  if (s2l) s2l.classList.add('active');
+
+  setTimeout(() => {
+    addThinkingBubble();
+    setTimeout(() => {
+      removeThinking();
+      addAIBubble(`${s.icon} ${s.name} ✓ 现在请上传 App 相关素材图片（可选）`, () => {
+        // 上传提示
+        const hintBubble = document.createElement('div');
+        hintBubble.className = 'msg-row';
+        hintBubble.id = 'uploadHintBubble';
+        hintBubble.innerHTML = `<div style="display:inline-flex;align-items:center;gap:6px;background:#EEF2FF;border:1px solid #C7D2FE;border-radius:10px;padding:8px 12px;font-size:12px;color:#4338CA;max-width:500px;">
+          <span style="font-size:14px;">📲</span>
+          <span>建议上传 <strong>App Logo</strong> 或 <strong>App 内页截图</strong>，效果更佳；也可跳过直接生成</span>
+        </div>`;
+        document.getElementById('chatArea').appendChild(hintBubble);
+        showInputPhase(3);
+        document.getElementById('skipUploadBtn')?.classList.remove('hidden');
+      });
+    }, 500);
+  }, 100);
+}
+
 /* 其他行业：保留原有纯手动输入 */
 function buildOtherIndustryInputInChat() {
   const wrap = document.createElement('div');
@@ -3146,21 +3448,30 @@ function selectSpuChat(id, name) {
 /* 新版：图片上传注入 chatArea */
 function buildUploadInChat() {
   const isLead = state.industry === '线索行业';
+  const isDl = state.industry === '下载行业';
+  const isOptional = isLead || isDl;
+  const uploadTitle = isDl
+    ? '📲 上传 App 相关素材图（可选）'
+    : isLead ? '📷 上传商品素材图（可选）' : '📷 请上传商品素材图（必填）';
+  const uploadTip = isDl
+    ? '<div style="font-size:12px;color:#6366F1;background:#EEF2FF;border:1px solid #C7D2FE;border-radius:8px;padding:6px 10px;margin-bottom:8px;">💡 建议上传 <strong>App Logo</strong> 或 <strong>App 内页使用截图</strong>，能让内容更真实可信</div>'
+    : '';
   const wrap = document.createElement('div');
   wrap.className = 'msg-row';
   wrap.id = 'uploadChatRow';
   wrap.innerHTML = `
     <div style="max-width:600px;background:#FFFFFF;border:1px solid #E5E7EB;border-radius:14px;padding:14px 16px;margin:4px 0;">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-        <div style="font-size:13px;color:#6B7280;">${isLead ? '📷 上传商品素材图（可选）' : '📷 请上传商品素材图（必填）'}</div>
+        <div style="font-size:13px;color:#6B7280;">${uploadTitle}</div>
         <button onclick="openMaterialOverlay('img','uploadGrid')" style="font-size:12px;color:#FF2442;background:none;border:none;cursor:pointer;font-family:inherit;padding:0;white-space:nowrap;">📦 从原料库选图</button>
       </div>
+      ${uploadTip}
       <div class="upload-grid" id="uploadGridChat" style="margin-bottom:10px;"></div>
       <input type="file" id="fileInputChat" accept="image/*" multiple style="display:none" onchange="handleFileUploadChat(this)" />
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
         <button id="confirmUploadChatBtn" class="confirm-btn" onclick="handleUploadDoneChat()" style="display:none;">✓ 确认上传，继续 →</button>
         <span style="font-size:12px;color:#9CA3AF;">点击格子上传，最多9张</span>
-        ${isLead ? '<button class="skip-btn" onclick="skipImagesChat()">跳过 →</button>' : ''}
+        ${isOptional ? '<button class="skip-btn" onclick="skipImagesChat()">跳过 →</button>' : ''}
       </div>
     </div>
   `;
