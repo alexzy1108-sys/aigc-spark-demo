@@ -1,0 +1,1802 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎬 生花 AI · AIGC 视频创意工作台</title>
+<style>
+html, body { width: 100%; overflow: hidden; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Helvetica Neue', sans-serif;
+  background: #F7F7F9;
+  color: #13131F;
+  height: 100vh;
+  overflow: hidden;
+  font-size: 14px;
+}
+
+/* ══════════ LOGIN ══════════ */
+#loginPage {
+  position: fixed; inset: 0;
+  background: #F7F7F9;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1000;
+}
+.login-card {
+  width: 400px;
+  background: #fff;
+  border: 1px solid #E5E7EB;
+  border-radius: 20px;
+  padding: 44px 40px 36px;
+  display: flex; flex-direction: column; align-items: center;
+  box-shadow: 0 8px 48px rgba(0,0,0,0.08);
+}
+.login-logo { font-size: 40px; margin-bottom: 10px; }
+.login-title {
+  font-size: 22px; font-weight: 700;
+  background: linear-gradient(135deg, #FF2442, #a855f7);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text; margin-bottom: 6px;
+}
+.login-sub { font-size: 13px; color: #6B7280; margin-bottom: 32px; text-align: center; }
+.login-field { width: 100%; margin-bottom: 12px; }
+.login-field input {
+  width: 100%; padding: 13px 16px;
+  background: #F9FAFB; border: 1.5px solid #E5E7EB; border-radius: 10px;
+  color: #13131F; font-size: 14px; outline: none; transition: border-color 0.2s;
+  font-family: inherit;
+}
+.login-field input::placeholder { color: #9CA3AF; }
+.login-field input:focus { border-color: #FF2442; background: #fff; box-shadow: 0 0 0 3px rgba(255,36,66,0.08); }
+.login-btn {
+  width: 100%; padding: 14px; margin-top: 8px; margin-bottom: 16px;
+  background: linear-gradient(135deg, #FF2442, #e01e39);
+  border: none; border-radius: 10px; color: #fff;
+  font-size: 15px; font-weight: 600; cursor: pointer; font-family: inherit;
+  transition: opacity 0.2s, transform 0.1s;
+}
+.login-btn:hover { opacity: 0.92; }
+.login-btn:active { transform: scale(0.99); }
+.login-note { font-size: 12px; color: #9CA3AF; text-align: center; }
+.login-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: linear-gradient(135deg, rgba(255,36,66,0.08), rgba(168,85,247,0.08));
+  border: 1px solid rgba(255,36,66,0.2);
+  border-radius: 20px; padding: 4px 12px; font-size: 12px;
+  color: #FF2442; font-weight: 500; margin-bottom: 24px;
+}
+
+/* ══════════ MAIN ══════════ */
+#mainPage { display: none; flex-direction: column; height: 100vh; }
+
+/* Header */
+.header {
+  height: 54px; background: #fff; border-bottom: 1px solid #EBEBEB;
+  display: flex; align-items: center; padding: 0 20px; gap: 12px;
+  flex-shrink: 0; z-index: 100; position: relative;
+}
+.header-left { display: flex; align-items: center; gap: 10px; min-width: 200px; }
+.header-home {
+  color: #6B7280; font-size: 13px; cursor: pointer;
+  display: flex; align-items: center; gap: 4px; transition: color 0.2s;
+}
+.header-home:hover { color: #374151; }
+.header-divider { width: 1px; height: 16px; background: #E5E7EB; }
+.header-title { font-size: 13px; font-weight: 600; color: #13131F; white-space: nowrap; }
+.header-center { flex: 1; display: flex; justify-content: center; }
+.header-right { min-width: 200px; display: flex; align-items: center; justify-content: flex-end; gap: 10px; }
+.account-badge {
+  font-size: 12px; color: #6B7280; background: #F3F4F6;
+  border: 1px solid #E5E7EB; border-radius: 20px; padding: 3px 12px;
+}
+.account-badge span { color: #FF2442; font-weight: 600; }
+.new-btn {
+  font-size: 12px; color: #374151; background: #F3F4F6;
+  border: 1px solid #E5E7EB; border-radius: 8px; padding: 5px 12px;
+  cursor: pointer; font-family: inherit; transition: all 0.2s;
+}
+.new-btn:hover { background: #E5E7EB; }
+
+/* Steps */
+.steps { display: flex; align-items: center; }
+.step-item { display: flex; align-items: center; }
+.step-circle {
+  width: 24px; height: 24px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+  border: 1.5px solid #D1D5DB; color: #9CA3AF;
+  transition: all 0.4s ease;
+}
+.step-circle.active {
+  border-color: transparent;
+  background: linear-gradient(135deg, #FF2442, #a855f7);
+  color: #fff; box-shadow: 0 0 12px rgba(255,36,66,0.4);
+}
+.step-circle.done {
+  border-color: transparent;
+  background: linear-gradient(135deg, #FF2442, #a855f7);
+  color: #fff;
+}
+.step-label { font-size: 12px; color: #9CA3AF; margin: 0 6px; white-space: nowrap; transition: color 0.4s; }
+.step-label.active { color: #13131F; font-weight: 600; }
+.step-label.done { color: rgba(255,36,66,0.6); }
+.step-line { width: 24px; height: 1.5px; background: #E5E7EB; transition: background 0.4s; }
+.step-line.done { background: linear-gradient(90deg, #FF2442, #a855f7); }
+
+/* Body */
+.main-body { display: flex; height: calc(100vh - 54px); overflow: hidden; }
+
+/* Left chat panel */
+.left-panel {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column;
+  background: #fff; border-right: 1px solid #EBEBEB;
+  overflow: hidden;
+}
+#chatArea {
+  flex: 1; overflow-y: auto;
+  padding: 20px 24px 32px;
+  display: flex; flex-direction: column; gap: 16px;
+  scroll-behavior: smooth;
+}
+#chatArea::-webkit-scrollbar { width: 4px; }
+#chatArea::-webkit-scrollbar-thumb { background: #F0F0F0; border-radius: 2px; }
+
+/* Messages */
+.msg-row { display: flex; gap: 10px; align-items: flex-start; animation: fadeUp 0.3s ease; }
+.msg-row.user { flex-direction: row-reverse; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.ai-avatar {
+  width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
+  background: linear-gradient(135deg, #FF2442, #a855f7);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: #fff;
+}
+.msg-bubble {
+  max-width: 72%; padding: 12px 16px;
+  background: #F7F7F9; border-radius: 2px 12px 12px 12px;
+  font-size: 14px; line-height: 1.6; color: #13131F;
+}
+.msg-row.user .msg-bubble {
+  background: linear-gradient(135deg, #FF2442, #e01e39);
+  color: #fff; border-radius: 12px 2px 12px 12px;
+}
+
+/* Choice cards */
+.choice-group { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 4px; }
+.choice-card {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 12px 16px; background: #F7F7F9;
+  border: 1.5px solid #E5E7EB; border-radius: 12px;
+  cursor: pointer; transition: all 0.2s; min-width: 140px;
+}
+.choice-card:hover { border-color: #FF2442; background: rgba(255,36,66,0.04); transform: translateY(-1px); }
+.choice-card.selected { border-color: #FF2442; background: rgba(255,36,66,0.06); }
+.choice-title { font-size: 13px; font-weight: 600; color: #13131F; }
+.choice-sub { font-size: 12px; color: #6B7280; }
+
+/* SPU / Material grid */
+.spu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 4px; }
+.spu-card {
+  border: 1.5px solid #E5E7EB; border-radius: 12px; overflow: hidden;
+  cursor: pointer; transition: all 0.2s; position: relative; background: #fff;
+}
+.spu-card:hover { border-color: #FF2442; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(255,36,66,0.1); }
+.spu-card.selected { border-color: #FF2442; }
+.spu-thumb {
+  width: 100%; aspect-ratio: 16/9;
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; position: relative; overflow: hidden;
+}
+.spu-thumb-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, transparent 50%, rgba(0,0,0,0.6) 100%);
+}
+.spu-play-btn {
+  position: absolute; width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(255,255,255,0.9); display: flex; align-items: center; justify-content: center;
+  font-size: 14px; cursor: pointer; z-index: 1;
+}
+.spu-duration {
+  position: absolute; bottom: 6px; right: 8px;
+  font-size: 11px; color: #fff; font-weight: 600; z-index: 1;
+}
+.spu-info { padding: 10px 12px; }
+.spu-name { font-size: 13px; font-weight: 600; color: #13131F; margin-bottom: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.spu-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.tag {
+  font-size: 11px; padding: 2px 8px; border-radius: 20px;
+  font-weight: 500;
+}
+.tag-ecom { background: rgba(255,36,66,0.1); color: #FF2442; }
+.tag-lead { background: rgba(59,130,246,0.1); color: #3B82F6; }
+.tag-full { background: rgba(16,185,129,0.1); color: #10B981; }
+.tag-mix { background: rgba(168,85,247,0.1); color: #a855f7; }
+.spu-select-check {
+  position: absolute; top: 8px; right: 8px; width: 22px; height: 22px;
+  border-radius: 50%; background: #fff; border: 2px solid #E5E7EB;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; transition: all 0.2s;
+}
+.spu-card.selected .spu-select-check { background: #FF2442; border-color: #FF2442; color: #fff; }
+
+/* Routine cards */
+.routine-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 4px;
+}
+.routine-card {
+  border: 1.5px solid #E5E7EB; border-radius: 14px; padding: 18px 16px 14px;
+  cursor: pointer; transition: all 0.2s; background: #fff; position: relative;
+  display: flex; flex-direction: column;
+}
+.routine-card:hover { border-color: #FF2442; background: rgba(255,36,66,0.02); }
+.routine-card.selected { border-color: #FF2442; background: rgba(255,36,66,0.04); }
+.routine-card.recommended::before {
+  content: '⭐ 系统推荐';
+  position: absolute; top: -1px; left: 16px;
+  font-size: 11px; font-weight: 600; color: #fff;
+  background: linear-gradient(135deg, #FF2442, #a855f7);
+  padding: 3px 10px; border-radius: 0 0 8px 8px;
+}
+.routine-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; margin-top: 10px; }
+.routine-name { font-size: 15px; font-weight: 700; color: #13131F; display: flex; align-items: center; gap: 6px; }
+.routine-ctr { font-size: 12px; color: #10B981; font-weight: 600; background: rgba(16,185,129,0.1); padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+.routine-desc { font-size: 12px; color: #6B7280; line-height: 1.6; margin-bottom: 12px; flex: 1; }
+.routine-flow {
+  display: flex; flex-direction: column; gap: 0;
+  background: #F7F7F9; border-radius: 10px; padding: 10px 14px;
+  margin-bottom: 12px;
+}
+.routine-flow-step {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 0;
+}
+.routine-flow-icon { font-size: 18px; width: 28px; text-align: center; flex-shrink: 0; }
+.routine-flow-label { font-size: 12px; color: #374151; font-weight: 500; }
+.routine-flow-arrow { color: #D1D5DB; font-size: 14px; text-align: center; padding: 0 0 0 8px; line-height: 1; }
+.routine-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; }
+.routine-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+.routine-btn {
+  padding: 7px 18px; background: #FF2442; border: none; border-radius: 8px;
+  color: #fff; font-size: 13px; font-weight: 600; cursor: pointer;
+  font-family: inherit; transition: opacity 0.2s; white-space: nowrap;
+}
+.routine-btn:hover { opacity: 0.88; }
+.routine-card.selected .routine-btn { background: #10B981; }
+
+/* Generation panel */
+.gen-panel { margin-top: 4px; }
+.gen-status {
+  border: 1.5px solid #E5E7EB; border-radius: 14px; padding: 20px;
+  background: #fff;
+}
+.gen-status-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+.gen-spinner {
+  width: 36px; height: 36px; border-radius: 50%;
+  border: 3px solid #F0F0F0; border-top-color: #FF2442;
+  animation: spin 0.8s linear infinite; flex-shrink: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.gen-status-text h4 { font-size: 15px; font-weight: 700; margin-bottom: 2px; }
+.gen-status-text p { font-size: 13px; color: #6B7280; }
+.gen-progress { background: #F3F4F6; border-radius: 8px; height: 6px; overflow: hidden; margin-bottom: 12px; }
+.gen-progress-bar {
+  height: 100%; background: linear-gradient(90deg, #FF2442, #a855f7);
+  border-radius: 8px; transition: width 0.6s ease;
+}
+.gen-steps { display: flex; flex-direction: column; gap: 8px; }
+.gen-step { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #6B7280; }
+.gen-step.done { color: #10B981; }
+.gen-step.active { color: #13131F; font-weight: 500; }
+.gen-step-icon { font-size: 16px; flex-shrink: 0; width: 20px; text-align: center; }
+
+/* Result cards */
+.result-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 4px; }
+.result-card {
+  border: 1.5px solid #E5E7EB; border-radius: 14px; overflow: hidden;
+  background: #fff; transition: all 0.2s;
+}
+.result-card:hover { border-color: #FF2442; box-shadow: 0 4px 16px rgba(255,36,66,0.1); }
+.result-thumb {
+  aspect-ratio: 16/9; background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  display: flex; align-items: center; justify-content: center;
+  position: relative; overflow: hidden;
+}
+.result-thumb-emoji { font-size: 48px; }
+.result-thumb-label {
+  position: absolute; bottom: 10px; left: 10px;
+  background: rgba(0,0,0,0.6); color: #fff; font-size: 11px; font-weight: 600;
+  padding: 3px 10px; border-radius: 20px; backdrop-filter: blur(4px);
+}
+.result-thumb-duration {
+  position: absolute; bottom: 10px; right: 10px;
+  background: rgba(0,0,0,0.6); color: #fff; font-size: 11px;
+  padding: 3px 8px; border-radius: 20px;
+}
+.result-info { padding: 12px; }
+.result-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.result-meta { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+.result-score { font-size: 12px; color: #10B981; font-weight: 600; }
+.result-actions { display: flex; gap: 8px; }
+.result-btn {
+  flex: 1; padding: 7px; border-radius: 8px; border: none;
+  font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.2s;
+}
+.result-btn-primary { background: #FF2442; color: #fff; }
+.result-btn-primary:hover { opacity: 0.88; }
+.result-btn-secondary { background: #F3F4F6; color: #374151; border: 1px solid #E5E7EB; }
+.result-btn-secondary:hover { background: #E5E7EB; }
+
+/* Typing indicator */
+.typing { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
+.typing-dot {
+  width: 6px; height: 6px; border-radius: 50%; background: #9CA3AF;
+  animation: bounce 1.2s ease infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes bounce { 0%,80%,100% { transform: scale(0.6); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
+
+/* Right sidebar */
+.right-panel {
+  width: 280px; flex-shrink: 0;
+  background: #FAFAFA; border-left: 1px solid #EBEBEB;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.sidebar-section { padding: 16px; border-bottom: 1px solid #EBEBEB; }
+.sidebar-title { font-size: 12px; font-weight: 700; color: #9CA3AF; letter-spacing: 0.5px; margin-bottom: 12px; text-transform: uppercase; }
+.sidebar-account { display: flex; align-items: center; gap: 10px; }
+.sidebar-account-avatar {
+  width: 40px; height: 40px; border-radius: 12px;
+  background: linear-gradient(135deg, #FF2442, #a855f7);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; flex-shrink: 0;
+}
+.sidebar-account-name { font-size: 14px; font-weight: 600; }
+.sidebar-account-id { font-size: 12px; color: #9CA3AF; }
+.sidebar-account-industry {
+  font-size: 11px; color: #FF2442; background: rgba(255,36,66,0.08);
+  border-radius: 20px; padding: 2px 8px; margin-top: 4px; display: inline-block;
+}
+
+.material-mini-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.material-mini {
+  aspect-ratio: 16/9; border-radius: 8px; overflow: hidden;
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; cursor: pointer; position: relative; transition: all 0.2s;
+}
+.material-mini:hover { transform: scale(1.05); }
+.material-mini-count {
+  position: absolute; bottom: 3px; right: 4px;
+  font-size: 9px; color: rgba(255,255,255,0.9); font-weight: 600;
+}
+
+.history-mini { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; flex: 1; padding: 16px; }
+.history-mini-item {
+  padding: 10px 12px; border-radius: 10px; background: #fff;
+  border: 1px solid #E5E7EB; cursor: pointer; transition: all 0.2s;
+}
+.history-mini-item:hover { border-color: #FF2442; }
+.history-mini-title { font-size: 12px; font-weight: 600; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.history-mini-meta { font-size: 11px; color: #9CA3AF; }
+.history-mini-status { font-size: 11px; color: #10B981; }
+
+/* Input area */
+.input-area {
+  padding: 12px 20px 16px;
+  background: #fff; border-top: 1px solid #EBEBEB;
+  flex-shrink: 0;
+}
+.input-hint { font-size: 12px; color: #9CA3AF; margin-bottom: 8px; padding-left: 2px; }
+.input-row { display: flex; gap: 8px; }
+.input-box {
+  flex: 1; padding: 10px 14px; border-radius: 10px;
+  border: 1.5px solid #E5E7EB; background: #F9FAFB;
+  font-size: 14px; font-family: inherit; color: #13131F;
+  outline: none; transition: border-color 0.2s; resize: none; height: 42px;
+}
+.input-box:focus { border-color: #FF2442; background: #fff; box-shadow: 0 0 0 3px rgba(255,36,66,0.06); }
+.input-box::placeholder { color: #9CA3AF; }
+.send-btn {
+  width: 42px; height: 42px; border-radius: 10px;
+  background: linear-gradient(135deg, #FF2442, #e01e39);
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+  transition: opacity 0.2s, transform 0.1s; flex-shrink: 0;
+}
+.send-btn:hover { opacity: 0.88; }
+.send-btn:active { transform: scale(0.96); }
+
+/* Loading state */
+.loading-bar {
+  height: 2px; width: 100%;
+  background: linear-gradient(90deg, transparent, #FF2442, #a855f7, transparent);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+/* Section confirm bar */
+.confirm-bar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; background: rgba(255,36,66,0.04);
+  border: 1px solid rgba(255,36,66,0.15); border-radius: 10px; margin-top: 8px;
+}
+.confirm-text { font-size: 13px; color: #374151; }
+.confirm-btn {
+  padding: 7px 18px; background: #FF2442; color: #fff;
+  border: none; border-radius: 8px; font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: inherit; transition: opacity 0.2s;
+}
+.confirm-btn:hover { opacity: 0.88; }
+.confirm-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* API config notice */
+.api-notice {
+  margin-top: 10px; padding: 12px 14px;
+  background: rgba(59,130,246,0.06); border: 1px solid rgba(59,130,246,0.2);
+  border-radius: 10px; font-size: 12px; color: #3B82F6; line-height: 1.6;
+}
+.api-notice a { color: #3B82F6; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: #EBEBEB; border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- ══════════ LOGIN PAGE ══════════ -->
+<div id="loginPage">
+  <div class="login-card">
+    <div class="login-logo">🎬</div>
+    <div class="login-title">AIGC 视频创意工作台</div>
+    <div class="login-sub">输入广告主账户 ID，AI 分析素材并自动推荐视频创意套路</div>
+    <div class="login-badge">✨ 内部产研运演示版 · Demo</div>
+    <div class="login-field">
+      <input type="text" id="accountInput" placeholder="请输入 brand_account_id" />
+    </div>
+    <div style="width:100%;margin-bottom:12px;">
+      <div style="font-size:11px;color:#9CA3AF;margin-bottom:8px;text-align:left;">🚀 快速体验 Demo 账户</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+        <button onclick="quickLogin('8823401')" style="padding:8px 10px;border-radius:8px;border:1px solid #E5E7EB;background:#F9FAFB;font-size:12px;cursor:pointer;text-align:left;font-family:inherit;transition:all 0.2s;" onmouseover="this.style.borderColor='#FF2442'" onmouseout="this.style.borderColor='#E5E7EB'">
+          🎓 <strong>教育行业</strong><br><span style="color:#9CA3AF;font-size:11px;">雅思研究院</span>
+        </button>
+        <button onclick="quickLogin('6612309')" style="padding:8px 10px;border-radius:8px;border:1px solid #E5E7EB;background:#F9FAFB;font-size:12px;cursor:pointer;text-align:left;font-family:inherit;transition:all 0.2s;" onmouseover="this.style.borderColor='#FF2442'" onmouseout="this.style.borderColor='#E5E7EB'">
+          🌸 <strong>美妆行业</strong><br><span style="color:#9CA3AF;font-size:11px;">花西子旗舰店</span>
+        </button>
+        <button onclick="quickLogin('7734521')" style="padding:8px 10px;border-radius:8px;border:1px solid #E5E7EB;background:#F9FAFB;font-size:12px;cursor:pointer;text-align:left;font-family:inherit;transition:all 0.2s;" onmouseover="this.style.borderColor='#FF2442'" onmouseout="this.style.borderColor='#E5E7EB'">
+          🌀 <strong>家电行业</strong><br><span style="color:#9CA3AF;font-size:11px;">戴森官方店</span>
+        </button>
+        <button onclick="quickLogin('602e9d1e000000000101db3f')" style="padding:8px 10px;border-radius:8px;border:1px solid #E5E7EB;background:#F9FAFB;font-size:12px;cursor:pointer;text-align:left;font-family:inherit;transition:all 0.2s;" onmouseover="this.style.borderColor='#FF2442'" onmouseout="this.style.borderColor='#E5E7EB'">
+          🌿 <strong>真实接口</strong><br><span style="color:#FF2442;font-size:11px;">黑芝麻丸（内网）</span>
+        </button>
+      </div>
+    </div>
+    <button class="login-btn" onclick="handleLogin()">进入工作台 →</button>
+    <div class="login-note">仅限内部白名单账户，如需申请请联系商务</div>
+  </div>
+</div>
+
+<!-- ══════════ MAIN PAGE ══════════ -->
+<div id="mainPage">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <div class="header-home" onclick="backToLogin()">← 首页</div>
+      <div class="header-divider"></div>
+      <div class="header-title">🎬 生花 AI · 视频创意工作台</div>
+    </div>
+    <div class="header-center">
+      <div class="steps" id="stepsBar">
+        <div class="step-item">
+          <div class="step-circle active" id="s1">①</div>
+          <div class="step-label active" id="sl1">素材分析</div>
+        </div>
+        <div class="step-line" id="line1"></div>
+        <div class="step-item">
+          <div class="step-circle" id="s2">②</div>
+          <div class="step-label" id="sl2">套路选择</div>
+        </div>
+        <div class="step-line" id="line2"></div>
+        <div class="step-item">
+          <div class="step-circle" id="s3">③</div>
+          <div class="step-label" id="sl3">参数配置</div>
+        </div>
+        <div class="step-line" id="line3"></div>
+        <div class="step-item">
+          <div class="step-circle" id="s4">④</div>
+          <div class="step-label" id="sl4">视频生成</div>
+        </div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="account-badge">账户 <span id="headerAccountId">-</span></div>
+      <button class="new-btn" onclick="backToLogin()">✏️ 新建</button>
+    </div>
+  </div>
+
+  <!-- Main body -->
+  <div class="main-body">
+
+    <!-- Left panel: chat -->
+    <div class="left-panel">
+      <div id="chatArea"></div>
+      <div class="input-area">
+        <div class="input-hint" id="inputHint">有任何问题可以直接问我 ✨</div>
+        <div class="input-row">
+          <textarea class="input-box" id="userInput" placeholder="输入消息..." rows="1"
+            onkeydown="handleInputKey(event)"></textarea>
+          <button class="send-btn" onclick="sendUserMessage()">➤</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right panel: sidebar -->
+    <div class="right-panel">
+      <!-- Account info -->
+      <div class="sidebar-section">
+        <div class="sidebar-title">📊 广告主信息</div>
+        <div class="sidebar-account">
+          <div class="sidebar-account-avatar" id="sidebarAvatar">🏪</div>
+          <div>
+            <div class="sidebar-account-name" id="sidebarName">-</div>
+            <div class="sidebar-account-id" id="sidebarId">ID: -</div>
+            <div class="sidebar-account-industry" id="sidebarIndustry">-</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Material mini -->
+      <div class="sidebar-section">
+        <div class="sidebar-title">🎞️ 素材库（<span id="materialCount">0</span>个）</div>
+        <div class="material-mini-grid" id="materialMiniGrid"></div>
+      </div>
+
+      <!-- History -->
+      <div class="sidebar-title" style="padding:16px 16px 8px; font-size:12px; font-weight:700; color:#9CA3AF; letter-spacing:0.5px; text-transform:uppercase;">🕐 历史生成</div>
+      <div class="history-mini" id="historyMini">
+        <div class="history-mini-item">
+          <div class="history-mini-title">混剪_电商_0410</div>
+          <div class="history-mini-meta">今天 · <span class="history-mini-status">✓ 已完成 · 3条</span></div>
+        </div>
+        <div class="history-mini-item">
+          <div class="history-mini-title">数字人前贴_教育_0408</div>
+          <div class="history-mini-meta">2天前 · <span class="history-mini-status">✓ 已完成 · 2条</span></div>
+        </div>
+        <div class="history-mini-item">
+          <div class="history-mini-title">关键帧音效_美妆_0405</div>
+          <div class="history-mini-meta">5天前 · <span class="history-mini-status">✓ 已完成 · 4条</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════════════
+const CONFIG = {
+  // 生花平台 API（拉素材）—— 内网可直连，外网自动降级 mock
+  sparkBase: 'http://shenghua-sparkwanghan.sl.beta.xiaohongshu.com/api/edith/spark/item',
+  // 可灵本地代理（运行 python3 kling_proxy.py 后生效）
+  klingProxy: 'http://localhost:8765',
+  // 行业标签映射
+  industryTagMap: {
+    '电商': 'ecom', '美妆': 'ecom', '服饰': 'ecom', '食品': 'ecom',
+    '教育': 'lead', '金融': 'lead', '游戏': 'lead',
+    '线索': 'lead', '下载': 'lead',
+  }
+};
+
+// ═══════════════════════════════════════════
+// AI 视频生成接口 — 视频生成
+// ═══════════════════════════════════════════
+
+// 根据套路和素材决定调哪个接口、传什么 prompt
+function buildKlingRequest(routine, materials) {
+  const names = materials.map(m => m.name).join('、');
+  const base = {
+    model_name: 'kling-v2-6',
+    duration: '5',
+    mode: 'pro',
+    sound: 'off',
+  };
+
+  if (routine.id === 'avatar') {
+    // 数字人前贴：文生视频（生成数字人片头）
+    return {
+      type: 'text2video',
+      path: '/v1/videos/text2video',
+      body: { ...base,
+        prompt: `专业商务数字人出镜，直视镜头，自信介绍：${names}，适合线索广告，简洁有力，背景简洁`,
+        negative_prompt: '模糊、低质量',
+      },
+    };
+  } else if (routine.id === 'sfx') {
+    // 音效增强：用封面图生成带动感的短视频
+    const imgMat = materials.find(m => m.coverUrl) || materials[0];
+    if (imgMat && imgMat.coverUrl) {
+      return {
+        type: 'image2video',
+        path: '/v1/videos/image2video',
+        body: { ...base,
+          image: imgMat.coverUrl,
+          prompt: `画面动感增强，突出产品特写，节奏感强，适合广告投放`,
+        },
+      };
+    }
+    // fallback 文生视频
+    return {
+      type: 'text2video',
+      path: '/v1/videos/text2video',
+      body: { ...base,
+        prompt: `${names} 产品特写，动感节奏，音效强调，高质量广告视频`,
+      },
+    };
+  } else {
+    // 混剪：多图参考生视频 or 图生视频
+    const imgMat = materials.find(m => m.coverUrl);
+    if (imgMat && imgMat.coverUrl) {
+      return {
+        type: 'image2video',
+        path: '/v1/videos/image2video',
+        body: { ...base,
+          image: imgMat.coverUrl,
+          prompt: `快节奏混剪，展示 ${names}，突出卖点，适合电商投流`,
+        },
+      };
+    }
+    return {
+      type: 'text2video',
+      path: '/v1/videos/text2video',
+      body: { ...base,
+        prompt: `快节奏混剪广告，展示 ${names}，电商种草风格，高转化`,
+      },
+    };
+  }
+}
+
+// 提交生成任务，返回 task_id
+async function klingSubmitTask(req) {
+  const resp = await fetch(`${PROXY}/kling${req.path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(req.body),
+  });
+  const json = await resp.json();
+  if (json.code !== 0) throw new Error(json.message || '任务提交失败');
+  return json.data.task_id;
+}
+
+// 轮询任务状态，直到完成
+async function klingPollTask(taskId, taskType, onProgress) {
+  const pathMap = {
+    text2video: `/v1/videos/text2video/${taskId}`,
+    image2video: `/v1/videos/image2video/${taskId}`,
+  };
+  const path = pathMap[taskType];
+  const MAX_POLLS = 60;
+  for (let i = 0; i < MAX_POLLS; i++) {
+    await new Promise(r => setTimeout(r, 5000));
+    const resp = await fetch(`${PROXY}/kling${path}`);
+    const json = await resp.json();
+    if (json.code !== 0) throw new Error(json.message);
+    const task = json.data;
+    onProgress && onProgress(task.task_status, i);
+    if (task.task_status === 'succeed') {
+      const works = task.task_result?.videos || [];
+      return works.map(v => v.url).filter(Boolean);
+    }
+    if (task.task_status === 'failed') throw new Error(task.task_status_msg || '生成失败');
+  }
+  throw new Error('生成超时');
+}
+
+// 检测代理是否在线
+async function checkKlingProxy() {
+  try {
+    const r = await fetch(`${PROXY}/kling/v1/account/costs`);
+    return r.status < 500;
+  } catch { return false; }
+}
+
+// ═══════════════════════════════════════════
+// REAL API — 生花平台素材接口
+// ═══════════════════════════════════════════
+
+// 统一走本地代理（解决跨域 + mixed content 问题）
+const PROXY = 'http://localhost:8765';
+
+// 内网图片走代理中转
+function proxyImg(url) {
+  if (!url) return '';
+  if (url.includes('localhost')) return url;
+  return `${PROXY}/imgproxy?url=${encodeURIComponent(url)}`;
+}
+
+async function sparkPost(path, body) {
+  const resp = await fetch(`${PROXY}/spark${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const json = await resp.json();
+  return json.data || json.result || json;
+}
+
+// Step1: brand_account_id → spu_ids + spu_names
+async function apiGetSpuIds(brandAccountId) {
+  const data = await sparkPost('/brand-account-spu', {
+    brand_account_ids: [brandAccountId],
+    limit: 5,
+    order_by_field: 'deal_order_gmv_7d',
+  });
+  // 真实结构：data.items[].spu_infos[].{ spu_id, spu_name }
+  const spuMap = {}; // spu_id -> spu_name
+  const items = data.items || [];
+  items.forEach(item => {
+    (item.spu_infos || []).forEach(s => {
+      if (s.spu_id) spuMap[s.spu_id] = s.spu_name || s.spu_id;
+    });
+  });
+  // 保存到 state 供后续使用
+  state._spuNameMap = spuMap;
+  const ids = Object.keys(spuMap);
+  console.log('[DEBUG] spuIds from brand-account-spu:', ids, 'spuMap:', JSON.stringify(spuMap).slice(0,300));
+  return ids;
+}
+
+// Step2: spu_ids → item_info
+async function apiGetItemInfo(spuIds) {
+  const data = await sparkPost('/info', { spu_ids: spuIds });
+  console.log('[DEBUG] /info raw response:', JSON.stringify(data).slice(0, 500));
+  // 真实结构: { items: [{spu_id, spu_name, item_materials:[...]}] }
+  if (data && Array.isArray(data.items)) return data.items;
+  if (Array.isArray(data)) return data;
+  if (typeof data === 'object') return Object.values(data).flat();
+  return [];
+}
+
+// Step3: spu_ids → best_seller_cases
+async function apiGetBestSellerCases(spuIds) {
+  const data = await sparkPost('/best-seller-cases', { spu_ids: spuIds });
+  return Array.isArray(data) ? data : (typeof data === 'object' ? Object.values(data) : []);
+}
+
+// 把 item_info + best_seller_cases 转成统一的 material 对象
+function parseMaterials(itemInfos, cases) {
+  console.log('[DEBUG] parseMaterials itemInfos:', JSON.stringify(itemInfos).slice(0, 800));
+  // 把每条素材（图片/视频）展开成独立卡片，不按商品聚合
+  const items = [];
+
+  itemInfos.forEach((item) => {
+    const spuId = String(item.spu_id || item.id || '');
+    const spuName = item.spu_name || item.name || (state._spuNameMap && state._spuNameMap[spuId]) || '';
+    const mats = item.item_materials || item.materials || item.creatives || [];
+
+    mats.forEach((mat, i) => {
+      const url = mat.material_url || mat.url || '';
+      if (!url) return;
+      // 根据 URL 后缀或 material_type_name 判断是否视频
+      const typeName = (mat.material_type_name || '').toLowerCase();
+      const isVideo = /\.mp4|\.mov|\.webm/i.test(url) || typeName.includes('视频') || typeName.includes('video');
+      const allText = spuName + (mat.sku_name || '');
+      let type = 'ecom';
+      if (['教育','金融','游戏','线索','下载','课程','培训'].some(k => allText.includes(k))) type = 'lead';
+
+      items.push({
+        id: `${spuId}_m${i}`,
+        spuId,
+        spuName,
+        name: mat.sku_name || spuName || `素材 ${items.length + 1}`,
+        videoUrl: isVideo ? proxyImg(url) : '',
+        coverUrl: isVideo ? '' : proxyImg(url),
+        rawUrl: url,
+        isVideo,
+        duration: isVideo ? '视频' : `图片`,
+        durationSec: 30,
+        tags: type === 'lead' ? ['线索'] : ['电商'],
+        type,
+        completeness: 0.8,
+        matCount: mats.length,
+        emoji: isVideo ? '🎬' : '🖼️',
+        source: 'api',
+      });
+    });
+  });
+
+  // 从爆款案例补充
+  cases.forEach((c, idx) => {
+    const videoUrl = c.video_url || c.videoUrl || c.creative_url || '';
+    const coverUrl = c.cover_url || c.coverUrl || '';
+    const url = videoUrl || coverUrl;
+    if (!url) return;
+    const isVideo = !!videoUrl;
+    items.push({
+      id: `case_${idx}`,
+      spuId: String(c.spu_id || c.id || ''),
+      spuName: c.spu_name || '',
+      name: c.case_name || c.title || c.spu_name || `爆款案例 ${idx + 1}`,
+      videoUrl,
+      coverUrl,
+      isVideo,
+      duration: isVideo ? '视频' : '图片',
+      durationSec: 30,
+      tags: ['爆款'],
+      type: 'ecom',
+      completeness: 0.9,
+      matCount: 1,
+      emoji: isVideo ? '🎬' : '🏆',
+      source: 'case',
+    });
+  });
+
+  return items; // 不截断，全量展示
+}
+
+// 主入口：拉取真实素材，失败降级 mock
+async function fetchRealMaterials(brandAccountId) {
+  try {
+    const spuIds = await apiGetSpuIds(brandAccountId);
+    if (!spuIds.length) throw new Error('no spu ids');
+
+    const [itemInfos, cases] = await Promise.all([
+      apiGetItemInfo(spuIds).catch(() => []),
+      apiGetBestSellerCases(spuIds).catch(() => []),
+    ]);
+
+    let materials = parseMaterials(itemInfos, cases);
+
+    // item_info 没素材URL时，说明接口可达但商品没有素材，直接 throw 降级
+    if (!materials.length) throw new Error('no materials with url');
+
+    if (!materials.length) throw new Error('no materials');
+    return { materials, fromApi: true };
+  } catch (e) {
+    console.warn('[API] 接口不可达，降级 mock:', e.message);
+    return { materials: null, fromApi: false };
+  }
+}
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let state = {
+  accountId: '',
+  accountName: '',
+  industry: '',
+  step: 0,
+  materials: [],       // fetched SPU materials
+  selectedMaterials: [], // user selected
+  materialType: '',    // 'ecom' | 'lead' | 'full'
+  selectedRoutine: null,
+  generating: false,
+  results: [],
+};
+
+// ═══════════════════════════════════════════
+// MOCK DATA（真实接口替换）
+// ═══════════════════════════════════════════
+const MOCK_ACCOUNTS = {
+  '8823401': { name: '雅思研究院', industry: '教育', avatar: '🎓', type: 'lead' },
+  '6612309': { name: '花西子旗舰店', industry: '美妆', avatar: '🌸', type: 'ecom' },
+  '7734521': { name: '戴森官方店', industry: '家电', avatar: '🌀', type: 'ecom' },
+  'default': { name: '测试广告主', industry: '电商', avatar: '🏪', type: 'ecom' },
+};
+
+const MOCK_MATERIALS = {
+  'lead': [
+    { id: 'M001', name: '老师讲解课程介绍', emoji: '👨‍🏫', duration: '0:45', tags: ['线索', '教育'], type: 'lead', completeness: 0.7 },
+    { id: 'M002', name: '学员证言采访', emoji: '🎤', duration: '1:20', tags: ['线索', '真实感'], type: 'lead', completeness: 0.9 },
+    { id: 'M003', name: '课程亮点产品展示', emoji: '📚', duration: '0:30', tags: ['线索'], type: 'lead', completeness: 0.6 },
+    { id: 'M004', name: 'BOSS直播课片段', emoji: '🖥️', duration: '2:10', tags: ['线索', '直播'], type: 'lead', completeness: 0.95 },
+    { id: 'M005', name: '班级合影宣传素材', emoji: '👥', duration: '0:20', tags: ['线索'], type: 'lead', completeness: 0.5 },
+  ],
+  'ecom': [
+    { id: 'M001', name: '产品开箱展示', emoji: '📦', duration: '0:35', tags: ['电商', '种草'], type: 'ecom', completeness: 0.8 },
+    { id: 'M002', name: '使用效果对比', emoji: '✨', duration: '0:50', tags: ['电商', '对比'], type: 'ecom', completeness: 0.85 },
+    { id: 'M003', name: '买家秀合集', emoji: '📸', duration: '1:15', tags: ['电商', '真实感'], type: 'ecom', completeness: 0.75 },
+    { id: 'M004', name: '成分功效讲解', emoji: '🔬', duration: '1:40', tags: ['电商', '专业'], type: 'ecom', completeness: 0.9 },
+    { id: 'M005', name: '节日限定包装展示', emoji: '🎁', duration: '0:25', tags: ['电商'], type: 'ecom', completeness: 0.6 },
+  ],
+};
+
+const TOOLS_3 = [
+  {
+    id: 'mix',
+    name: '🎬 爆款混剪',
+    ctr: '预估 CTR +38%',
+    desc: '将多段素材智能混剪，节奏感强，突出产品卖点，适合开屏投放和信息流。',
+    flow: [
+      { icon: '🎞️', label: '上传多段素材' },
+      { icon: '✂️', label: 'AI 智能混剪' },
+      { icon: '🎵', label: '自动配乐' },
+      { icon: '📱', label: '输出成片' },
+    ],
+    tags: ['电商', '混剪', '历史跑量：高'],
+    recommended: true,
+  },
+  {
+    id: 'splice',
+    name: '🎙️ 前贴拼接',
+    ctr: '预估 CTR +45%',
+    desc: '在原始素材前自动生成 AI 数字人片头，引入主题，适合教育、金融等线索行业。',
+    flow: [
+      { icon: '🤖', label: '生成数字人片头' },
+      { icon: '➕', label: '前贴拼接' },
+      { icon: '🎙️', label: 'AI 配音同步' },
+      { icon: '📱', label: '输出成片' },
+    ],
+    tags: ['线索', '数字人', '历史跑量：高'],
+    recommended: false,
+  },
+  {
+    id: 'keyframe',
+    name: '✨ 关键帧特效',
+    ctr: '预估 CTR +30%',
+    desc: '检测素材关键帧，在产品出现、卖点节点等关键时刻自动叠加视觉特效，强化记忆点。',
+    flow: [
+      { icon: '🔍', label: '关键帧检测' },
+      { icon: '🎆', label: '特效生成' },
+      { icon: '🎞️', label: '轨道合成' },
+      { icon: '📱', label: '输出成片' },
+    ],
+    tags: ['通用', '特效', '历史跑量：中'],
+    recommended: false,
+  },
+];
+
+const ROUTINES = {
+  'ecom': TOOLS_3,
+  'lead': TOOLS_3,
+  'full': TOOLS_3,
+};
+
+// ═══════════════════════════════════════════
+// LOGIN
+// ═══════════════════════════════════════════
+function quickLogin(id) {
+  document.getElementById('accountInput').value = id;
+  handleLogin();
+}
+
+function handleLogin() {
+  const val = document.getElementById('accountInput').value.trim();
+  if (!val) { alert('请输入 brand_account_id'); return; }
+  state.accountId = val;
+  const acc = MOCK_ACCOUNTS[val] || MOCK_ACCOUNTS['default'];
+  state.accountName = acc.name;
+  state.industry = acc.industry;
+  state.industryType = acc.type;
+
+  document.getElementById('loginPage').style.display = 'none';
+  document.getElementById('mainPage').style.display = 'flex';
+  document.getElementById('headerAccountId').textContent = val;
+
+  updateSidebar(acc, val);
+  startConversation(acc);
+}
+
+function backToLogin() {
+  document.getElementById('loginPage').style.display = 'flex';
+  document.getElementById('mainPage').style.display = 'none';
+  document.getElementById('chatArea').innerHTML = '';
+  document.getElementById('accountInput').value = '';
+  state = { accountId:'', accountName:'', industry:'', step:0, materials:[], selectedMaterials:[], materialType:'', selectedRoutine:null, generating:false, results:[] };
+  setStep(0);
+}
+
+function updateSidebar(acc, id) {
+  document.getElementById('sidebarAvatar').textContent = acc.avatar;
+  document.getElementById('sidebarName').textContent = acc.name;
+  document.getElementById('sidebarId').textContent = 'ID: ' + id;
+  document.getElementById('sidebarIndustry').textContent = acc.industry + ' 行业';
+}
+
+// ═══════════════════════════════════════════
+// STEPS
+// ═══════════════════════════════════════════
+function setStep(n) {
+  for (let i = 1; i <= 4; i++) {
+    const c = document.getElementById('s' + i);
+    const l = document.getElementById('sl' + i);
+    c.className = 'step-circle' + (i < n ? ' done' : i === n ? ' active' : '');
+    l.className = 'step-label' + (i < n ? ' done' : i === n ? ' active' : '');
+    if (i < 4) document.getElementById('line' + i).className = 'step-line' + (i < n ? ' done' : '');
+  }
+}
+
+// ═══════════════════════════════════════════
+// CHAT HELPERS
+// ═══════════════════════════════════════════
+function appendMsg(role, content) {
+  const area = document.getElementById('chatArea');
+  const row = document.createElement('div');
+  row.className = 'msg-row' + (role === 'user' ? ' user' : '');
+  if (role === 'ai') {
+    row.innerHTML = `<div class="ai-avatar">🎬</div><div class="msg-bubble">${content}</div>`;
+  } else {
+    row.innerHTML = `<div class="msg-bubble">${content}</div>`;
+  }
+  area.appendChild(row);
+  area.scrollTop = area.scrollHeight;
+  return row;
+}
+
+function appendElement(el) {
+  const area = document.getElementById('chatArea');
+  area.appendChild(el);
+  area.scrollTop = area.scrollHeight;
+}
+
+function showTyping() {
+  const area = document.getElementById('chatArea');
+  const row = document.createElement('div');
+  row.className = 'msg-row';
+  row.id = 'typingRow';
+  row.innerHTML = `<div class="ai-avatar">🎬</div><div class="msg-bubble"><div class="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+  area.appendChild(row);
+  area.scrollTop = area.scrollHeight;
+}
+
+function removeTyping() {
+  const t = document.getElementById('typingRow');
+  if (t) t.remove();
+}
+
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function aiSay(content, ms = 600) {
+  showTyping();
+  await delay(ms);
+  removeTyping();
+  appendMsg('ai', content);
+}
+
+// ═══════════════════════════════════════════
+// CONVERSATION FLOW
+// ═══════════════════════════════════════════
+async function startConversation(acc) {
+  setStep(1);
+  showTyping();
+  await delay(800);
+  removeTyping();
+  appendMsg('ai', `你好！我是 AIGC 视频创意助手 🎬<br>已成功读取账户 <strong>${state.accountId}</strong> · ${acc.name}<br><br>正在拉取账户内的视频素材，请稍候...`);
+
+  // 尝试真实 API，失败降级 mock
+  showTyping();
+  const { materials: realMats, fromApi } = await fetchRealMaterials(state.accountId);
+  removeTyping();
+
+  let materials;
+  if (fromApi && realMats && realMats.length) {
+    materials = realMats;
+    appendMsg('ai', `✅ 共找到 <strong>${materials.length}</strong> 条视频素材（来自真实接口）<br>AI 正在分析素材类型和完整度...`);
+  } else {
+    // Fallback mock
+    materials = MOCK_MATERIALS[acc.type] || MOCK_MATERIALS['ecom'];
+    appendMsg('ai', `✅ 共找到 <strong>${materials.length}</strong> 条视频素材<br>AI 正在分析素材类型和完整度...`);
+  }
+
+  state.materials = materials;
+  updateMaterialMini(materials);
+  document.getElementById('materialCount').textContent = materials.length;
+  showTyping();
+  await delay(1500);
+  removeTyping();
+
+  // Analyze and show
+  const analysisResult = analyzeAll(materials);
+  state.materialType = analysisResult.type;
+
+  appendMsg('ai', `分析完成！以下是你账户内的全部素材，<strong>点击选择</strong>你想用于创意生成的（可多选），选好后点确认 👇`);
+  showMaterialCards(materials);
+}
+
+function analyzeAll(materials) {
+  // Check industry tags first
+  const leadCount = materials.filter(m => m.type === 'lead').length;
+  const ecomCount = materials.filter(m => m.type === 'ecom').length;
+  const avgCompleteness = materials.reduce((s, m) => s + m.completeness, 0) / materials.length;
+
+  if (leadCount > ecomCount) return { type: 'lead' };
+  if (avgCompleteness >= 0.85) return { type: 'full' };
+  return { type: 'ecom' };
+}
+
+function getTagClass(tag) {
+  if (['电商','美妆','种草','对比','真实感','专业'].includes(tag)) return 'tag-ecom';
+  if (['线索','教育','金融','直播'].includes(tag)) return 'tag-lead';
+  if (['完整','高质量'].includes(tag)) return 'tag-full';
+  return 'tag-mix';
+}
+
+function showMaterialCards(materials) {
+  const area = document.getElementById('chatArea');
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'animation: fadeUp 0.3s ease;';
+
+  // 筛选 Tab
+  const filterBar = document.createElement('div');
+  filterBar.style.cssText = 'display:flex;gap:6px;margin-bottom:8px;';
+  filterBar.innerHTML = `
+    <button id="filterAll" onclick="filterMaterials('all')" style="padding:4px 14px;border-radius:20px;border:1.5px solid #FF2442;background:#FF2442;color:#fff;font-size:12px;cursor:pointer;font-weight:600;">全部</button>
+    <button id="filterImg" onclick="filterMaterials('img')" style="padding:4px 14px;border-radius:20px;border:1.5px solid #E5E7EB;background:#fff;color:#6B7280;font-size:12px;cursor:pointer;">🖼️ 图片</button>
+    <button id="filterVid" onclick="filterMaterials('vid')" style="padding:4px 14px;border-radius:20px;border:1.5px solid #E5E7EB;background:#fff;color:#6B7280;font-size:12px;cursor:pointer;">🎬 视频</button>
+  `;
+  wrapper.appendChild(filterBar);
+
+  const grid = document.createElement('div');
+  grid.id = 'materialGrid';
+  grid.className = 'spu-grid';
+
+  const FOLD_LIMIT = 8;
+  const extraCards = [];
+
+  materials.forEach((m, idx) => {
+    const card = document.createElement('div');
+    card.className = 'spu-card';
+    card.id = 'mat_' + m.id;
+
+    const thumbContent = m.coverUrl
+      ? `<img src="${m.coverUrl}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;" onerror="this.style.display='none'" />`
+      : `<span style="font-size:28px;z-index:0;">${m.emoji}</span>`;
+
+    const previewUrl = m.videoUrl || m.coverUrl;
+    const isVideo = !!m.videoUrl;
+    // 点击卡片主体=选中，点击图片本身=预览
+    const previewCall = previewUrl
+      ? (isVideo ? `previewVideo('${m.videoUrl}','${m.name}')` : `previewImage('${m.coverUrl}','${m.name}')`)
+      : '';
+
+    card.innerHTML = `
+      <div class="spu-thumb" ${previewCall ? `onclick="event.stopPropagation();${previewCall}"` : ''} style="${previewCall ? 'cursor:zoom-in;' : ''}">
+        ${thumbContent}
+        <div class="spu-thumb-overlay"></div>
+        <div class="spu-duration">${m.isVideo ? '🎬 视频' : '🖼️ 图片'}</div>
+      </div>
+      <div class="spu-info" style="padding:6px 8px;">
+        <div class="spu-name" style="font-size:11px;line-height:1.4;max-height:2.8em;overflow:hidden;">${m.name}</div>
+      </div>
+      <div class="spu-select-check">✓</div>
+    `;
+    card.onclick = () => toggleMaterial(m.id, card);
+
+    if (idx >= FOLD_LIMIT) {
+      card.style.display = 'none';
+      card.dataset.extra = '1';
+      extraCards.push(card);
+    }
+    grid.appendChild(card);
+  });
+
+  // 折叠展开按钮
+  if (materials.length > FOLD_LIMIT) {
+    const expandBtn = document.createElement('div');
+    expandBtn.id = 'expandMatsBtn';
+    expandBtn.style.cssText = 'grid-column:1/-1;text-align:center;padding:6px 0;';
+    expandBtn.innerHTML = `<button onclick="toggleExtraMats()" style="background:none;border:1px solid #E5E7EB;border-radius:20px;padding:6px 20px;font-size:12px;color:#6B7280;cursor:pointer;">展开全部 ${materials.length} 条素材 ▾</button>`;
+    grid.appendChild(expandBtn);
+  }
+
+  wrapper.appendChild(grid);
+
+  // Confirm bar
+  const confirmBar = document.createElement('div');
+  confirmBar.className = 'confirm-bar';
+  confirmBar.id = 'materialConfirmBar';
+  confirmBar.innerHTML = `
+    <span class="confirm-text" id="selectedCount">请选择至少一条素材</span>
+    <button class="confirm-btn" id="materialConfirmBtn" onclick="confirmMaterials()" disabled>确认选择 →</button>
+  `;
+  wrapper.appendChild(confirmBar);
+  appendElement(wrapper);
+}
+
+function toggleMaterial(id, card) {
+  const idx = state.selectedMaterials.indexOf(id);
+  if (idx >= 0) {
+    state.selectedMaterials.splice(idx, 1);
+    card.classList.remove('selected');
+  } else {
+    state.selectedMaterials.push(id);
+    card.classList.add('selected');
+  }
+  const count = state.selectedMaterials.length;
+  const txt = count > 0 ? `已选 ${count} 条素材` : '请选择至少一条素材';
+  document.getElementById('selectedCount').textContent = txt;
+  document.getElementById('materialConfirmBtn').disabled = count === 0;
+}
+
+async function confirmMaterials() {
+  if (state.selectedMaterials.length === 0) return;
+
+  // Disable confirm
+  document.getElementById('materialConfirmBtn').disabled = true;
+  document.getElementById('materialConfirmBtn').textContent = '✓ 已确认';
+
+  const selected = state.materials.filter(m => state.selectedMaterials.includes(m.id));
+  appendMsg('user', `已选择 ${selected.length} 条素材：${selected.map(m => m.name).join('、')}`);
+
+  setStep(2);
+
+  showTyping();
+  await delay(1200);
+  removeTyping();
+
+  // AI analysis of selected
+  const types = [...new Set(selected.map(m => m.type))];
+  const avgComp = selected.reduce((s, m) => s + m.completeness, 0) / selected.length;
+  let detectedType = state.materialType;
+
+  // Re-evaluate based on selection
+  if (selected.length >= 3 && avgComp >= 0.85) detectedType = 'full';
+
+  let analysisHtml = `好的！基于你选择的 <strong>${selected.length} 条素材</strong>，AI 分析结果如下：<br><br>`;
+  if (types.includes('lead')) {
+    analysisHtml += `📋 <strong>素材类型</strong>：检测到线索行业标签（教育/金融/游戏类），适合需要留资转化的创意形式<br>`;
+  } else {
+    analysisHtml += `📋 <strong>素材类型</strong>：检测到电商行业标签（种草/对比/真实感），适合带货类创意形式<br>`;
+  }
+  analysisHtml += `📊 <strong>平均完整度</strong>：${Math.round(avgComp * 100)}%（`;
+  analysisHtml += avgComp >= 0.85 ? '✅ 优质，推荐直接增强' : avgComp >= 0.7 ? '🟡 良好，适合混剪' : '🔴 偏低，建议补充素材';
+  analysisHtml += `）<br>⏱️ <strong>总时长</strong>：约 ${selected.reduce((s, m) => {
+    const parts = m.duration.split(':');
+    return s + parseInt(parts[0]) * 60 + parseInt(parts[1]);
+  }, 0)} 秒<br><br>根据分析，为你推荐以下创意套路：`;
+
+  state.materialType = detectedType;
+  appendMsg('ai', analysisHtml);
+  await delay(300);
+  showRoutineCards(detectedType);
+}
+
+function showRoutineCards(type) {
+  const routines = ROUTINES[type] || ROUTINES['ecom'];
+  const area = document.getElementById('chatArea');
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'animation: fadeUp 0.3s ease;';
+
+  const grid = document.createElement('div');
+  grid.className = 'routine-grid';
+
+  routines.forEach(r => {
+    const card = document.createElement('div');
+    card.className = 'routine-card' + (r.recommended ? ' recommended' : '');
+    card.id = 'routine_' + r.id;
+
+    const flowHtml = r.flow.map((f, i) => `
+      <div class="routine-flow-step">
+        <div class="routine-flow-icon">${f.icon}</div>
+        <div class="routine-flow-label">${f.label}</div>
+      </div>
+      ${i < r.flow.length - 1 ? '<div class="routine-flow-arrow" style="color:#D1D5DB;font-size:12px;padding-left:28px;">↓</div>' : ''}
+    `).join('');
+
+    card.innerHTML = `
+      <div class="routine-header">
+        <div class="routine-name">${r.name}</div>
+        <div class="routine-ctr">${r.ctr}</div>
+      </div>
+      <div class="routine-desc">${r.desc}</div>
+      <div class="routine-flow">${flowHtml}</div>
+      <div class="routine-footer">
+        <div class="routine-tags">
+          ${r.tags.map(t => `<span class="tag tag-mix">${t}</span>`).join('')}
+        </div>
+        <button class="routine-btn" onclick="selectRoutine('${r.id}', this)">选择套路</button>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  wrapper.appendChild(grid);
+  appendElement(wrapper);
+}
+
+async function selectRoutine(id, btn) {
+  // Deselect all
+  document.querySelectorAll('.routine-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.routine-btn').forEach(b => b.textContent = '选择套路');
+
+  // Select this
+  const card = document.getElementById('routine_' + id);
+  card.classList.add('selected');
+  btn.textContent = '✓ 已选择';
+
+  const type = state.materialType;
+  const routine = (ROUTINES[type] || ROUTINES['ecom']).find(r => r.id === id);
+  state.selectedRoutine = routine;
+
+  appendMsg('user', `选择套路：${routine.name}`);
+
+  setStep(3);
+  showTyping();
+  await delay(1000);
+  removeTyping();
+
+  // Config step
+  await aiSay(`好的！已选择 <strong>${routine.name}</strong><br><br>在生成之前，确认以下参数：<br>
+    📐 <strong>输出分辨率</strong>：1080×1920（竖版，适配小红书/抖音）<br>
+    ⏱️ <strong>目标时长</strong>：15-30秒<br>
+    🎨 <strong>视频风格</strong>：${routine.id === 'avatar' ? '专业商务风，数字人着装正式' : routine.id === 'sfx' ? '沉浸式体验，音效增强情绪' : '动感节奏，快切混剪'}<br>
+    🔊 <strong>配音语言</strong>：普通话（标准）<br>
+    确认后将开始生成，预计耗时 2-3 分钟。`, 800);
+
+  await delay(1200);
+
+  // Confirm to generate
+  const area = document.getElementById('chatArea');
+  const bar = document.createElement('div');
+  bar.className = 'confirm-bar';
+  bar.innerHTML = `
+    <span class="confirm-text">✅ 参数已就绪，共生成 <strong>3条</strong> 创意版本</span>
+    <button class="confirm-btn" onclick="startGeneration(this)">🚀 开始生成</button>
+  `;
+  appendElement(bar);
+}
+
+async function startGeneration(btn) {
+  btn.disabled = true;
+  btn.textContent = '生成中...';
+  setStep(4);
+
+  appendMsg('user', '确认，开始生成');
+  showTyping();
+  await delay(600);
+  removeTyping();
+
+  // 检测可灵代理
+  const klingAvailable = await checkKlingProxy();
+  const selectedMats = state.materials.filter(m => state.selectedMaterials.includes(m.id));
+
+  if (klingAvailable) {
+    appendMsg('ai', `🚀 已连接AI 视频生成接口，开始真实生成视频（AI 视频生成）...<br><small style="color:#9CA3AF">视频约需 1-3 分钟，请耐心等待</small>`);
+    await delay(300);
+    showGenerationProgress(true, selectedMats);
+  } else {
+    appendMsg('ai', `🚀 开始调用 <strong>AI 视频生成</strong> 生成视频...<br><small style="color:#F59E0B">⚠️ 未检测到本地代理，演示模式运行。运行 <code>python3 kling_proxy.py</code> 启用真实生成。</small>`);
+    await delay(300);
+    showGenerationProgress(false, selectedMats);
+  }
+}
+
+async function showGenerationProgress(useRealApi, selectedMats) {
+  const area = document.getElementById('chatArea');
+  const row = document.createElement('div');
+  row.className = 'msg-row';
+  row.innerHTML = `<div class="ai-avatar">🎬</div><div style="flex:1;max-width:72%;"></div>`;
+
+  const rid = state.selectedRoutine.id;
+  const steps_list = rid === 'avatar'
+    ? ['解析素材时间轴...', '生成数字人片头...', '合成前贴片段...', 'AI 配音合成...', '视频渲染输出...']
+    : rid === 'keyframe'
+    ? ['解析素材关键帧...', '特效生成中...', '叠加特效轨道...', '视频渲染输出...', '质量检测...']
+    : ['切分素材片段...', 'AI 节奏分析...', '智能混剪中...', '自动配乐合成...', '视频渲染输出...'];
+
+  const panel = document.createElement('div');
+  panel.className = 'gen-panel';
+  const status = document.createElement('div');
+  status.className = 'gen-status';
+  status.innerHTML = `
+    <div class="gen-status-header">
+      <div class="gen-spinner"></div>
+      <div class="gen-status-text">
+        <h4>视频生成中...</h4>
+        <p id="genCurrentStep">正在初始化...</p>
+      </div>
+    </div>
+    <div class="gen-progress"><div class="gen-progress-bar" id="genBar" style="width:0%"></div></div>
+    <div class="gen-steps" id="genStepList">
+      ${steps_list.map((s, i) => `<div class="gen-step" id="gstep${i}"><div class="gen-step-icon">○</div>${s}</div>`).join('')}
+    </div>
+  `;
+  panel.appendChild(status);
+  row.children[1].appendChild(panel);
+  appendElement(row);
+
+  const markStep = (i, done) => {
+    const el = document.getElementById('gstep' + i);
+    if (!el) return;
+    el.className = 'gen-step ' + (done ? 'done' : 'active');
+    el.children[0].textContent = done ? '✓' : '▶';
+  };
+  const setProgress = (pct, text) => {
+    document.getElementById('genBar').style.width = pct + '%';
+    document.getElementById('genCurrentStep').textContent = text;
+  };
+
+  let realVideoUrls = []; // 真实生成的视频 URL
+
+  if (useRealApi) {
+    // ── 真实AI 视频生成接口 流程 ──
+    try {
+      // 步骤 0-1：提交任务
+      markStep(0, false);
+      setProgress(10, steps_list[0]);
+      await delay(500);
+
+      const req = buildKlingRequest(state.selectedRoutine, selectedMats);
+      markStep(0, true); markStep(1, false);
+      setProgress(20, steps_list[1]);
+
+      // 并发提交 3 个任务（3条版本）
+      const taskIds = [];
+      const taskTypes = [];
+      for (let v = 0; v < 3; v++) {
+        try {
+          const tid = await klingSubmitTask(req);
+          taskIds.push(tid);
+          taskTypes.push(req.type);
+        } catch (e) {
+          console.warn('提交任务失败:', e.message);
+        }
+      }
+
+      markStep(1, true); markStep(2, false);
+      setProgress(40, steps_list[2]);
+
+      // 轮询第一个任务（其余并行）
+      if (taskIds.length > 0) {
+        const urls0 = await klingPollTask(taskIds[0], taskTypes[0], (status, i) => {
+          const pct = 40 + Math.min(i * 3, 40);
+          setProgress(pct, `生成中... (${status})`);
+        });
+        realVideoUrls.push(...urls0);
+
+        // 并行拿其余结果
+        const rest = await Promise.allSettled(
+          taskIds.slice(1).map((tid, i) => klingPollTask(tid, taskTypes[i+1], null))
+        );
+        rest.forEach(r => { if (r.status === 'fulfilled') realVideoUrls.push(...r.value); });
+      }
+
+      markStep(2, true); markStep(3, false);
+      setProgress(85, steps_list[3]);
+      await delay(800);
+      markStep(3, true); markStep(4, false);
+      setProgress(95, steps_list[4]);
+      await delay(600);
+
+    } catch (e) {
+      console.error('可灵生成失败:', e);
+      // 失败降级：走完动画
+      for (let i = 0; i < steps_list.length; i++) {
+        markStep(i, true);
+        await delay(400);
+      }
+      appendMsg('ai', `⚠️ AI 视频生成接口 生成遇到问题：${e.message}，以下为演示结果。`);
+    }
+  } else {
+    // ── 演示模式动画 ──
+    for (let i = 0; i < steps_list.length; i++) {
+      await delay(900);
+      setProgress(Math.round((i + 1) / steps_list.length * 90), steps_list[i]);
+      if (i > 0) markStep(i - 1, true);
+      markStep(i, false);
+    }
+  }
+
+  // 完成
+  setProgress(100, '✅ 生成完成！');
+  for (let i = 0; i < steps_list.length; i++) markStep(i, true);
+
+  status.querySelector('.gen-spinner').outerHTML;
+  const spinner = status.querySelector('.gen-spinner');
+  if (spinner) {
+    spinner.style.cssText = 'width:36px;height:36px;background:rgba(16,185,129,0.12);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;';
+    spinner.innerHTML = '✅';
+    spinner.className = '';
+  }
+
+  await delay(500);
+  appendMsg('ai', `🎉 全部生成完成！共 <strong>${Math.max(realVideoUrls.length, 3)}</strong> 条创意视频${realVideoUrls.length > 0 ? '（真实生成）' : '（演示）'}，按预估 CTR 排列：`);
+  await delay(300);
+  showResults(realVideoUrls);
+}
+
+function showResults(realUrls = []) {
+  const r = state.selectedRoutine;
+  const baseName = r.name.replace(/^[^ ]+ /, '');
+  const results = [
+    {
+      title: `${baseName} · 版本 A`,
+      label: '主推版', emoji: '🏆', duration: '5s',
+      score: 'CTR 预估 +42%', scoreColor: '#10B981',
+      videoUrl: realUrls[0] || '',
+    },
+    {
+      title: `${baseName} · 版本 B`,
+      label: '备选版', emoji: '🎯', duration: '5s',
+      score: 'CTR 预估 +31%', scoreColor: '#3B82F6',
+      videoUrl: realUrls[1] || '',
+    },
+    {
+      title: `${baseName} · 版本 C`,
+      label: '测试版', emoji: '🔬', duration: '5s',
+      score: 'CTR 预估 +24%', scoreColor: '#a855f7',
+      videoUrl: realUrls[2] || '',
+    },
+  ];
+
+  const area = document.getElementById('chatArea');
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'animation: fadeUp 0.3s ease;';
+  const grid = document.createElement('div');
+  grid.className = 'result-grid';
+
+  results.forEach(res => {
+    const card = document.createElement('div');
+    card.className = 'result-card';
+    card.innerHTML = `
+      <div class="result-thumb" onclick="previewResult('${res.title}','${res.videoUrl}')" style="cursor:pointer;">
+        ${res.videoUrl
+          ? `<video src="${res.videoUrl}" muted preload="metadata" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"></video>`
+          : `<span class="result-thumb-emoji">${res.emoji}</span>`
+        }
+        <div class="result-thumb-label">${res.label}</div>
+        <div class="result-thumb-duration">${res.videoUrl ? '▶ 点击播放' : res.duration}</div>
+      </div>
+      <div class="result-info">
+        <div class="result-title">${res.title}</div>
+        <div class="result-meta">
+          <span class="result-score" style="color:${res.scoreColor}">${res.score}</span>
+        </div>
+        <div class="result-actions">
+          <button class="result-btn result-btn-primary" onclick="downloadResult('${res.title}','${res.videoUrl}')">⬇ 下载</button>
+          <button class="result-btn result-btn-secondary" onclick="previewResult('${res.title}','${res.videoUrl}')">▶ 预览</button>
+        </div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  wrapper.appendChild(grid);
+
+  // API notice
+  const notice = document.createElement('div');
+  notice.className = 'api-notice';
+  notice.innerHTML = `💡 <strong>启用真实视频生成</strong> — 在本机运行可灵本地代理即可接入真实 AI 生成：<br>
+    <code style="background:rgba(59,130,246,0.1);padding:2px 6px;border-radius:4px;">curl -o ~/kling_proxy.py https://raw.githubusercontent.com/alexzy1108-sys/aigc-spark-demo/main/kling_proxy.py && python3 ~/kling_proxy.py</code><br>
+    代理启动后刷新页面，系统自动检测并切换为 <strong>AI 视频生成</strong> 真实生成模式。`;
+  wrapper.appendChild(notice);
+
+  appendElement(wrapper);
+
+  // 投放建议卡片
+  setTimeout(() => {
+    const r = state.selectedRoutine;
+    const isLead = state.materialType === 'lead';
+    const adviceCard = document.createElement('div');
+    adviceCard.style.cssText = 'animation: fadeUp 0.3s ease; margin-top:4px;';
+
+    const tips = isLead ? [
+      { icon: '⏰', label: '最佳投放时段', value: '周一至周五 19:00–22:00、周末 10:00–12:00' },
+      { icon: '👥', label: '目标人群包', value: '25-40岁、有学历提升意向、近30天搜索过课程词' },
+      { icon: '💰', label: '建议日预算', value: '¥500–2000 / 条创意，冷启动期 3 天' },
+      { icon: '📊', label: '核心优化指标', value: 'CPL（线索成本）< ¥80，留资率 > 3%' },
+    ] : [
+      { icon: '⏰', label: '最佳投放时段', value: '每日 12:00–13:00、20:00–23:00' },
+      { icon: '👥', label: '目标人群包', value: '18-35岁女性、对应类目兴趣标签 + 购买意向' },
+      { icon: '💰', label: '建议日预算', value: '¥300–1000 / 条创意，测试期 5 天' },
+      { icon: '📊', label: '核心优化指标', value: 'CTR > 2.5%，ROI > 1.5，点击成本 < ¥1.5' },
+    ];
+
+    adviceCard.innerHTML = `
+      <div style="border:1.5px solid #E5E7EB;border-radius:14px;padding:16px;background:#fff;margin-top:8px;">
+        <div style="font-size:13px;font-weight:700;color:#13131F;margin-bottom:12px;display:flex;align-items:center;gap:6px;">
+          📈 投放建议
+          <span style="font-size:11px;font-weight:500;color:#9CA3AF;margin-left:4px;">基于历史跑量数据</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          ${tips.map(t => `
+            <div style="background:#F7F7F9;border-radius:10px;padding:10px 12px;">
+              <div style="font-size:11px;color:#9CA3AF;margin-bottom:4px;">${t.icon} ${t.label}</div>
+              <div style="font-size:12px;font-weight:600;color:#13131F;line-height:1.5;">${t.value}</div>
+            </div>
+          `).join('')}
+        </div>
+        <div style="margin-top:10px;padding:8px 12px;background:rgba(255,36,66,0.04);border-radius:8px;border:1px solid rgba(255,36,66,0.12);">
+          <span style="font-size:12px;color:#6B7280;">💡 <strong style="color:#FF2442">A/B 测试建议</strong>：同时跑版本 A + 版本 B，48 小时后关停 CTR 低于均值 20% 的素材，保留跑量好的版本追加预算。</span>
+        </div>
+      </div>
+    `;
+    const area = document.getElementById('chatArea');
+    area.appendChild(adviceCard);
+    area.scrollTop = area.scrollHeight;
+  }, 600);
+
+  // Final message
+  setTimeout(() => {
+    appendMsg('ai', `✨ 建议优先投放<strong>版本 A</strong>，同时用 A/B 测试对比版本 B，持续优化 CTR。<br><br>如需调整风格、时长或重新选择套路，随时告诉我！`);
+  }, 1200);
+}
+
+// ═══════════════════════════════════════════
+// USER INPUT
+// ═══════════════════════════════════════════
+function handleInputKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    sendUserMessage();
+  }
+}
+
+function sendUserMessage() {
+  const input = document.getElementById('userInput');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+  appendMsg('user', text);
+  handleFreeTextReply(text);
+}
+
+async function handleFreeTextReply(text) {
+  showTyping();
+  await delay(800);
+  removeTyping();
+
+  const lower = text.toLowerCase();
+  if (lower.includes('重新') || lower.includes('返回')) {
+    appendMsg('ai', '好的，你可以点击右上角"新建"重新开始，或者直接选择上方的套路进行调整。');
+  } else if (lower.includes('套路') || lower.includes('更多')) {
+    appendMsg('ai', '目前支持三大类套路：<br>🎬 <strong>混剪爆款型</strong> — 适合电商多素材，CTR+38%<br>🧑‍💼 <strong>数字人前贴型</strong> — 适合线索行业，CTR+52%<br>🎵 <strong>关键帧音效型</strong> — 适合完整素材增强，CTR+30%<br><br>后续会持续新增，敬请期待！');
+  } else if (lower.includes('api') || lower.includes('接口') || lower.includes('kling') || lower.includes('可灵')) {
+    appendMsg('ai', '视频生成基于 <strong>AI 视频生成</strong>，支持文生视频和图生视频，生成时长 5秒，Pro 模式。<br>启用方式：在本机运行 <code style="background:#F3F4F6;padding:2px 6px;border-radius:4px;">python3 kling_proxy.py</code>，代理自动处理 JWT 鉴权。<br><br>注册地址：<a href="https://kling.kuaishou.com" target="_blank" style="color:#FF2442">kling.kuaishou.com</a>（个人开发者可直接注册）');
+  } else if (lower.includes('价格') || lower.includes('多少钱') || lower.includes('费用') || lower.includes('计费')) {
+    appendMsg('ai', 'AI 视频生成 定价（参考）：<br>• <strong>文生视频 5s Pro</strong>：约 ¥0.7/条<br>• <strong>图生视频 5s Pro</strong>：约 ¥0.9/条<br>• <strong>批量生成 3 条版本</strong>：约 ¥2-3/次<br><br>新用户注册有免费额度，Demo 模式下本地不产生任何费用。');
+  } else if (lower.includes('投放') || lower.includes('建议') || lower.includes('预算')) {
+    appendMsg('ai', '投放建议已在结果卡片下方生成 📈<br>简要参考：<br>• 冷启动期 3-5 天，每条素材日预算 ¥300-1000<br>• 同时跑 A/B 版本，48h 后关停 CTR 低于均值 20% 的版本<br>• 保留跑量好的版本后追加 2-5 倍预算放量');
+  } else if (lower.includes('素材') || lower.includes('上传') || lower.includes('添加')) {
+    appendMsg('ai', '当前素材来自账户真实素材库（通过生花平台 API 拉取）。<br>如需使用本地素材，可在登录时输入真实 brand_account_id，系统自动拉取该账户下的商品素材。<br><br>后续版本将支持手动上传本地视频/图片素材，敬请期待！');
+  } else {
+    appendMsg('ai', '收到！你可以直接在上方对话中操作：选择素材、选择套路、或者告诉我你想调整什么，我来帮你搞定 ✨');
+  }
+}
+
+// ═══════════════════════════════════════════
+// MATERIAL MINI SIDEBAR
+// ═══════════════════════════════════════════
+function updateMaterialMini(materials) {
+  const grid = document.getElementById('materialMiniGrid');
+  grid.innerHTML = '';
+  const show = materials.slice(0, 5);
+  show.forEach(m => {
+    const cell = document.createElement('div');
+    cell.className = 'material-mini';
+    cell.title = m.name;
+    if (m.coverUrl) {
+      cell.innerHTML = `<img src="${m.coverUrl}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;border-radius:8px;" onerror="this.parentNode.innerHTML='${m.emoji}<span class=\\'material-mini-count\\'>${m.isVideo ? '🎬' : '🖼️'}</span>'" />
+        <span class="material-mini-count" style="background:rgba(0,0,0,0.5);border-radius:3px;padding:1px 4px;">${m.isVideo ? '🎬' : '🖼️'}</span>`;
+      cell.style.position = 'relative';
+    } else {
+      cell.innerHTML = `${m.emoji}<span class="material-mini-count">${m.isVideo ? '🎬' : '🖼️'}</span>`;
+    }
+    grid.appendChild(cell);
+  });
+  if (materials.length > 5) {
+    const more = document.createElement('div');
+    more.className = 'material-mini';
+    more.innerHTML = `+${materials.length - 5}`;
+    more.style.cssText = 'font-size:13px;font-weight:700;color:#6B7280;background:#F3F4F6;border-radius:8px;';
+    grid.appendChild(more);
+  }
+}
+
+// ═══════════════════════════════════════════
+// RESULT ACTIONS
+// ═══════════════════════════════════════════
+function downloadResult(title, url) {
+  if (url) {
+    const a = document.createElement('a');
+    a.href = url; a.download = title + '.mp4'; a.target = '_blank';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  } else {
+    alert(`📥 下载：${title}\n\n当前为演示模式，接入AI 视频生成接口 Key 后将返回真实视频文件。`);
+  }
+}
+function previewResult(title, url) {
+  if (url) {
+    previewVideo(url, title);
+  } else {
+    alert(`▶ 预览：${title}\n\n当前为演示模式，接入 API 后将在弹窗内播放生成视频。`);
+  }
+}
+
+// 素材类型筛选
+function filterMaterials(type) {
+  // 更新 Tab 样式
+  ['filterAll','filterImg','filterVid'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (!btn) return;
+    const active = (id === 'filter' + type.charAt(0).toUpperCase() + type.slice(1)) || (type === 'all' && id === 'filterAll');
+    btn.style.background = active ? '#FF2442' : '#fff';
+    btn.style.color = active ? '#fff' : '#6B7280';
+    btn.style.borderColor = active ? '#FF2442' : '#E5E7EB';
+    btn.style.fontWeight = active ? '600' : '400';
+  });
+
+  // 显示/隐藏卡片
+  const cards = document.querySelectorAll('#materialGrid .spu-card');
+  let visibleCount = 0;
+  cards.forEach(card => {
+    const duration = card.querySelector('.spu-duration')?.textContent || '';
+    const isVideo = duration.includes('视频');
+    const show = type === 'all' || (type === 'vid' && isVideo) || (type === 'img' && !isVideo);
+    card.style.display = show ? '' : 'none';
+    if (show) visibleCount++;
+  });
+}
+
+// 素材展开/收起
+function toggleExtraMats() {
+  const btn = document.getElementById('expandMatsBtn');
+  const extras = document.querySelectorAll('.spu-card[data-extra="1"]');
+  const isHidden = extras[0] && extras[0].style.display === 'none';
+  extras.forEach(c => c.style.display = isHidden ? '' : 'none');
+  if (btn) btn.innerHTML = isHidden
+    ? `<button onclick="toggleExtraMats()" style="background:none;border:1px solid #E5E7EB;border-radius:20px;padding:6px 20px;font-size:12px;color:#6B7280;cursor:pointer;">收起 ▴</button>`
+    : `<button onclick="toggleExtraMats()" style="background:none;border:1px solid #E5E7EB;border-radius:20px;padding:6px 20px;font-size:12px;color:#6B7280;cursor:pointer;">展开全部 ▾</button>`;
+}
+
+// 图片预览弹窗
+function previewImage(url, title) {
+  const old = document.getElementById('videoPreviewModal');
+  if (old) old.remove();
+  const modal = document.createElement('div');
+  modal.id = 'videoPreviewModal';
+  modal.style.cssText = 'position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;';
+  modal.innerHTML = `
+    <div style="color:#fff;font-size:14px;font-weight:600;max-width:80%;text-align:center;">${title}</div>
+    <img src="${url}" style="max-width:90vw;max-height:75vh;border-radius:12px;object-fit:contain;" />
+    <button onclick="document.getElementById('videoPreviewModal').remove()"
+      style="padding:8px 24px;background:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer;font-weight:600;">关闭</button>
+  `;
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+  document.body.appendChild(modal);
+}
+
+// 视频预览弹窗
+function previewVideo(url, title) {
+  // 移除已有弹窗
+  const old = document.getElementById('videoPreviewModal');
+  if (old) old.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'videoPreviewModal';
+  modal.style.cssText = `
+    position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.85);
+    display:flex;align-items:center;justify-content:center;flex-direction:column;gap:12px;
+  `;
+  modal.innerHTML = `
+    <div style="color:#fff;font-size:15px;font-weight:600;max-width:80%;">${title}</div>
+    <video src="${url}" controls autoplay
+      style="max-width:90vw;max-height:75vh;border-radius:12px;background:#000;"
+      onerror="document.getElementById('videoPreviewModal').remove();alert('视频加载失败，可能需要内网环境访问')">
+    </video>
+    <button onclick="document.getElementById('videoPreviewModal').remove()"
+      style="padding:8px 24px;background:#fff;border:none;border-radius:8px;font-size:14px;cursor:pointer;font-weight:600;">
+      关闭
+    </button>
+  `;
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+  document.body.appendChild(modal);
+}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
+document.getElementById('accountInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') handleLogin();
+});
+</script>
+</body>
+</html>
