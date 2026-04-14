@@ -724,8 +724,8 @@ const CONFIG = {
   sparkBase: 'http://shenghua-sparkwanghan.sl.beta.xiaohongshu.com/api/edith/spark/item',
   // 可灵本地代理（运行 python3 kling_proxy.py 后生效）
   klingProxy: 'http://localhost:8765',
-  // Seedance 本地代理（运行 python3 seedance_proxy.py 后生效）
-  seedanceProxy: 'https://localhost:8766',
+  // 全链路本地代理（运行 python3 local_proxy.py 后生效，同时覆盖 Spark + Seedance）
+  seedanceProxy: 'http://localhost:8766',
   // 行业标签映射
   industryTagMap: {
     '电商': 'ecom', '美妆': 'ecom', '服饰': 'ecom', '食品': 'ecom',
@@ -849,14 +849,11 @@ async function checkKlingProxy() {
 // ═══════════════════════════════════════════
 // Seedance — 火山方舟视频生成
 // ═══════════════════════════════════════════
-const SEEDANCE_PROXY = CONFIG.seedanceProxy;
+const SEEDANCE_PROXY = LOCAL_PROXY; // 复用全链路代理
 
-// 检测 Seedance 代理是否在线
+// 检测 Seedance 代理是否在线（复用全链路代理检测）
 async function checkSeedanceProxy() {
-  try {
-    const r = await fetch(`${SEEDANCE_PROXY}/health`, { signal: AbortSignal.timeout(3000) });
-    return r.ok;
-  } catch { return false; }
+  return detectLocalProxy();
 }
 
 // 构建 Seedance 请求 content 数组
@@ -888,7 +885,7 @@ function buildSeedanceContent(routine, materials) {
 
 // 提交 Seedance 任务，返回 task_id
 async function seedanceSubmitTask(content) {
-  const resp = await fetch(`${SEEDANCE_PROXY}/task`, {
+  const resp = await fetch(`${SEEDANCE_PROXY}/seedance/task`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -913,7 +910,7 @@ async function seedancePollTask(taskId, onProgress) {
   const MAX_POLLS = 60; // 最多等 60 次，每次 10s = 10 分钟
   for (let i = 0; i < MAX_POLLS; i++) {
     await new Promise(r => setTimeout(r, 10000));
-    const resp = await fetch(`${SEEDANCE_PROXY}/task/${taskId}`);
+    const resp = await fetch(`${SEEDANCE_PROXY}/seedance/task/${taskId}`);
     const data = await resp.json();
     const status = data.status || 'unknown';
     onProgress && onProgress(status, i);
@@ -933,17 +930,30 @@ async function seedancePollTask(taskId, onProgress) {
 // ═══════════════════════════════════════════
 
 // 统一走本地代理（解决跨域 + mixed content 问题）
-const PROXY = 'http://localhost:8765';
+// 全链路代理：local_proxy.py 在时用 localhost:8766，否则直连（演示/内网场景）
+const LOCAL_PROXY = 'http://localhost:8766';
+let _useLocalProxy = null; // null=未检测, true/false
 
-// 内网图片走代理中转
+async function detectLocalProxy() {
+  if (_useLocalProxy !== null) return _useLocalProxy;
+  try {
+    const r = await fetch(`${LOCAL_PROXY}/health`, { signal: AbortSignal.timeout(1500) });
+    _useLocalProxy = r.ok;
+  } catch { _useLocalProxy = false; }
+  return _useLocalProxy;
+}
+
+// 内网图片：直接返回原 URL（代理不做图片中转）
 function proxyImg(url) {
-  if (!url) return '';
-  if (url.includes('localhost')) return url;
-  return `${PROXY}/imgproxy?url=${encodeURIComponent(url)}`;
+  return url || '';
 }
 
 async function sparkPost(path, body) {
-  const resp = await fetch(`${PROXY}/spark${path}`, {
+  const useProxy = await detectLocalProxy();
+  const url = useProxy
+    ? `${LOCAL_PROXY}/spark${path}`
+    : `http://shenghua-sparkwanghan.sl.beta.xiaohongshu.com/api/edith/spark/item${path}`;
+  const resp = await fetch(url, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
