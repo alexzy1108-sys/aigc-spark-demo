@@ -724,6 +724,8 @@ const CONFIG = {
   sparkBase: 'http://shenghua-sparkwanghan.sl.beta.xiaohongshu.com/api/edith/spark/item',
   // 可灵本地代理（运行 python3 kling_proxy.py 后生效）
   klingProxy: 'http://localhost:8765',
+  // Seedance 本地代理（运行 python3 seedance_proxy.py 后生效）
+  seedanceProxy: 'http://localhost:8766',
   // 行业标签映射
   industryTagMap: {
     '电商': 'ecom', '美妆': 'ecom', '服饰': 'ecom', '食品': 'ecom',
@@ -836,12 +838,95 @@ async function klingPollTask(taskId, taskType, onProgress) {
   throw new Error('生成超时');
 }
 
-// 检测代理是否在线
+// 检测可灵代理是否在线
 async function checkKlingProxy() {
   try {
     const r = await fetch(`${PROXY}/kling/v1/account/costs`);
     return r.status < 500;
   } catch { return false; }
+}
+
+// ═══════════════════════════════════════════
+// Seedance — 火山方舟视频生成
+// ═══════════════════════════════════════════
+const SEEDANCE_PROXY = CONFIG.seedanceProxy;
+
+// 检测 Seedance 代理是否在线
+async function checkSeedanceProxy() {
+  try {
+    const r = await fetch(`${SEEDANCE_PROXY}/task/ping`, { signal: AbortSignal.timeout(2000) });
+    // 代理在线时 /task/ping 会返回 404（路径不存在），但连接本身成功
+    return true;
+  } catch { return false; }
+}
+
+// 构建 Seedance 请求 content 数组
+function buildSeedanceContent(routine, materials) {
+  const names  = materials.map(m => m.name).join('、');
+  const imgUrls = materials
+    .map(m => m.coverUrl || m.imageUrl)
+    .filter(Boolean)
+    .slice(0, 9); // 最多 9 张参考图
+
+  // 根据套路定制 prompt
+  const promptMap = {
+    mix:        `请用我传入的参考图素材生成一个小红书爆款混剪广告，商品是【${names}】，快节奏剪辑，每帧突出商品主体，字幕从卖点中选取，风格活泼种草。`,
+    avatar:     `请用参考图生成小红书商品种草广告，商品是【${names}】，专业播报风格，字幕清晰，突出核心卖点。`,
+    sfx:        `请用参考图生成小红书广告视频，商品是【${names}】，动感节奏，特写镜头，视觉冲击强。`,
+  };
+  const prompt = promptMap[routine?.id] || promptMap.mix;
+
+  const content = [{ type: 'text', text: prompt }];
+  imgUrls.forEach(url => {
+    content.push({
+      type: 'image_url',
+      image_url: { url },
+      role: 'reference_image',
+    });
+  });
+  return content;
+}
+
+// 提交 Seedance 任务，返回 task_id
+async function seedanceSubmitTask(content) {
+  const resp = await fetch(`${SEEDANCE_PROXY}/task`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model:           'doubao-seedance-2-0-260128',
+      content,
+      resolution:      '720p',
+      ratio:           '9:16',   // 竖版，适配小红书
+      duration:        15,
+      generate_audio:  true,
+      watermark:       false,
+      seed:            -1,
+      camera_fixed:    false,
+    }),
+  });
+  const data = await resp.json();
+  if (!data.id) throw new Error(data.error?.message || '任务提交失败');
+  return data.id;
+}
+
+// 轮询 Seedance 任务，直到完成，返回视频 URL 数组
+async function seedancePollTask(taskId, onProgress) {
+  const MAX_POLLS = 60; // 最多等 60 次，每次 10s = 10 分钟
+  for (let i = 0; i < MAX_POLLS; i++) {
+    await new Promise(r => setTimeout(r, 10000));
+    const resp = await fetch(`${SEEDANCE_PROXY}/task/${taskId}`);
+    const data = await resp.json();
+    const status = data.status || 'unknown';
+    onProgress && onProgress(status, i);
+    if (status === 'succeeded') {
+      const url = data.content?.video_url;
+      return url ? [url] : [];
+    }
+    if (['failed', 'cancelled', 'expired'].includes(status)) {
+      throw new Error(`生成失败：${data.error?.message || status}`);
+    }
+  }
+  throw new Error('生成超时');
 }
 
 // ═══════════════════════════════════════════
@@ -1827,22 +1912,32 @@ async function startGeneration(btn) {
   await delay(600);
   removeTyping();
 
-  // 检测可灵代理
-  const klingAvailable = await checkKlingProxy();
   const selectedMats = state.materials.filter(m => state.selectedMaterials.includes(m.id));
 
-  if (klingAvailable) {
-    appendMsg('ai', `🚀 已连接AI 视频生成接口，开始真实生成视频（AI 视频生成）...<br><small style="color:#9CA3AF">视频约需 1-3 分钟，请耐心等待</small>`);
+  // 优先检测 Seedance，其次可灵，最后演示模式
+  const [seedanceAvailable, klingAvailable] = await Promise.all([
+    checkSeedanceProxy(),
+    checkKlingProxy(),
+  ]);
+
+  if (seedanceAvailable) {
+    appendMsg('ai', `🚀 已连接 <strong>Seedance 2.0</strong>，开始真实视频生成...<br><small style="color:#9CA3AF">视频约需 3–5 分钟，请耐心等待</small>`);
     await delay(300);
-    showGenerationProgress(true, selectedMats);
+    showGenerationProgress('seedance', selectedMats);
+  } else if (klingAvailable) {
+    appendMsg('ai', `🚀 已连接 <strong>AI 视频生成接口</strong>，开始真实生成视频...<br><small style="color:#9CA3AF">视频约需 1–3 分钟，请耐心等待</small>`);
+    await delay(300);
+    showGenerationProgress('kling', selectedMats);
   } else {
-    appendMsg('ai', `🚀 开始调用 <strong>AI 视频生成</strong> 生成视频...<br><small style="color:#F59E0B">⚠️ 未检测到本地代理，演示模式运行。运行 <code>python3 kling_proxy.py</code> 启用真实生成。</small>`);
+    appendMsg('ai', `🚀 开始调用 <strong>AI 视频生成</strong> 生成视频...<br><small style="color:#F59E0B">⚠️ 未检测到本地代理，演示模式运行。运行 <code>python3 seedance_proxy.py</code> 启用真实生成。</small>`);
     await delay(300);
-    showGenerationProgress(false, selectedMats);
+    showGenerationProgress('demo', selectedMats);
   }
 }
 
-async function showGenerationProgress(useRealApi, selectedMats) {
+async function showGenerationProgress(mode, selectedMats) {
+  const useRealApi = mode === 'kling';
+  const useSeedance = mode === 'seedance';
   const area = document.getElementById('chatArea');
   const row = document.createElement('div');
   row.className = 'msg-row';
@@ -1889,7 +1984,57 @@ async function showGenerationProgress(useRealApi, selectedMats) {
 
   let realVideoUrls = []; // 真实生成的视频 URL
 
-  if (useRealApi) {
+  if (useSeedance) {
+    // ── Seedance 2.0 真实生成 ──
+    try {
+      markStep(0, false);
+      setProgress(10, steps_list[0]);
+      await delay(500);
+
+      const content = buildSeedanceContent(state.selectedRoutine, selectedMats);
+
+      markStep(0, true); markStep(1, false);
+      setProgress(20, steps_list[1]);
+
+      // 提交 3 个任务（3 个版本）
+      const taskIds = [];
+      for (let v = 0; v < 3; v++) {
+        try {
+          const tid = await seedanceSubmitTask(content);
+          taskIds.push(tid);
+        } catch(e) { console.warn('Seedance 提交失败:', e.message); }
+      }
+
+      markStep(1, true); markStep(2, false);
+      setProgress(40, steps_list[2]);
+
+      if (taskIds.length > 0) {
+        // 轮询第一个，其余并行
+        const urls0 = await seedancePollTask(taskIds[0], (status, i) => {
+          setProgress(40 + Math.min(i * 3, 40), `生成中... (${status})`);
+        });
+        realVideoUrls.push(...urls0);
+
+        const rest = await Promise.allSettled(
+          taskIds.slice(1).map(tid => seedancePollTask(tid, null))
+        );
+        rest.forEach(r => { if (r.status === 'fulfilled') realVideoUrls.push(...r.value); });
+      }
+
+      markStep(2, true); markStep(3, false);
+      setProgress(85, steps_list[3]);
+      await delay(800);
+      markStep(3, true); markStep(4, false);
+      setProgress(95, steps_list[4]);
+      await delay(600);
+
+    } catch(e) {
+      console.error('Seedance 生成失败:', e);
+      for (let i = 0; i < steps_list.length; i++) { markStep(i, true); await delay(300); }
+      appendMsg('ai', `⚠️ Seedance 生成遇到问题：${e.message}，以下为演示结果。`);
+    }
+
+  } else if (useRealApi) {
     // ── 真实AI 视频生成接口 流程 ──
     try {
       // 步骤 0-1：提交任务
@@ -1949,7 +2094,7 @@ async function showGenerationProgress(useRealApi, selectedMats) {
       appendMsg('ai', `⚠️ AI 视频生成接口 生成遇到问题：${e.message}，以下为演示结果。`);
     }
   } else {
-    // ── 演示模式动画 ──
+    // ── 演示模式动画（无代理）──
     for (let i = 0; i < steps_list.length; i++) {
       await delay(900);
       setProgress(Math.round((i + 1) / steps_list.length * 90), steps_list[i]);
