@@ -725,7 +725,7 @@ const CONFIG = {
   // 可灵本地代理（运行 python3 kling_proxy.py 后生效）
   klingProxy: 'http://localhost:8765',
   // Seedance 本地代理（运行 python3 seedance_proxy.py 后生效）
-  seedanceProxy: 'http://localhost:8766',
+  seedanceProxy: 'https://localhost:8766',
   // 行业标签映射
   industryTagMap: {
     '电商': 'ecom', '美妆': 'ecom', '服饰': 'ecom', '食品': 'ecom',
@@ -854,9 +854,8 @@ const SEEDANCE_PROXY = CONFIG.seedanceProxy;
 // 检测 Seedance 代理是否在线
 async function checkSeedanceProxy() {
   try {
-    const r = await fetch(`${SEEDANCE_PROXY}/task/ping`, { signal: AbortSignal.timeout(2000) });
-    // 代理在线时 /task/ping 会返回 404（路径不存在），但连接本身成功
-    return true;
+    const r = await fetch(`${SEEDANCE_PROXY}/health`, { signal: AbortSignal.timeout(3000) });
+    return r.ok;
   } catch { return false; }
 }
 
