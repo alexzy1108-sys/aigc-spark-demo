@@ -293,42 +293,84 @@ body {
 .gen-step.active { color: #13131F; font-weight: 500; }
 .gen-step-icon { font-size: 16px; flex-shrink: 0; width: 20px; text-align: center; }
 
-/* Result cards */
-.result-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 4px; }
+/* Result cards — 参考智能成片风格 */
+.result-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 8px; }
 .result-card {
-  border: 1.5px solid #E5E7EB; border-radius: 14px; overflow: hidden;
-  background: #fff; transition: all 0.2s;
+  border-radius: 12px; overflow: hidden;
+  background: #1e1e2e; transition: all 0.2s;
+  position: relative; cursor: pointer;
 }
-.result-card:hover { border-color: #FF2442; box-shadow: 0 4px 16px rgba(255,36,66,0.1); }
+.result-card:hover .result-overlay { opacity: 1; }
 .result-thumb {
-  aspect-ratio: 16/9; background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+  aspect-ratio: 9/16; background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
   display: flex; align-items: center; justify-content: center;
-  position: relative; overflow: hidden;
+  position: relative; overflow: hidden; width: 100%;
 }
-.result-thumb-emoji { font-size: 48px; }
-.result-thumb-label {
-  position: absolute; bottom: 10px; left: 10px;
-  background: rgba(0,0,0,0.6); color: #fff; font-size: 11px; font-weight: 600;
-  padding: 3px 10px; border-radius: 20px; backdrop-filter: blur(4px);
+.result-thumb video, .result-thumb img {
+  width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0;
 }
-.result-thumb-duration {
-  position: absolute; bottom: 10px; right: 10px;
-  background: rgba(0,0,0,0.6); color: #fff; font-size: 11px;
-  padding: 3px 8px; border-radius: 20px;
+.result-thumb-emoji { font-size: 40px; position: relative; z-index: 1; }
+/* AI 生成角标 */
+.result-ai-badge {
+  position: absolute; top: 8px; left: 8px; z-index: 2;
+  background: linear-gradient(135deg, #FF2442, #a855f7);
+  color: #fff; font-size: 10px; font-weight: 700;
+  padding: 2px 7px; border-radius: 4px; letter-spacing: 0.3px;
 }
-.result-info { padding: 12px; }
-.result-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
-.result-meta { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
-.result-score { font-size: 12px; color: #10B981; font-weight: 600; }
-.result-actions { display: flex; gap: 8px; }
-.result-btn {
-  flex: 1; padding: 7px; border-radius: 8px; border: none;
-  font-size: 12px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.2s;
+/* 版本角标（右上） */
+.result-ver-badge {
+  position: absolute; top: 8px; right: 8px; z-index: 2;
+  background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+  color: #fff; font-size: 10px; font-weight: 600;
+  padding: 2px 7px; border-radius: 4px;
 }
-.result-btn-primary { background: #FF2442; color: #fff; }
-.result-btn-primary:hover { opacity: 0.88; }
-.result-btn-secondary { background: #F3F4F6; color: #374151; border: 1px solid #E5E7EB; }
-.result-btn-secondary:hover { background: #E5E7EB; }
+/* 底部时长 + 大小 */
+.result-meta-bar {
+  position: absolute; bottom: 0; left: 0; right: 0; z-index: 2;
+  background: linear-gradient(transparent, rgba(0,0,0,0.7));
+  padding: 18px 8px 7px;
+  display: flex; justify-content: space-between; align-items: flex-end;
+}
+.result-meta-bar .meta-duration {
+  font-size: 11px; color: #fff; font-weight: 600;
+}
+.result-meta-bar .meta-size {
+  font-size: 10px; color: rgba(255,255,255,0.7);
+}
+/* Hover 操作浮层 */
+.result-overlay {
+  position: absolute; inset: 0; z-index: 3;
+  background: rgba(0,0,0,0.5); backdrop-filter: blur(2px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 8px; opacity: 0; transition: opacity 0.2s;
+}
+.result-overlay-btns { display: flex; gap: 8px; }
+.result-overlay-btn {
+  padding: 7px 18px; border-radius: 8px; border: none;
+  font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit;
+  transition: all 0.15s;
+}
+.result-overlay-btn.edit {
+  background: rgba(255,255,255,0.18); color: #fff;
+  border: 1.5px solid rgba(255,255,255,0.3);
+}
+.result-overlay-btn.edit:hover { background: rgba(255,255,255,0.28); }
+.result-overlay-btn.save {
+  background: #a855f7; color: #fff;
+}
+.result-overlay-btn.save:hover { background: #9333ea; }
+/* 底部标题行（卡片下方，白色背景） */
+.result-card-footer {
+  padding: 8px 10px 9px;
+  background: #1e1e2e;
+}
+.result-card-title {
+  font-size: 12px; color: rgba(255,255,255,0.85); line-height: 1.4;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.result-card-score {
+  font-size: 11px; color: #10B981; font-weight: 600; margin-top: 2px;
+}
 
 /* Typing indicator */
 .typing { display: flex; gap: 4px; align-items: center; padding: 4px 0; }
@@ -1506,24 +1548,32 @@ async function showGenerationProgress(useRealApi, selectedMats) {
 function showResults(realUrls = []) {
   const r = state.selectedRoutine;
   const baseName = r.name.replace(/^[^ ]+ /, '');
+  // 模拟文件大小数据
+  const mockSizes = ['32.45MB', '33.17MB', '32.77MB', '32.99MB', '32.56MB', '33.31MB'];
   const results = [
     {
       title: `${baseName} · 版本 A`,
-      label: '主推版', emoji: '🏆', duration: '5s',
+      ver: 'A', emoji: '🏆', duration: '00:22',
       score: 'CTR 预估 +42%', scoreColor: '#10B981',
-      videoUrl: realUrls[0] || '',
+      videoUrl: realUrls[0] || '', size: mockSizes[0],
     },
     {
       title: `${baseName} · 版本 B`,
-      label: '备选版', emoji: '🎯', duration: '5s',
+      ver: 'B', emoji: '🎯', duration: '00:22',
       score: 'CTR 预估 +31%', scoreColor: '#3B82F6',
-      videoUrl: realUrls[1] || '',
+      videoUrl: realUrls[1] || '', size: mockSizes[1],
     },
     {
       title: `${baseName} · 版本 C`,
-      label: '测试版', emoji: '🔬', duration: '5s',
+      ver: 'C', emoji: '🔬', duration: '00:22',
       score: 'CTR 预估 +24%', scoreColor: '#a855f7',
-      videoUrl: realUrls[2] || '',
+      videoUrl: realUrls[2] || '', size: mockSizes[2],
+    },
+    {
+      title: `${baseName} · 版本 D`,
+      ver: 'D', emoji: '✨', duration: '00:22',
+      score: 'CTR 预估 +19%', scoreColor: '#F59E0B',
+      videoUrl: realUrls[3] || '', size: mockSizes[3],
     },
   ];
 
@@ -1533,42 +1583,38 @@ function showResults(realUrls = []) {
   const grid = document.createElement('div');
   grid.className = 'result-grid';
 
-  results.forEach(res => {
+  results.forEach((res, idx) => {
     const card = document.createElement('div');
     card.className = 'result-card';
+    const thumbContent = res.videoUrl
+      ? `<video src="${res.videoUrl}" muted preload="metadata"></video>`
+      : `<span class="result-thumb-emoji">${res.emoji}</span>`;
     card.innerHTML = `
-      <div class="result-thumb" onclick="previewResult('${res.title}','${res.videoUrl}')" style="cursor:pointer;">
-        ${res.videoUrl
-          ? `<video src="${res.videoUrl}" muted preload="metadata" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;"></video>`
-          : `<span class="result-thumb-emoji">${res.emoji}</span>`
-        }
-        <div class="result-thumb-label">${res.label}</div>
-        <div class="result-thumb-duration">${res.videoUrl ? '▶ 点击播放' : res.duration}</div>
+      <div class="result-thumb">
+        ${thumbContent}
+        <div class="result-ai-badge">AI生成</div>
+        <div class="result-ver-badge">版本 ${res.ver}</div>
+        <div class="result-meta-bar">
+          <span class="meta-duration">${res.duration}</span>
+          <span class="meta-size">${res.size}</span>
+        </div>
+        <div class="result-overlay">
+          <div class="result-overlay-btns">
+            <button class="result-overlay-btn edit" onclick="event.stopPropagation();previewResult('${res.title}','${res.videoUrl}')">编辑</button>
+            <button class="result-overlay-btn save" onclick="event.stopPropagation();downloadResult('${res.title}','${res.videoUrl}')">保存 ▾</button>
+          </div>
+        </div>
       </div>
-      <div class="result-info">
-        <div class="result-title">${res.title}</div>
-        <div class="result-meta">
-          <span class="result-score" style="color:${res.scoreColor}">${res.score}</span>
-        </div>
-        <div class="result-actions">
-          <button class="result-btn result-btn-primary" onclick="downloadResult('${res.title}','${res.videoUrl}')">⬇ 下载</button>
-          <button class="result-btn result-btn-secondary" onclick="previewResult('${res.title}','${res.videoUrl}')">▶ 预览</button>
-        </div>
+      <div class="result-card-footer">
+        <div class="result-card-title">${res.title}</div>
+        <div class="result-card-score" style="color:${res.scoreColor}">${res.score}</div>
       </div>
     `;
+    card.querySelector('.result-thumb').addEventListener('click', () => previewResult(res.title, res.videoUrl));
     grid.appendChild(card);
   });
 
   wrapper.appendChild(grid);
-
-  // API notice
-  const notice = document.createElement('div');
-  notice.className = 'api-notice';
-  notice.innerHTML = `💡 <strong>启用真实视频生成</strong> — 在本机运行可灵本地代理即可接入真实 AI 生成：<br>
-    <code style="background:rgba(59,130,246,0.1);padding:2px 6px;border-radius:4px;">curl -o ~/kling_proxy.py https://raw.githubusercontent.com/alexzy1108-sys/aigc-spark-demo/main/kling_proxy.py && python3 ~/kling_proxy.py</code><br>
-    代理启动后刷新页面，系统自动检测并切换为 <strong>AI 视频生成</strong> 真实生成模式。`;
-  wrapper.appendChild(notice);
-
   appendElement(wrapper);
 
   // 投放建议卡片
