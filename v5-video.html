@@ -223,47 +223,129 @@ body {
 }
 .spu-card.selected .spu-select-check { background: #FF2442; border-color: #FF2442; color: #fff; }
 
-/* Routine cards */
-.routine-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 4px;
+/* ── 能力选择器 ── */
+.capability-selector { margin-top: 4px; }
+
+/* 大类 Tab 栏 */
+.cap-tabs {
+  display: flex; gap: 6px; margin-bottom: 14px;
+  border-bottom: 1.5px solid #EBEBEB; padding-bottom: 0;
 }
-.routine-card {
-  border: 1.5px solid #E5E7EB; border-radius: 14px; padding: 18px 16px 14px;
-  cursor: pointer; transition: all 0.2s; background: #fff; position: relative;
-  display: flex; flex-direction: column;
+.cap-tab {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 14px 10px; font-size: 13px; font-weight: 600;
+  color: #6B7280; cursor: pointer; border: none; background: none;
+  font-family: inherit; position: relative; transition: color 0.2s;
+  border-bottom: 2.5px solid transparent; margin-bottom: -1.5px;
 }
-.routine-card:hover { border-color: #FF2442; background: rgba(255,36,66,0.02); }
-.routine-card.selected { border-color: #FF2442; background: rgba(255,36,66,0.04); }
-.routine-card.recommended::before {
-  content: '⭐ 系统推荐';
-  position: absolute; top: -1px; left: 16px;
-  font-size: 11px; font-weight: 600; color: #fff;
+.cap-tab:hover { color: #374151; }
+.cap-tab.active { color: #FF2442; border-bottom-color: #FF2442; }
+.cap-tab-icon { font-size: 15px; }
+.cap-tab-badge {
+  font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px;
+  background: rgba(255,36,66,0.1); color: #FF2442;
+}
+.cap-tab-badge.beta { background: rgba(168,85,247,0.1); color: #a855f7; }
+.cap-tab-badge.soon { background: #F3F4F6; color: #9CA3AF; }
+
+/* 能力卡片区域 */
+.cap-panel { display: none; }
+.cap-panel.active { display: block; }
+
+/* 能力卡片网格 */
+.cap-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
+}
+
+.cap-card {
+  border: 1.5px solid #E5E7EB; border-radius: 14px; padding: 16px 14px 14px;
+  cursor: pointer; transition: all 0.2s; background: #fff;
+  position: relative; display: flex; flex-direction: column; gap: 8px;
+}
+.cap-card:hover:not(.cap-card-disabled) { border-color: #FF2442; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(255,36,66,0.08); }
+.cap-card.selected { border-color: #FF2442; background: rgba(255,36,66,0.03); }
+.cap-card.cap-card-disabled { opacity: 0.45; cursor: not-allowed; }
+.cap-card-recommended::before {
+  content: '⭐ AI 推荐';
+  position: absolute; top: -1px; left: 14px;
+  font-size: 10px; font-weight: 700; color: #fff;
   background: linear-gradient(135deg, #FF2442, #a855f7);
-  padding: 3px 10px; border-radius: 0 0 8px 8px;
+  padding: 2px 9px; border-radius: 0 0 7px 7px;
 }
+.cap-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-top: 6px; }
+.cap-card-icon {
+  width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center; font-size: 20px;
+}
+.cap-card-ctr {
+  font-size: 11px; font-weight: 700; color: #10B981;
+  background: rgba(16,185,129,0.08); border-radius: 20px; padding: 2px 8px; white-space: nowrap;
+}
+.cap-card-name { font-size: 14px; font-weight: 700; color: #13131F; }
+.cap-card-desc { font-size: 12px; color: #6B7280; line-height: 1.6; flex: 1; }
+/* 流程步骤横向紧凑版 */
+.cap-flow {
+  display: flex; align-items: center; gap: 0;
+  background: #F7F7F9; border-radius: 8px; padding: 8px 10px;
+  overflow: hidden;
+}
+.cap-flow-step {
+  display: flex; align-items: center; gap: 4px;
+  font-size: 11px; color: #374151; white-space: nowrap;
+}
+.cap-flow-arrow { font-size: 11px; color: #D1D5DB; padding: 0 4px; flex-shrink: 0; }
+.cap-card-footer { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.cap-card-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+.cap-card-tag {
+  font-size: 10px; padding: 2px 7px; border-radius: 20px;
+  font-weight: 500; background: #F3F4F6; color: #6B7280;
+}
+.cap-card-tag.hot { background: rgba(255,36,66,0.08); color: #FF2442; }
+.cap-card-tag.ai { background: rgba(168,85,247,0.08); color: #a855f7; }
+.cap-card-tag.new { background: rgba(59,130,246,0.08); color: #3B82F6; }
+.cap-select-btn {
+  padding: 6px 14px; background: #FF2442; border: none; border-radius: 8px;
+  color: #fff; font-size: 12px; font-weight: 600; cursor: pointer;
+  font-family: inherit; transition: all 0.2s; white-space: nowrap; flex-shrink: 0;
+}
+.cap-select-btn:hover { opacity: 0.88; }
+.cap-card.selected .cap-select-btn { background: #10B981; }
+.cap-card-disabled .cap-select-btn {
+  background: #E5E7EB; color: #9CA3AF; cursor: not-allowed;
+}
+
+/* 套路子选项（成片创作展开区） */
+.routine-sub-panel {
+  margin-top: 12px; padding: 14px;
+  background: #F7F7F9; border-radius: 12px;
+  border: 1.5px solid #EBEBEB;
+  display: none;
+}
+.routine-sub-panel.open { display: block; }
+.routine-sub-title {
+  font-size: 12px; font-weight: 700; color: #9CA3AF;
+  letter-spacing: 0.5px; margin-bottom: 10px; text-transform: uppercase;
+}
+.routine-sub-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.routine-sub-card {
+  background: #fff; border: 1.5px solid #E5E7EB; border-radius: 10px;
+  padding: 12px; cursor: pointer; transition: all 0.2s; position: relative;
+}
+.routine-sub-card:hover { border-color: #FF2442; }
+.routine-sub-card.selected { border-color: #FF2442; background: rgba(255,36,66,0.03); }
+.routine-sub-name { font-size: 13px; font-weight: 700; color: #13131F; margin-bottom: 4px; }
+.routine-sub-desc { font-size: 11px; color: #6B7280; line-height: 1.5; }
+.routine-sub-ctr { font-size: 11px; color: #10B981; font-weight: 600; margin-top: 6px; }
+
+/* Routine cards — kept for compat */
+.routine-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 4px; }
+.routine-card { border: 1.5px solid #E5E7EB; border-radius: 14px; padding: 18px 16px 14px; cursor: pointer; transition: all 0.2s; background: #fff; position: relative; display: flex; flex-direction: column; }
 .routine-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; margin-top: 10px; }
-.routine-name { font-size: 15px; font-weight: 700; color: #13131F; display: flex; align-items: center; gap: 6px; }
-.routine-ctr { font-size: 12px; color: #10B981; font-weight: 600; background: rgba(16,185,129,0.1); padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+.routine-name { font-size: 15px; font-weight: 700; color: #13131F; }
+.routine-ctr { font-size: 12px; color: #10B981; font-weight: 600; background: rgba(16,185,129,0.1); padding: 2px 8px; border-radius: 20px; }
 .routine-desc { font-size: 12px; color: #6B7280; line-height: 1.6; margin-bottom: 12px; flex: 1; }
-.routine-flow {
-  display: flex; flex-direction: column; gap: 0;
-  background: #F7F7F9; border-radius: 10px; padding: 10px 14px;
-  margin-bottom: 12px;
-}
-.routine-flow-step {
-  display: flex; align-items: center; gap: 10px;
-  padding: 6px 0;
-}
-.routine-flow-icon { font-size: 18px; width: 28px; text-align: center; flex-shrink: 0; }
-.routine-flow-label { font-size: 12px; color: #374151; font-weight: 500; }
-.routine-flow-arrow { color: #D1D5DB; font-size: 14px; text-align: center; padding: 0 0 0 8px; line-height: 1; }
 .routine-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 6px; }
-.routine-tags { display: flex; gap: 6px; flex-wrap: wrap; }
-.routine-btn {
-  padding: 7px 18px; background: #FF2442; border: none; border-radius: 8px;
-  color: #fff; font-size: 13px; font-weight: 600; cursor: pointer;
-  font-family: inherit; transition: opacity 0.2s; white-space: nowrap;
-}
+.routine-btn { padding: 7px 18px; background: #FF2442; border: none; border-radius: 8px; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; }
 .routine-btn:hover { opacity: 0.88; }
 .routine-card.selected .routine-btn { background: #10B981; }
 
@@ -987,56 +1069,119 @@ const MOCK_MATERIALS = {
   ],
 };
 
-const TOOLS_3 = [
+// ══ 能力大类定义 ══
+const CAPABILITY_TABS = [
+  { id: 'finish', label: '成片创作', icon: '🎬', desc: '基于已有素材加工合成' },
+  { id: 'origin', label: '原料创作', icon: '✨', desc: 'AI 从零生成视频原料' },
+];
+
+// ══ 成片创作：能力卡片 ══
+const FINISH_CAPS = [
   {
     id: 'mix',
-    name: '🎬 爆款混剪',
+    icon: '✂️', iconBg: 'linear-gradient(135deg,#FF2442,#e01e39)',
+    name: '爆款混剪',
     ctr: '预估 CTR +38%',
-    desc: '将多段素材智能混剪，节奏感强，突出产品卖点，适合开屏投放和信息流。',
-    flow: [
-      { icon: '🎞️', label: '上传多段素材' },
-      { icon: '✂️', label: 'AI 智能混剪' },
-      { icon: '🎵', label: '自动配乐' },
-      { icon: '📱', label: '输出成片' },
-    ],
-    tags: ['电商', '混剪', '历史跑量：高'],
+    desc: '将多段素材智能混剪，节奏感强，卖点突出，适合信息流与开屏。',
+    flow: [{ icon: '🎞️', label: '分析素材' }, { icon: '✂️', label: '智能混剪' }, { icon: '🎵', label: '自动配乐' }, { icon: '📱', label: '输出成片' }],
+    tags: [{ label: '跑量高', cls: 'hot' }, { label: '电商', cls: '' }],
     recommended: true,
+    disabled: false,
+    // 子套路
+    routines: [
+      { id: 'mix_fast', name: '⚡ 快节奏爆款', desc: '2-3 秒快切，强烈节奏感', ctr: '+42%' },
+      { id: 'mix_story', name: '📖 种草故事流', desc: '起承转合叙事，情感带入', ctr: '+35%' },
+      { id: 'mix_compare', name: '⚖️ 使用前后对比', desc: '对比冲击，强化转化欲', ctr: '+38%' },
+    ],
   },
   {
-    id: 'splice',
-    name: '🎙️ 前贴拼接',
+    id: 'avatar',
+    icon: '🤖', iconBg: 'linear-gradient(135deg,#3B82F6,#6366f1)',
+    name: '数字人前贴',
     ctr: '预估 CTR +45%',
-    desc: '在原始素材前自动生成 AI 数字人片头，引入主题，适合教育、金融等线索行业。',
-    flow: [
-      { icon: '🤖', label: '生成数字人片头' },
-      { icon: '➕', label: '前贴拼接' },
-      { icon: '🎙️', label: 'AI 配音同步' },
-      { icon: '📱', label: '输出成片' },
-    ],
-    tags: ['线索', '数字人', '历史跑量：高'],
+    desc: 'AI 数字人生成片头，自动与原素材拼接，适合线索、教育、金融类行业。',
+    flow: [{ icon: '🤖', label: '生成片头' }, { icon: '➕', label: '前贴拼接' }, { icon: '🎙️', label: '配音同步' }, { icon: '📱', label: '输出成片' }],
+    tags: [{ label: '线索行业', cls: 'new' }, { label: '数字人', cls: 'ai' }],
     recommended: false,
+    disabled: false,
+    routines: [
+      { id: 'avatar_pro', name: '💼 商务专业风', desc: '正装形象，适合金融/教育', ctr: '+48%' },
+      { id: 'avatar_casual', name: '😊 亲切生活风', desc: '轻松口播，适合生活类', ctr: '+40%' },
+      { id: 'avatar_news', name: '📺 新闻播报风', desc: '权威感强，适合资讯类', ctr: '+38%' },
+    ],
   },
   {
-    id: 'keyframe',
-    name: '✨ 关键帧特效',
+    id: 'sfx',
+    icon: '✨', iconBg: 'linear-gradient(135deg,#a855f7,#7c3aed)',
+    name: '关键帧特效',
     ctr: '预估 CTR +30%',
-    desc: '检测素材关键帧，在产品出现、卖点节点等关键时刻自动叠加视觉特效，强化记忆点。',
-    flow: [
-      { icon: '🔍', label: '关键帧检测' },
-      { icon: '🎆', label: '特效生成' },
-      { icon: '🎞️', label: '轨道合成' },
-      { icon: '📱', label: '输出成片' },
-    ],
-    tags: ['通用', '特效', '历史跑量：中'],
+    desc: '检测产品出现、卖点节点等关键时刻，自动叠加视觉特效，强化记忆点。',
+    flow: [{ icon: '🔍', label: '关键帧检测' }, { icon: '🎆', label: '特效生成' }, { icon: '🎞️', label: '轨道合成' }, { icon: '📱', label: '输出成片' }],
+    tags: [{ label: '通用', cls: '' }, { label: '特效增强', cls: 'ai' }],
     recommended: false,
+    disabled: false,
+    routines: [
+      { id: 'sfx_particle', name: '🌟 粒子爆发', desc: '产品登场时粒子特效', ctr: '+32%' },
+      { id: 'sfx_zoom', name: '🔍 卖点放大镜', desc: '关键信息动态放大强调', ctr: '+28%' },
+      { id: 'sfx_glitch', name: '⚡ 故障风冲击', desc: '强节奏切换+故障感', ctr: '+30%' },
+    ],
   },
 ];
 
-const ROUTINES = {
-  'ecom': TOOLS_3,
-  'lead': TOOLS_3,
-  'full': TOOLS_3,
-};
+// ══ 原料创作：能力卡片 ══
+const ORIGIN_CAPS = [
+  {
+    id: 'ref_video',
+    icon: '🎥', iconBg: 'linear-gradient(135deg,#FF2442,#e01e39)',
+    name: '参考视频生成',
+    ctr: '预估 CTR +50%',
+    desc: '上传参考视频，AI 理解其风格、节奏与叙事，基于你的产品信息重新创作。',
+    flow: [{ icon: '📤', label: '上传参考' }, { icon: '🧠', label: 'AI 理解风格' }, { icon: '🎬', label: '重新创作' }, { icon: '📱', label: '输出成片' }],
+    tags: [{ label: '跑量高', cls: 'hot' }, { label: '新功能', cls: 'new' }],
+    recommended: true,
+    disabled: false,
+    routines: null, // 无子套路，直接跳参数配置
+  },
+  {
+    id: 'ai_avatar',
+    icon: '🧑‍💻', iconBg: 'linear-gradient(135deg,#3B82F6,#06b6d4)',
+    name: 'AI 人物口播',
+    ctr: '预估 CTR +42%',
+    desc: '选择虚拟形象，输入文案或卖点，AI 自动生成口播视频，无需真人出镜。',
+    flow: [{ icon: '🧑‍💻', label: '选形象' }, { icon: '📝', label: '输入文案' }, { icon: '🎙️', label: 'AI 配音' }, { icon: '📱', label: '输出成片' }],
+    tags: [{ label: 'AI 生成', cls: 'ai' }, { label: '无需出镜', cls: '' }],
+    recommended: false,
+    disabled: false,
+    routines: null,
+  },
+  {
+    id: 'ai_gen',
+    icon: '🌟', iconBg: 'linear-gradient(135deg,#a855f7,#ec4899)',
+    name: 'AI 视频生成',
+    ctr: '预估 CTR +35%',
+    desc: '输入产品卖点与场景描述，AI 从零生成创意视频，无需任何现有素材。',
+    flow: [{ icon: '✍️', label: '输入描述' }, { icon: '🤖', label: 'AI 生成' }, { icon: '🎨', label: '风格渲染' }, { icon: '📱', label: '输出成片' }],
+    tags: [{ label: 'AI 生成', cls: 'ai' }, { label: 'Beta', cls: 'ai' }],
+    recommended: false,
+    disabled: false,
+    routines: null,
+  },
+  {
+    id: 'ai_script',
+    icon: '📝', iconBg: 'linear-gradient(135deg,#10B981,#059669)',
+    name: 'AI 视频脚本',
+    ctr: '预估 CTR +28%',
+    desc: '基于 SPU 卖点自动生成投放脚本，支持导出并用于后续拍摄或配音。',
+    flow: [{ icon: '📦', label: '读取卖点' }, { icon: '✍️', label: '生成脚本' }, { icon: '📋', label: '导出使用' }],
+    tags: [{ label: '辅助工具', cls: '' }],
+    recommended: false,
+    disabled: false,
+    routines: null,
+  },
+];
+
+// compat
+const ROUTINES = { ecom: [], lead: [], full: [] };
 
 // ═══════════════════════════════════════════
 // LOGIN
@@ -1415,77 +1560,219 @@ async function confirmMaterials() {
   showRoutineCards(detectedType);
 }
 
+// ══ 能力选择器主入口 ══
 function showRoutineCards(type) {
-  const routines = ROUTINES[type] || ROUTINES['ecom'];
   const area = document.getElementById('chatArea');
   const wrapper = document.createElement('div');
+  wrapper.id = 'capSelector';
   wrapper.style.cssText = 'animation: fadeUp 0.3s ease;';
+  wrapper.className = 'capability-selector';
 
-  const grid = document.createElement('div');
-  grid.className = 'routine-grid';
+  // AI 推荐提示
+  const aiRec = document.createElement('div');
+  aiRec.style.cssText = 'font-size:12px;color:#6B7280;margin-bottom:12px;display:flex;align-items:center;gap:6px;';
+  aiRec.innerHTML = `<span style="background:linear-gradient(135deg,#FF2442,#a855f7);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;">AI 推荐</span>
+    根据你的素材类型，<strong style="color:#13131F;">成片创作 · 爆款混剪</strong> 历史跑量最优，已为你置顶 ⭐`;
+  wrapper.appendChild(aiRec);
 
-  routines.forEach(r => {
-    const card = document.createElement('div');
-    card.className = 'routine-card' + (r.recommended ? ' recommended' : '');
-    card.id = 'routine_' + r.id;
-
-    const flowHtml = r.flow.map((f, i) => `
-      <div class="routine-flow-step">
-        <div class="routine-flow-icon">${f.icon}</div>
-        <div class="routine-flow-label">${f.label}</div>
-      </div>
-      ${i < r.flow.length - 1 ? '<div class="routine-flow-arrow" style="color:#D1D5DB;font-size:12px;padding-left:28px;">↓</div>' : ''}
-    `).join('');
-
-    card.innerHTML = `
-      <div class="routine-header">
-        <div class="routine-name">${r.name}</div>
-        <div class="routine-ctr">${r.ctr}</div>
-      </div>
-      <div class="routine-desc">${r.desc}</div>
-      <div class="routine-flow">${flowHtml}</div>
-      <div class="routine-footer">
-        <div class="routine-tags">
-          ${r.tags.map(t => `<span class="tag tag-mix">${t}</span>`).join('')}
-        </div>
-        <button class="routine-btn" onclick="selectRoutine('${r.id}', this)">选择套路</button>
-      </div>
-    `;
-    grid.appendChild(card);
+  // Tab 栏
+  const tabBar = document.createElement('div');
+  tabBar.className = 'cap-tabs';
+  CAPABILITY_TABS.forEach(tab => {
+    const btn = document.createElement('button');
+    btn.className = 'cap-tab' + (tab.id === 'finish' ? ' active' : '');
+    btn.id = 'captab_' + tab.id;
+    btn.innerHTML = `<span class="cap-tab-icon">${tab.icon}</span>${tab.label}`;
+    btn.onclick = () => switchCapTab(tab.id);
+    tabBar.appendChild(btn);
   });
+  wrapper.appendChild(tabBar);
 
-  wrapper.appendChild(grid);
+  // 成片创作面板
+  const finishPanel = document.createElement('div');
+  finishPanel.className = 'cap-panel active';
+  finishPanel.id = 'cappanel_finish';
+  finishPanel.appendChild(buildCapGrid(FINISH_CAPS, 'finish'));
+  wrapper.appendChild(finishPanel);
+
+  // 原料创作面板
+  const originPanel = document.createElement('div');
+  originPanel.className = 'cap-panel';
+  originPanel.id = 'cappanel_origin';
+  originPanel.appendChild(buildCapGrid(ORIGIN_CAPS, 'origin'));
+  wrapper.appendChild(originPanel);
+
   appendElement(wrapper);
 }
 
-async function selectRoutine(id, btn) {
-  // Deselect all
-  document.querySelectorAll('.routine-card').forEach(c => c.classList.remove('selected'));
-  document.querySelectorAll('.routine-btn').forEach(b => b.textContent = '选择套路');
+function switchCapTab(tabId) {
+  CAPABILITY_TABS.forEach(t => {
+    document.getElementById('captab_' + t.id)?.classList.toggle('active', t.id === tabId);
+    document.getElementById('cappanel_' + t.id)?.classList.toggle('active', t.id === tabId);
+  });
+}
 
-  // Select this
-  const card = document.getElementById('routine_' + id);
-  card.classList.add('selected');
-  btn.textContent = '✓ 已选择';
+function buildCapGrid(caps, group) {
+  const grid = document.createElement('div');
+  grid.className = 'cap-grid';
 
-  const type = state.materialType;
-  const routine = (ROUTINES[type] || ROUTINES['ecom']).find(r => r.id === id);
-  state.selectedRoutine = routine;
+  caps.forEach(cap => {
+    const card = document.createElement('div');
+    card.className = 'cap-card' + (cap.recommended ? ' cap-card-recommended' : '') + (cap.disabled ? ' cap-card-disabled' : '');
+    card.id = 'capcard_' + cap.id;
 
-  appendMsg('user', `选择套路：${routine.name}`);
+    const flowHtml = cap.flow.map((f, i) =>
+      `<span class="cap-flow-step">${f.icon} ${f.label}</span>${i < cap.flow.length - 1 ? '<span class="cap-flow-arrow">›</span>' : ''}`
+    ).join('');
 
+    const tagsHtml = cap.tags.map(t =>
+      `<span class="cap-card-tag ${t.cls}">${t.label}</span>`
+    ).join('');
+
+    card.innerHTML = `
+      <div class="cap-card-header">
+        <div class="cap-card-icon" style="background:${cap.iconBg};">${cap.icon}</div>
+        <span class="cap-card-ctr">${cap.ctr}</span>
+      </div>
+      <div class="cap-card-name">${cap.name}</div>
+      <div class="cap-card-desc">${cap.desc}</div>
+      <div class="cap-flow">${flowHtml}</div>
+      <div class="cap-card-footer">
+        <div class="cap-card-tags">${tagsHtml}</div>
+        <button class="cap-select-btn" onclick="selectCap('${cap.id}','${group}',this)" ${cap.disabled ? 'disabled' : ''}>
+          ${cap.disabled ? '暂未开通' : '选择'}
+        </button>
+      </div>
+    `;
+
+    // 如果有子套路，渲染展开区
+    if (cap.routines && cap.routines.length) {
+      const subPanel = document.createElement('div');
+      subPanel.className = 'routine-sub-panel';
+      subPanel.id = 'subpanel_' + cap.id;
+
+      const subTitle = document.createElement('div');
+      subTitle.className = 'routine-sub-title';
+      subTitle.textContent = '选择创意套路';
+      subPanel.appendChild(subTitle);
+
+      const subGrid = document.createElement('div');
+      subGrid.className = 'routine-sub-grid';
+      cap.routines.forEach((r, ri) => {
+        const sc = document.createElement('div');
+        sc.className = 'routine-sub-card' + (ri === 0 ? ' selected' : '');
+        sc.id = 'subcard_' + r.id;
+        sc.innerHTML = `
+          <div class="routine-sub-name">${r.name}</div>
+          <div class="routine-sub-desc">${r.desc}</div>
+          <div class="routine-sub-ctr">${r.ctr} CTR</div>
+        `;
+        sc.onclick = () => {
+          subPanel.querySelectorAll('.routine-sub-card').forEach(c => c.classList.remove('selected'));
+          sc.classList.add('selected');
+          // 记录子套路
+          state._selectedSubRoutine = r;
+        };
+        subGrid.appendChild(sc);
+      });
+      // 默认选第一个
+      state._selectedSubRoutine = cap.routines[0];
+
+      subPanel.appendChild(subGrid);
+
+      // 确认按钮
+      const confirmRow = document.createElement('div');
+      confirmRow.style.cssText = 'margin-top:12px;display:flex;justify-content:flex-end;';
+      confirmRow.innerHTML = `<button onclick="confirmCapRoutine('${cap.id}')" style="padding:8px 20px;background:#FF2442;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">确认选择 →</button>`;
+      subPanel.appendChild(confirmRow);
+
+      card.appendChild(subPanel);
+    }
+
+    grid.appendChild(card);
+  });
+
+  return grid;
+}
+
+async function selectCap(capId, group, btn) {
+  if (btn.disabled) return;
+  const caps = group === 'finish' ? FINISH_CAPS : ORIGIN_CAPS;
+  const cap = caps.find(c => c.id === capId);
+  if (!cap) return;
+
+  // 高亮选中卡片
+  document.querySelectorAll('.cap-card').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.cap-select-btn').forEach(b => { b.textContent = '选择'; });
+  document.querySelectorAll('.routine-sub-panel').forEach(p => p.classList.remove('open'));
+
+  const card = document.getElementById('capcard_' + capId);
+  card?.classList.add('selected');
+  btn.textContent = '✓ 已选';
+
+  state._selectedCap = cap;
+
+  if (cap.routines && cap.routines.length) {
+    // 有子套路 → 展开子套路区
+    const subPanel = document.getElementById('subpanel_' + capId);
+    if (subPanel) {
+      subPanel.classList.add('open');
+      subPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  } else {
+    // 无子套路 → 直接进入参数配置
+    await confirmCapDirect(cap);
+  }
+}
+
+async function confirmCapRoutine(capId) {
+  const cap = state._selectedCap;
+  const sub = state._selectedSubRoutine;
+  if (!cap) return;
+
+  const displayName = cap.name + (sub ? ` · ${sub.name.replace(/^[^ ]+ /, '')}` : '');
+  state.selectedRoutine = {
+    id: capId + (sub ? '_' + sub.id : ''),
+    name: displayName,
+    capId,
+    subRoutine: sub,
+    cap,
+  };
+
+  appendMsg('user', `选择能力：${cap.name}${ sub ? ' — ' + sub.name : ''}`);
+  await proceedToConfig(cap, sub);
+}
+
+async function confirmCapDirect(cap) {
+  state.selectedRoutine = {
+    id: cap.id,
+    name: cap.name,
+    capId: cap.id,
+    cap,
+  };
+  appendMsg('user', `选择能力：${cap.name}`);
+  await proceedToConfig(cap, null);
+}
+
+async function proceedToConfig(cap, sub) {
   setStep(3);
   showTyping();
   await delay(1000);
   removeTyping();
 
-  // Config step
-  await aiSay(`好的！已选择 <strong>${routine.name}</strong><br><br>在生成之前，确认以下参数：<br>
+  const styleMap = {
+    mix: '动感节奏，快切混剪', avatar: '专业商务风，数字人着装正式',
+    sfx: '沉浸式特效，情绪强化', ref_video: '参考风格复刻',
+    ai_avatar: 'AI 虚拟形象口播', ai_gen: 'AI 全自动生成', ai_script: '脚本输出模式',
+  };
+  const style = styleMap[cap.id] || '智能生成';
+
+  await aiSay(`好的！已选择 <strong>${cap.name}${sub ? ' · ' + sub.name : ''}</strong><br><br>在生成之前，确认以下参数：<br>
     📐 <strong>输出分辨率</strong>：1080×1920（竖版，适配小红书/抖音）<br>
-    ⏱️ <strong>目标时长</strong>：15-30秒<br>
-    🎨 <strong>视频风格</strong>：${routine.id === 'avatar' ? '专业商务风，数字人着装正式' : routine.id === 'sfx' ? '沉浸式体验，音效增强情绪' : '动感节奏，快切混剪'}<br>
+    ⏱️ <strong>目标时长</strong>：15–30 秒<br>
+    🎨 <strong>视频风格</strong>：${style}<br>
     🔊 <strong>配音语言</strong>：普通话（标准）<br>
-    确认后将开始生成，预计耗时 2-3 分钟。`, 800);
+    确认后将开始生成，预计耗时 2–3 分钟。`, 800);
 
   await delay(1200);
 
