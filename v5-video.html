@@ -819,9 +819,31 @@ function parseMaterials(itemInfos, cases) {
   // 把每条素材（图片/视频）展开成独立卡片，不按商品聚合
   const items = [];
 
+  // 同时构建 SPU 产品信息 map（产品名 + 卖点）
+  if (!state._spuInfoMap) state._spuInfoMap = {};
+
   itemInfos.forEach((item) => {
     const spuId = String(item.spu_id || item.id || '');
     const spuName = item.spu_name || item.name || (state._spuNameMap && state._spuNameMap[spuId]) || '';
+    // 提取卖点：兼容多种字段名
+    const rawPoints =
+      item.selling_points || item.buy_points || item.core_selling_points ||
+      item.item_desc || item.description || item.highlights || [];
+    let sellingPoints = [];
+    if (Array.isArray(rawPoints)) {
+      sellingPoints = rawPoints.map(p => (typeof p === 'string' ? p : (p.point || p.desc || p.text || JSON.stringify(p)))).filter(Boolean);
+    } else if (typeof rawPoints === 'string' && rawPoints) {
+      sellingPoints = rawPoints.split(/[，,、；;]+/).map(s => s.trim()).filter(Boolean);
+    }
+    // 没有卖点字段时从 sku_name 聚合做降级
+    if (!sellingPoints.length) {
+      const mats2 = item.item_materials || item.materials || [];
+      const skuNames = [...new Set(mats2.map(m => m.sku_name).filter(Boolean))];
+      if (skuNames.length) sellingPoints = skuNames.slice(0, 5);
+    }
+    if (spuId && spuName) {
+      state._spuInfoMap[spuId] = { spuId, spuName, sellingPoints };
+    }
     const mats = item.item_materials || item.materials || item.creatives || [];
 
     mats.forEach((mat, i) => {
@@ -901,10 +923,10 @@ async function fetchRealMaterials(brandAccountId) {
     if (!materials.length) throw new Error('no materials with url');
 
     if (!materials.length) throw new Error('no materials');
-    return { materials, fromApi: true };
+    return { materials, fromApi: true, spuInfoMap: state._spuInfoMap || {} };
   } catch (e) {
     console.warn('[API] 接口不可达，降级 mock:', e.message);
-    return { materials: null, fromApi: false };
+    return { materials: null, fromApi: false, spuInfoMap: {} };
   }
 }
 
@@ -922,6 +944,8 @@ let state = {
   selectedRoutine: null,
   generating: false,
   results: [],
+  _spuInfoMap: {},     // spuId -> { spuId, spuName, sellingPoints[] }
+  _spuNameMap: {},
 };
 
 // ═══════════════════════════════════════════
@@ -932,6 +956,18 @@ const MOCK_ACCOUNTS = {
   '6612309': { name: '花西子旗舰店', industry: '美妆', avatar: '🌸', type: 'ecom' },
   '7734521': { name: '戴森官方店', industry: '家电', avatar: '🌀', type: 'ecom' },
   'default': { name: '测试广告主', industry: '电商', avatar: '🏪', type: 'ecom' },
+};
+
+// Mock SPU 产品信息（真实接口时从 /info 解析）
+const MOCK_SPU_INFO = {
+  'lead': [
+    { spuId: 'SPU001', spuName: '雅思 7 分直达课程', sellingPoints: ['AI 自适应学习路径', '名师 1 对 1 指导', '7 分不过全额退款', '配套真题刷题系统', '学员通过率 92%'] },
+    { spuId: 'SPU002', spuName: '商务英语精英班', sellingPoints: ['500 强企业面试场景', '外教 + 中教双师授课', '提供结业证书', '灵活直播 + 录播'] },
+  ],
+  'ecom': [
+    { spuId: 'SPU101', spuName: '核桃桑葚黑芝麻丸', sellingPoints: ['不添加蔗糖 / 色素 / 香精', '10 种天然原料压榨', 'GI 值仅 39，低糖配方', '宁夏枸杞 + 新疆红枣原产地直采', '独立小包装便携设计'] },
+    { spuId: 'SPU102', spuName: '戴森 V15 吸尘器', sellingPoints: ['激光探测微尘技术', '230 AW 强劲吸力', '60 分钟续航', 'LCD 实时显示吸尘量', '5 层过滤系统 99.99% 过滤'] },
+  ],
 };
 
 const MOCK_MATERIALS = {
@@ -1111,36 +1147,114 @@ async function startConversation(acc) {
   showTyping();
   await delay(800);
   removeTyping();
-  appendMsg('ai', `你好！我是 AIGC 视频创意助手 🎬<br>已成功读取账户 <strong>${state.accountId}</strong> · ${acc.name}<br><br>正在拉取账户内的视频素材，请稍候...`);
+  appendMsg('ai', `你好！我是 AIGC 视频创意助手 🎬<br>已成功读取账户 <strong>${state.accountId}</strong> · ${acc.name}<br><br>正在拉取账户关联 SPU 的产品信息和素材，请稍候...`);
 
   // 尝试真实 API，失败降级 mock
   showTyping();
-  const { materials: realMats, fromApi } = await fetchRealMaterials(state.accountId);
+  const { materials: realMats, fromApi, spuInfoMap } = await fetchRealMaterials(state.accountId);
   removeTyping();
 
   let materials;
+  let spuInfoList = [];
+
   if (fromApi && realMats && realMats.length) {
     materials = realMats;
-    appendMsg('ai', `✅ 共找到 <strong>${materials.length}</strong> 条视频素材（来自真实接口）<br>AI 正在分析素材类型和完整度...`);
+    // 从 spuInfoMap 提取列表
+    spuInfoList = Object.values(spuInfoMap || state._spuInfoMap || {});
+    appendMsg('ai', `✅ 共找到 <strong>${materials.length}</strong> 条素材（来自真实接口），关联 <strong>${spuInfoList.length}</strong> 个 SPU<br>AI 正在解析产品信息与卖点...`);
   } else {
     // Fallback mock
     materials = MOCK_MATERIALS[acc.type] || MOCK_MATERIALS['ecom'];
-    appendMsg('ai', `✅ 共找到 <strong>${materials.length}</strong> 条视频素材<br>AI 正在分析素材类型和完整度...`);
+    spuInfoList = MOCK_SPU_INFO[acc.type] || MOCK_SPU_INFO['ecom'];
+    state._spuInfoMap = {};
+    spuInfoList.forEach(s => { state._spuInfoMap[s.spuId] = s; });
+    appendMsg('ai', `✅ 共找到 <strong>${materials.length}</strong> 条素材，关联 <strong>${spuInfoList.length}</strong> 个 SPU<br>AI 正在解析产品信息与卖点...`);
   }
 
   state.materials = materials;
   updateMaterialMini(materials);
   document.getElementById('materialCount').textContent = materials.length;
   showTyping();
-  await delay(1500);
+  await delay(1200);
   removeTyping();
+
+  // 展示 SPU 产品信息卡片
+  if (spuInfoList.length) {
+    showSpuInfoCards(spuInfoList);
+    await delay(600);
+  }
 
   // Analyze and show
   const analysisResult = analyzeAll(materials);
   state.materialType = analysisResult.type;
 
-  appendMsg('ai', `分析完成！以下是你账户内的全部素材，<strong>点击选择</strong>你想用于创意生成的（可多选），选好后点确认 👇`);
+  appendMsg('ai', `产品信息解析完成！以下是你账户内的全部素材，<strong>点击选择</strong>你想用于创意生成的（可多选），选好后点确认 👇`);
   showMaterialCards(materials);
+}
+
+// 展示 SPU 产品信息卡片
+function showSpuInfoCards(spuInfoList) {
+  const area = document.getElementById('chatArea');
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'animation: fadeUp 0.3s ease; margin-bottom: 4px;';
+
+  // 标题行
+  const titleRow = document.createElement('div');
+  titleRow.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:10px;';
+  titleRow.innerHTML = `
+    <span style="font-size:13px;font-weight:700;color:#13131F;">📦 关联 SPU 产品信息</span>
+    <span style="font-size:11px;color:#9CA3AF;background:#F3F4F6;padding:2px 8px;border-radius:10px;">${spuInfoList.length} 个商品</span>
+  `;
+  wrapper.appendChild(titleRow);
+
+  // 卡片网格
+  const grid = document.createElement('div');
+  grid.style.cssText = 'display:flex;flex-direction:column;gap:8px;';
+
+  spuInfoList.forEach((spu, idx) => {
+    const card = document.createElement('div');
+    card.style.cssText = `
+      background:#fff; border:1.5px solid #E5E7EB; border-radius:12px;
+      padding:14px 16px; transition: border-color 0.2s;
+    `;
+    const points = spu.sellingPoints || [];
+    const pointsHtml = points.length
+      ? points.map(p => `
+          <span style="display:inline-flex;align-items:center;gap:4px;
+            background:rgba(255,36,66,0.06);border:1px solid rgba(255,36,66,0.15);
+            border-radius:6px;padding:3px 9px;font-size:11px;color:#FF2442;font-weight:500;
+            white-space:nowrap;margin:2px 3px 2px 0;">
+            ✦ ${p}
+          </span>`).join('')
+      : `<span style="font-size:12px;color:#9CA3AF;">暂无卖点信息</span>`;
+
+    card.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <div style="width:32px;height:32px;border-radius:8px;
+          background:linear-gradient(135deg,#FF2442,#a855f7);
+          display:flex;align-items:center;justify-content:center;
+          font-size:16px;flex-shrink:0;">📦</div>
+        <div style="min-width:0;">
+          <div style="font-size:13px;font-weight:700;color:#13131F;
+            overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${spu.spuName}</div>
+          <div style="font-size:11px;color:#9CA3AF;margin-top:1px;">SPU ID: ${spu.spuId}</div>
+        </div>
+        <div style="margin-left:auto;font-size:11px;font-weight:600;color:#10B981;
+          background:rgba(16,185,129,0.08);border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0;">
+          ${points.length} 个卖点
+        </div>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;align-items:flex-start;gap:0;">
+        <span style="font-size:11px;color:#6B7280;margin-right:6px;margin-top:5px;white-space:nowrap;flex-shrink:0;">核心卖点</span>
+        <div style="display:flex;flex-wrap:wrap;">${pointsHtml}</div>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  wrapper.appendChild(grid);
+  area.appendChild(wrapper);
+  area.scrollTop = area.scrollHeight;
 }
 
 function analyzeAll(materials) {
