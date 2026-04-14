@@ -316,26 +316,38 @@ body {
 
 /* 套路子选项（成片创作展开区） */
 .routine-sub-panel {
-  margin-top: 12px; padding: 14px;
-  background: #F7F7F9; border-radius: 12px;
-  border: 1.5px solid #EBEBEB;
+  margin-top: 10px; padding: 14px 14px 12px;
+  background: #F7F7F9; border-radius: 0 0 12px 12px;
+  border: 1.5px solid #FF2442; border-top: none;
   display: none;
 }
 .routine-sub-panel.open { display: block; }
 .routine-sub-title {
-  font-size: 12px; font-weight: 700; color: #9CA3AF;
+  font-size: 11px; font-weight: 700; color: #9CA3AF;
   letter-spacing: 0.5px; margin-bottom: 10px; text-transform: uppercase;
 }
 .routine-sub-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .routine-sub-card {
   background: #fff; border: 1.5px solid #E5E7EB; border-radius: 10px;
-  padding: 12px; cursor: pointer; transition: all 0.2s; position: relative;
+  padding: 14px 12px 12px; cursor: pointer; transition: all 0.2s; position: relative;
+  display: flex; flex-direction: column; gap: 4px;
 }
-.routine-sub-card:hover { border-color: #FF2442; }
-.routine-sub-card.selected { border-color: #FF2442; background: rgba(255,36,66,0.03); }
-.routine-sub-name { font-size: 13px; font-weight: 700; color: #13131F; margin-bottom: 4px; }
-.routine-sub-desc { font-size: 11px; color: #6B7280; line-height: 1.5; }
-.routine-sub-ctr { font-size: 11px; color: #10B981; font-weight: 600; margin-top: 6px; }
+.routine-sub-card:hover { border-color: #FF2442; transform: translateY(-1px); box-shadow: 0 3px 10px rgba(255,36,66,0.08); }
+.routine-sub-card.selected {
+  border-color: #FF2442; background: rgba(255,36,66,0.04);
+  box-shadow: 0 0 0 3px rgba(255,36,66,0.08);
+}
+.routine-sub-card.selected::after {
+  content: '✓'; position: absolute; top: 8px; right: 10px;
+  font-size: 12px; font-weight: 700; color: #FF2442;
+}
+.routine-sub-name { font-size: 13px; font-weight: 700; color: #13131F; }
+.routine-sub-desc { font-size: 11px; color: #6B7280; line-height: 1.5; flex: 1; }
+.routine-sub-ctr {
+  font-size: 12px; font-weight: 700; color: #10B981;
+  margin-top: 6px; display: flex; align-items: center; gap: 4px;
+}
+.routine-sub-ctr::before { content: '↑'; font-size: 11px; }
 
 /* Routine cards — kept for compat */
 .routine-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 4px; }
@@ -1069,10 +1081,9 @@ const MOCK_MATERIALS = {
   ],
 };
 
-// ══ 能力大类定义 ══
+// ══ 能力大类定义（暂只支持成片创作）══
 const CAPABILITY_TABS = [
   { id: 'finish', label: '成片创作', icon: '🎬', desc: '基于已有素材加工合成' },
-  { id: 'origin', label: '原料创作', icon: '✨', desc: 'AI 从零生成视频原料' },
 ];
 
 // ══ 成片创作：能力卡片 ══
@@ -1337,69 +1348,79 @@ async function startConversation(acc) {
   showMaterialCards(materials);
 }
 
-// 展示 SPU 产品信息卡片
+// 展示 SPU 产品信息卡片（默认折叠，点击展开）
 function showSpuInfoCards(spuInfoList) {
   const area = document.getElementById('chatArea');
   const wrapper = document.createElement('div');
   wrapper.style.cssText = 'animation: fadeUp 0.3s ease; margin-bottom: 4px;';
 
-  // 标题行
-  const titleRow = document.createElement('div');
-  titleRow.style.cssText = 'display:flex;align-items:center;gap:8px;margin-bottom:10px;';
-  titleRow.innerHTML = `
-    <span style="font-size:13px;font-weight:700;color:#13131F;">📦 关联 SPU 产品信息</span>
-    <span style="font-size:11px;color:#9CA3AF;background:#F3F4F6;padding:2px 8px;border-radius:10px;">${spuInfoList.length} 个商品</span>
+  // 整体折叠容器
+  const collapseId = 'spuCollapse';
+  wrapper.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;
+      background:#fff;border:1.5px solid #E5E7EB;border-radius:12px;
+      padding:12px 16px;cursor:pointer;transition:border-color 0.2s;"
+      onclick="toggleSpuCollapse(this)"
+      id="spuCollapseHeader">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:28px;height:28px;border-radius:8px;
+          background:linear-gradient(135deg,#FF2442,#a855f7);
+          display:flex;align-items:center;justify-content:center;font-size:14px;">📦</div>
+        <span style="font-size:13px;font-weight:700;color:#13131F;">关联 SPU 产品信息</span>
+        <span style="font-size:11px;color:#9CA3AF;background:#F3F4F6;
+          padding:2px 8px;border-radius:10px;">${spuInfoList.length} 个商品</span>
+      </div>
+      <span id="spuCollapseArrow" style="font-size:12px;color:#9CA3AF;transition:transform 0.2s;">▼ 展开查看卖点</span>
+    </div>
+    <div id="${collapseId}" style="display:none;margin-top:6px;display:none;">
+    </div>
   `;
-  wrapper.appendChild(titleRow);
 
-  // 卡片网格
-  const grid = document.createElement('div');
-  grid.style.cssText = 'display:flex;flex-direction:column;gap:8px;';
+  const collapseBody = wrapper.querySelector('#' + collapseId);
 
-  spuInfoList.forEach((spu, idx) => {
-    const card = document.createElement('div');
-    card.style.cssText = `
-      background:#fff; border:1.5px solid #E5E7EB; border-radius:12px;
-      padding:14px 16px; transition: border-color 0.2s;
-    `;
+  spuInfoList.forEach((spu) => {
     const points = spu.sellingPoints || [];
-    const pointsHtml = points.length
-      ? points.map(p => `
-          <span style="display:inline-flex;align-items:center;gap:4px;
+    // 最多展示 5 个卖点，且每个做截断（最多 20 字符）
+    const trimmedPoints = points.slice(0, 5).map(p => p.length > 22 ? p.slice(0, 22) + '…' : p);
+    const pointsHtml = trimmedPoints.length
+      ? trimmedPoints.map(p => `
+          <span style="display:inline-flex;align-items:center;gap:3px;
             background:rgba(255,36,66,0.06);border:1px solid rgba(255,36,66,0.15);
-            border-radius:6px;padding:3px 9px;font-size:11px;color:#FF2442;font-weight:500;
-            white-space:nowrap;margin:2px 3px 2px 0;">
-            ✦ ${p}
-          </span>`).join('')
+            border-radius:6px;padding:3px 8px;font-size:11px;color:#FF2442;font-weight:500;
+            white-space:nowrap;margin:2px 3px 2px 0;">✦ ${p}</span>`).join('')
       : `<span style="font-size:12px;color:#9CA3AF;">暂无卖点信息</span>`;
 
+    const card = document.createElement('div');
+    card.style.cssText = 'background:#fff;border:1.5px solid #E5E7EB;border-radius:12px;padding:12px 16px;margin-bottom:6px;';
     card.innerHTML = `
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-        <div style="width:32px;height:32px;border-radius:8px;
-          background:linear-gradient(135deg,#FF2442,#a855f7);
-          display:flex;align-items:center;justify-content:center;
-          font-size:16px;flex-shrink:0;">📦</div>
-        <div style="min-width:0;">
-          <div style="font-size:13px;font-weight:700;color:#13131F;
-            overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${spu.spuName}</div>
-          <div style="font-size:11px;color:#9CA3AF;margin-top:1px;">SPU ID: ${spu.spuId}</div>
-        </div>
-        <div style="margin-left:auto;font-size:11px;font-weight:600;color:#10B981;
-          background:rgba(16,185,129,0.08);border-radius:20px;padding:3px 10px;white-space:nowrap;flex-shrink:0;">
-          ${points.length} 个卖点
-        </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <div style="font-size:13px;font-weight:700;color:#13131F;flex:1;
+          overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${spu.spuName}</div>
+        <span style="font-size:11px;font-weight:600;color:#10B981;
+          background:rgba(16,185,129,0.08);border-radius:20px;padding:2px 8px;white-space:nowrap;">
+          ${points.length} 个卖点</span>
       </div>
-      <div style="display:flex;flex-wrap:wrap;align-items:flex-start;gap:0;">
-        <span style="font-size:11px;color:#6B7280;margin-right:6px;margin-top:5px;white-space:nowrap;flex-shrink:0;">核心卖点</span>
-        <div style="display:flex;flex-wrap:wrap;">${pointsHtml}</div>
+      <div style="display:flex;flex-wrap:wrap;">${pointsHtml}
+        ${points.length > 5 ? `<span style="font-size:11px;color:#9CA3AF;padding:3px 0;align-self:center;">+${points.length-5} 个</span>` : ''}
       </div>
     `;
-    grid.appendChild(card);
+    collapseBody.appendChild(card);
   });
 
-  wrapper.appendChild(grid);
+  wrapper.appendChild(collapseBody);
   area.appendChild(wrapper);
   area.scrollTop = area.scrollHeight;
+}
+
+function toggleSpuCollapse(header) {
+  const body = document.getElementById('spuCollapse');
+  const arrow = document.getElementById('spuCollapseArrow');
+  const isOpen = body.style.display !== 'none';
+  body.style.display = isOpen ? 'none' : 'block';
+  arrow.textContent = isOpen ? '▼ 展开查看卖点' : '▲ 收起';
+  header.style.borderColor = isOpen ? '#E5E7EB' : '#FF2442';
+  header.style.borderBottomLeftRadius = isOpen ? '12px' : '0';
+  header.style.borderBottomRightRadius = isOpen ? '12px' : '0';
 }
 
 function analyzeAll(materials) {
@@ -1575,18 +1596,20 @@ function showRoutineCards(type) {
     根据你的素材类型，<strong style="color:#13131F;">成片创作 · 爆款混剪</strong> 历史跑量最优，已为你置顶 ⭐`;
   wrapper.appendChild(aiRec);
 
-  // Tab 栏
-  const tabBar = document.createElement('div');
-  tabBar.className = 'cap-tabs';
-  CAPABILITY_TABS.forEach(tab => {
-    const btn = document.createElement('button');
-    btn.className = 'cap-tab' + (tab.id === 'finish' ? ' active' : '');
-    btn.id = 'captab_' + tab.id;
-    btn.innerHTML = `<span class="cap-tab-icon">${tab.icon}</span>${tab.label}`;
-    btn.onclick = () => switchCapTab(tab.id);
-    tabBar.appendChild(btn);
-  });
-  wrapper.appendChild(tabBar);
+  // Tab 栏（只有多个 Tab 时才显示）
+  if (CAPABILITY_TABS.length > 1) {
+    const tabBar = document.createElement('div');
+    tabBar.className = 'cap-tabs';
+    CAPABILITY_TABS.forEach(tab => {
+      const btn = document.createElement('button');
+      btn.className = 'cap-tab' + (tab.id === 'finish' ? ' active' : '');
+      btn.id = 'captab_' + tab.id;
+      btn.innerHTML = `<span class="cap-tab-icon">${tab.icon}</span>${tab.label}`;
+      btn.onclick = () => switchCapTab(tab.id);
+      tabBar.appendChild(btn);
+    });
+    wrapper.appendChild(tabBar);
+  }
 
   // 成片创作面板
   const finishPanel = document.createElement('div');
@@ -1595,12 +1618,14 @@ function showRoutineCards(type) {
   finishPanel.appendChild(buildCapGrid(FINISH_CAPS, 'finish'));
   wrapper.appendChild(finishPanel);
 
-  // 原料创作面板
-  const originPanel = document.createElement('div');
-  originPanel.className = 'cap-panel';
-  originPanel.id = 'cappanel_origin';
-  originPanel.appendChild(buildCapGrid(ORIGIN_CAPS, 'origin'));
-  wrapper.appendChild(originPanel);
+  // 原料创作面板（仅多Tab时渲染）
+  if (CAPABILITY_TABS.length > 1) {
+    const originPanel = document.createElement('div');
+    originPanel.className = 'cap-panel';
+    originPanel.id = 'cappanel_origin';
+    originPanel.appendChild(buildCapGrid(ORIGIN_CAPS, 'origin'));
+    wrapper.appendChild(originPanel);
+  }
 
   appendElement(wrapper);
 }
@@ -1645,7 +1670,10 @@ function buildCapGrid(caps, group) {
       </div>
     `;
 
-    // 如果有子套路，渲染展开区
+    // 用 wrapper 包裹 card + subPanel，让边框接缝自然
+    const cellWrap = document.createElement('div');
+    cellWrap.style.cssText = 'display:flex;flex-direction:column;';
+
     if (cap.routines && cap.routines.length) {
       const subPanel = document.createElement('div');
       subPanel.className = 'routine-sub-panel';
@@ -1670,26 +1698,25 @@ function buildCapGrid(caps, group) {
         sc.onclick = () => {
           subPanel.querySelectorAll('.routine-sub-card').forEach(c => c.classList.remove('selected'));
           sc.classList.add('selected');
-          // 记录子套路
           state._selectedSubRoutine = r;
         };
         subGrid.appendChild(sc);
       });
-      // 默认选第一个
       state._selectedSubRoutine = cap.routines[0];
-
       subPanel.appendChild(subGrid);
 
-      // 确认按钮
       const confirmRow = document.createElement('div');
       confirmRow.style.cssText = 'margin-top:12px;display:flex;justify-content:flex-end;';
-      confirmRow.innerHTML = `<button onclick="confirmCapRoutine('${cap.id}')" style="padding:8px 20px;background:#FF2442;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">确认选择 →</button>`;
+      confirmRow.innerHTML = `<button onclick="confirmCapRoutine('${cap.id}')" style="padding:8px 22px;background:#FF2442;border:none;border-radius:8px;color:#fff;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:opacity 0.2s;" onmouseover="this.style.opacity=0.88" onmouseout="this.style.opacity=1">确认选择 →</button>`;
       subPanel.appendChild(confirmRow);
 
-      card.appendChild(subPanel);
+      cellWrap.appendChild(card);
+      cellWrap.appendChild(subPanel);
+    } else {
+      cellWrap.appendChild(card);
     }
 
-    grid.appendChild(card);
+    grid.appendChild(cellWrap);
   });
 
   return grid;
@@ -1713,11 +1740,14 @@ async function selectCap(capId, group, btn) {
   state._selectedCap = cap;
 
   if (cap.routines && cap.routines.length) {
-    // 有子套路 → 展开子套路区
+    // 有子套路 → 展开子套路区，卡片底部圆角去掉接缝
+    card.style.borderBottomLeftRadius = '0';
+    card.style.borderBottomRightRadius = '0';
+    card.style.borderBottom = 'none';
     const subPanel = document.getElementById('subpanel_' + capId);
     if (subPanel) {
       subPanel.classList.add('open');
-      subPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      setTimeout(() => subPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
     }
   } else {
     // 无子套路 → 直接进入参数配置
