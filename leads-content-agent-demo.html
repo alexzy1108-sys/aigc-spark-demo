@@ -1,0 +1,2145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>线索内容一体化 AIGC Claw · Demo v28</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, 'Inter', 'SF Pro Display', 'PingFang SC', 'Helvetica Neue', sans-serif;
+  background: #f0f2f8;
+  color: #1e2040;
+  font-size: 13px;
+  min-width: 1100px;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── 标题栏 ── */
+.titlebar {
+  height: 44px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(224,228,240,0.8);
+  display: flex;
+  align-items: center;
+  padding: 0 18px;
+  position: relative;
+  box-shadow: 0 1px 0 rgba(0,0,0,0.04), 0 2px 8px rgba(60,70,140,0.06);
+  flex-shrink: 0;
+  z-index: 100;
+}
+.dots { display: flex; gap: 7px; }
+.dot { width: 13px; height: 13px; border-radius: 50%; cursor: pointer; }
+.d-r { background: #ff5f57; }
+.d-y { background: #febc2e; }
+.d-g { background: #28c840; }
+.title-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.title-main { font-size: 17px; font-weight: 900; color: #1a1d3a; }
+.title-sub { font-size: 11px; color: #a0a8c8; }
+.titlebar-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.btn-demo {
+  background: #e01a3a;
+  color: #fff;
+  border: none;
+  padding: 8px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  box-shadow: 0 2px 8px rgba(224,26,58,0.3);
+  transition: background 0.2s;
+}
+.btn-demo:hover { background: #c0102a; }
+.btn-replay {
+  padding: 6px 12px;
+  background: #f5f6fc;
+  color: #606890;
+  border: 1px solid #d8ddf0;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  display: none;
+}
+.btn-replay:hover { background: #e8eaf4; }
+.btn-pause {
+  padding: 6px 12px;
+  background: #f5f6fc;
+  color: #606890;
+  border: 1px solid #d8ddf0;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  display: none;
+}
+.btn-skip {
+  padding: 6px 12px;
+  background: #f5f6fc;
+  color: #606890;
+  border: 1px solid #d8ddf0;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  display: none;
+}
+
+/* ── 进度条 ── */
+.progress-bar {
+  height: 2px;
+  background: linear-gradient(90deg, #e01a3a, #ff6b8a, #7c5cfc);
+  width: 0%;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 8px rgba(224,26,58,0.5);
+  flex-shrink: 0;
+}
+
+/* ── Tab 导航 ── */
+.tabs {
+  display: flex;
+  background: #fff;
+  border-bottom: 1px solid #e0e4f0;
+  padding: 0 18px;
+  flex-shrink: 0;
+}
+.tab {
+  padding: 10px 18px;
+  font-size: 12px;
+  color: #a0a8c8;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  user-select: none;
+}
+.tab:hover { color: #606890; }
+.tab.active { color: #e01a3a; border-bottom-color: #e01a3a; font-weight: 600; }
+.tab.flash {
+  animation: tabFlash 0.6s ease-in-out 3;
+}
+@keyframes tabFlash {
+  0%,100% { color: #a0a8c8; }
+  50% { color: #e01a3a; background: #fff5f6; }
+}
+
+/* ── 主体区域 ── */
+.main-layout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── 左侧商家 sidebar ── */
+.sidebar {
+  width: 260px;
+  background: #fff;
+  border-right: 1px solid #e0e4f0;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+.sidebar-header {
+  padding: 16px 16px 12px;
+}
+.merchant-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e2040;
+  line-height: 1.4;
+}
+.merchant-id {
+  font-size: 10px;
+  color: #a0a8c8;
+  margin-top: 3px;
+}
+.sidebar-divider {
+  border: none;
+  border-top: 1px solid #f0f2f8;
+  margin: 10px 14px 10px;
+}
+.sidebar-status {
+  padding: 0 14px 14px;
+}
+.task-badge {
+  display: inline-block;
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 4px;
+  margin-top: 3px;
+}
+.badge-done { background: #e8f8ee; color: #18a838; }
+.badge-wip { background: #fff3e0; color: #d08000; animation: blink 1.5s infinite; }
+
+/* ── 中间对话区 ── */
+.chat-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.chat-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 18px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.chat-messages::-webkit-scrollbar { width: 4px; }
+.chat-messages::-webkit-scrollbar-track { background: transparent; }
+.chat-messages::-webkit-scrollbar-thumb { background: #d8ddf0; border-radius: 2px; }
+
+/* 气泡容器 */
+.msg-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.45s cubic-bezier(0.16, 1, 0.3, 1), transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.msg-row.visible { opacity: 1; transform: translateY(0); }
+.msg-row.user-row { flex-direction: row-reverse; transform: translateY(16px); }
+.msg-row.user-row.visible { transform: translateY(0); }
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+.avatar.agent-av { background: linear-gradient(135deg, #e01a3a 0%, #ff4060 100%); color: #fff; font-size: 12px; font-weight: 800; box-shadow: 0 2px 8px rgba(224,26,58,0.4); }
+.avatar.user-av { background: linear-gradient(135deg, #7c5cfc 0%, #b07afe 100%); color: #fff; font-size: 12px; box-shadow: 0 2px 8px rgba(124,92,252,0.4); }
+
+/* 气泡 */
+.bubble {
+  max-width: 660px;
+  border-radius: 9px;
+}
+.bubble.agent {
+  background: #ffffff;
+  border: 1px solid rgba(224,228,244,0.8);
+  border-radius: 4px 16px 16px 16px;
+  padding: 13px 16px;
+  line-height: 1.72;
+  white-space: pre-wrap;
+  font-size: 13px;
+  color: #1a1d3a;
+  box-shadow: 0 2px 16px rgba(60,70,140,0.08), 0 1px 2px rgba(0,0,0,0.04);
+}
+.bubble.user {
+  background: linear-gradient(135deg, #7c5cfc, #9f7dff);
+  border: none;
+  border-radius: 16px 4px 16px 16px;
+  padding: 11px 16px;
+  color: #ffffff;
+  font-size: 13px;
+  line-height: 1.7;
+  box-shadow: 0 4px 16px rgba(124,92,252,0.35);
+}
+
+/* 三点 loading */
+.loading-dots {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 16px;
+}
+.loading-dot {
+  width: 7px;
+  height: 7px;
+  background: linear-gradient(135deg, #e01a3a, #ff6b8a);
+  border-radius: 50%;
+  animation: dotJump 1.2s cubic-bezier(0.45, 0, 0.55, 1) infinite;
+}
+.loading-dot:nth-child(2) { animation-delay: 0.15s; background: linear-gradient(135deg, #9f7dff, #7c5cfc); }
+.loading-dot:nth-child(3) { animation-delay: 0.3s; background: linear-gradient(135deg, #18a838, #22c845); }
+
+/* 语音气泡 */
+.voice-bubble {
+  background: #fff;
+  border: 1px solid #e0e4f4;
+  border-radius: 9px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 1px 4px rgba(60,70,140,0.06);
+}
+.voice-waves {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  height: 24px;
+}
+.wave-bar {
+  width: 3px;
+  background: #e01a3a;
+  border-radius: 2px;
+  animation: wave 0.8s ease-in-out infinite;
+}
+.wave-bar:nth-child(1) { animation-delay: 0s; height: 8px; }
+.wave-bar:nth-child(2) { animation-delay: 0.1s; height: 16px; }
+.wave-bar:nth-child(3) { animation-delay: 0.2s; height: 22px; }
+.wave-bar:nth-child(4) { animation-delay: 0.3s; height: 14px; }
+.wave-bar:nth-child(5) { animation-delay: 0.4s; height: 10px; }
+.voice-timer { font-size: 12px; color: #e01a3a; font-weight: 600; min-width: 28px; }
+.voice-label { font-size: 11px; color: #a0a8c8; }
+
+/* 识别卡片 */
+.identify-card {
+  background: #fff;
+  border: 1px solid rgba(224,228,244,0.8);
+  border-radius: 16px;
+  padding: 14px 16px;
+  box-shadow: 0 4px 20px rgba(60,70,140,0.09);
+  max-width: 360px;
+}
+.identify-title {
+  font-size: 10px;
+  color: #18a838;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+.identify-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid #f5f6fc;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 0.35s ease, transform 0.35s cubic-bezier(0.16,1,0.3,1);
+}
+.identify-row:last-child { border-bottom: none; }
+.identify-row.visible { opacity: 1; transform: translateX(0); }
+.identify-icon { color: #18a838; font-size: 12px; width: 14px; }
+.identify-key { color: #a0a8c8; font-size: 11px; width: 32px; flex-shrink: 0; }
+.identify-val { color: #1e2040; font-size: 12px; font-weight: 600; }
+
+/* 人群洞察卡片组 */
+.crowd-cards {
+  display: flex;
+  gap: 14px;
+  margin-top: 10px;
+  max-width: 680px;
+}
+.crowd-card {
+  flex: 1;
+  border: 1px solid #e8eaf4;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(60,70,140,0.08);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.crowd-card.visible { opacity: 1; transform: translateY(0); }
+.crowd-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(60,70,140,0.16); transition: all 0.2s ease; }
+.card-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 10px;
+  font-size: 10px;
+  font-weight: 600;
+}
+.card-label-text { }
+.card-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 10px;
+}
+.note-cover {
+  aspect-ratio: 4/5;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 12px;
+}
+.note-cover-title {
+  font-size: 14px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.4;
+  color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+.note-comment {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 10px;
+  background: rgba(0,0,0,0.3);
+  color: #fff;
+  border-radius: 10px;
+  padding: 2px 6px;
+}
+.note-bottom {
+  background: #fff;
+  padding: 6px 8px;
+  font-size: 10px;
+  color: #606890;
+  line-height: 1.4;
+}
+.card-desc {
+  padding: 6px 10px 8px;
+  font-size: 10px;
+  line-height: 1.5;
+  font-weight: 600;
+}
+
+/* 热搜词 */
+.hot-words {
+  margin-top: 10px;
+  font-size: 11.5px;
+  font-weight: 500;
+  color: #604010;
+  background: linear-gradient(135deg, #fff9f0, #fff4e6);
+  border: 1px solid rgba(255,180,60,0.3);
+  border-radius: 10px;
+  padding: 8px 14px;
+  max-width: 680px;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  box-shadow: 0 2px 8px rgba(255,160,0,0.08);
+}
+.hot-words.visible { opacity: 1; }
+
+/* 账号定位双列 */
+.account-cards {
+  display: flex;
+  gap: 14px;
+  margin-top: 8px;
+  max-width: 560px;
+  opacity: 0;
+  transform: translateY(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.account-cards.visible { opacity: 1; transform: translateY(0); }
+.account-card {
+  flex: 1;
+  border-radius: 9px;
+  padding: 12px;
+  border: 1px solid;
+}
+.account-card.kob { background: #f0f5ff; border-color: #bfd0f8; }
+.account-card.kos { background: #f0fff4; border-color: #b8e8c8; }
+.account-tag {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  display: inline-block;
+  margin-bottom: 7px;
+}
+.account-tag.blue { background: #2060d0; color: #fff; }
+.account-tag.green { background: #18a838; color: #fff; }
+.account-name { font-size: 12px; font-weight: 700; color: #1e2040; margin-bottom: 5px; }
+.account-desc { font-size: 11px; color: #606890; line-height: 1.5; }
+.account-example {
+  margin-top: 8px;
+  font-size: 10px;
+  color: #303460;
+  background: rgba(255,255,255,0.7);
+  border-radius: 5px;
+  padding: 5px 8px;
+  font-style: italic;
+}
+
+/* 内容矩阵表格（旧，保留备用） */
+.matrix-wrap {
+  margin-top: 8px;
+  border-radius: 9px;
+  overflow: hidden;
+  border: 1px solid #e0e4f4;
+  max-width: 660px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.matrix-wrap.visible { opacity: 1; }
+.matrix-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11.5px;
+}
+.matrix-table th {
+  padding: 7px 10px;
+  background: #f5f6fc;
+  color: #8090b0;
+  font-weight: 600;
+  text-align: left;
+  border-bottom: 1px solid #e8eaf4;
+}
+.matrix-row {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.matrix-row.visible { opacity: 1; transform: translateY(0); }
+.matrix-row td { padding: 7px 10px; border-bottom: 1px solid #f0f2f8; }
+.row-seed td { background: #f0fff4; }
+.row-filter td { background: #f0f5ff; }
+.row-convert td { background: #fff8f0; }
+.layer-badge {
+  display: inline-block;
+  font-size: 9px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-weight: 700;
+}
+.layer-seed { background: #18a838; color: #fff; }
+.layer-filter { background: #2060d0; color: #fff; }
+.layer-convert { background: #d08000; color: #fff; }
+
+/* ── 笔记卡片墙（Phase 5 新版） ── */
+.note-cards-wall { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; max-width:680px; margin-top:10px; }
+.note-card { background:#fff; border:1px solid rgba(224,228,244,0.7); border-radius:12px; overflow:hidden; box-shadow:0 2px 12px rgba(60,70,140,0.08); opacity:0; transform:translateY(20px) scale(0.97); transition:opacity 0.4s cubic-bezier(0.16,1,0.3,1),transform 0.4s cubic-bezier(0.16,1,0.3,1); cursor:pointer; }
+.note-card:hover { transform:translateY(-3px) scale(1.02) !important; box-shadow:0 10px 28px rgba(60,70,140,0.18) !important; border-color:rgba(224,26,58,0.25) !important; transition:all 0.25s ease !important; }
+.note-card.visible { opacity:1; transform:translateY(0) scale(1); }
+.note-card-cover { aspect-ratio:3/4; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:700; text-align:center; padding:10px; position:relative; overflow:hidden; }
+.note-card-cover img { width:100%; height:100%; object-fit:cover; position:absolute; top:0; left:0; }
+.note-card-cover-text { position:relative; z-index:1; color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.4); }
+.note-card-body { padding:8px 9px; }
+.note-card-badges { display:flex; gap:4px; margin-bottom:5px; }
+.nc-badge { font-size:9px; padding:1px 5px; border-radius:3px; font-weight:600; }
+.nc-seed { background:#e8f5e9; color:#1a8030; border:1px solid #c8e6c9; }
+.nc-filter { background:#e3f2fd; color:#1565c0; border:1px solid #bbdefb; }
+.nc-convert { background:#fff8e1; color:#e65100; border:1px solid #ffecb3; }
+.nc-kol { background:#f3e5f5; color:#7b1fa2; border:1px solid #e1bee7; }
+.nc-kob { background:#e3f2fd; color:#1565c0; border:1px solid #bbdefb; }
+.nc-kos { background:#e8f5e9; color:#2e7d32; border:1px solid #c8e6c9; }
+.nc-ugc { background:#f5f5f5; color:#757575; border:1px solid #e0e0e0; }
+.note-card-title { font-size:11px; color:#303460; line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; margin-bottom:4px; }
+.note-card-trait { font-size:10px; color:#a0a8c8; line-height:1.3; }
+
+/* 投放策略表格 */
+.deploy-wrap {
+  margin-top: 8px;
+  border-radius: 9px;
+  overflow: hidden;
+  border: 1px solid #e0e4f4;
+  max-width: 660px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.deploy-wrap.visible { opacity: 1; }
+.deploy-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+}
+.deploy-table th {
+  padding: 7px 10px;
+  background: #f5f6fc;
+  color: #8090b0;
+  font-weight: 600;
+  text-align: left;
+  border-bottom: 1px solid #e8eaf4;
+}
+.deploy-row {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+.deploy-row.visible { opacity: 1; transform: translateY(0); }
+.deploy-row td { padding: 7px 10px; border-bottom: 1px solid #f0f2f8; }
+.deploy-row:last-child td { border-bottom: none; }
+
+/* 话术卡片 */
+.dm-card {
+  border-radius: 9px;
+  padding: 12px 14px;
+  margin-bottom: 10px;
+  max-width: 520px;
+  border-left: 3px solid;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(60,70,140,0.06);
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.dm-card.visible { opacity: 1; transform: translateX(0); }
+.dm-card.green { border-left-color: #18a838; }
+.dm-card.blue { border-left-color: #2060d0; }
+.dm-card.orange { border-left-color: #d08000; }
+.dm-label { font-size: 10px; color: #a0a8c8; margin-bottom: 6px; line-height: 1.6; }
+.dm-text { font-size: 12px; color: #303460; line-height: 1.7; }
+.dm-copy { margin-top: 8px; text-align: right; }
+.btn-copy {
+  font-size: 11px;
+  padding: 4px 10px;
+  background: #f5f6fc;
+  border: 1px solid #d8ddf0;
+  border-radius: 5px;
+  color: #8090b0;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+.btn-copy:hover { background: #e8eaf4; }
+.btn-copy.copied { background: #f0fff4; border-color: #b8e8c8; color: #18a838; }
+
+/* ── 私信模拟界面（Phase 7 新版） ── */
+.dm-simulator { background:#fff; border:1px solid #e0e4f4; border-radius:10px; max-width:680px; overflow:hidden; box-shadow:0 2px 8px rgba(60,70,140,0.08); }
+.dm-scene-tabs { display:flex; gap:0; border-bottom:1px solid #e8eaf4; }
+.dm-scene-tab { flex:1; padding:9px 12px; font-size:11px; text-align:center; cursor:pointer; color:#a0a8c8; border-bottom:2px solid transparent; transition:all 0.2s; font-family:inherit; background:none; border-top:none; border-left:none; border-right:none; }
+.dm-scene-tab.active { color:#e01a3a; border-bottom-color:#e01a3a; font-weight:600; }
+.dm-body { display:flex; }
+.dm-profile { width:160px; padding:14px; border-right:1px solid #eceef8; flex-shrink:0; }
+.dm-profile-title { font-size:9px; color:#b0b8d8; letter-spacing:1.5px; text-transform:uppercase; margin-bottom:10px; }
+.dm-profile-row { margin-bottom:8px; }
+.dm-profile-key { font-size:10px; color:#b0b8d8; margin-bottom:2px; }
+.dm-profile-val { font-size:11px; color:#303460; line-height:1.4; }
+.dm-chat { flex:1; display:flex; flex-direction:column; }
+.dm-chat-header { padding:8px 12px; background:#f8f9fe; border-bottom:1px solid #eceef8; font-size:11px; color:#8090b0; display:flex; align-items:center; gap:6px; }
+.dm-messages { flex:1; padding:12px; display:flex; flex-direction:column; gap:10px; min-height:200px; max-height:260px; overflow-y:auto; }
+.dm-msg { display:flex; gap:7px; align-items:flex-end; }
+.dm-msg.merchant { flex-direction:row-reverse; }
+.dm-avatar { width:24px; height:24px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:11px; }
+.dm-avatar.user-av { background:#f0f2ff; border:1px solid #d0d8f8; }
+.dm-avatar.merchant-av { background:#fff0f0; border:1px solid #f0c0c8; }
+.dm-bubble { padding:8px 11px; border-radius:12px; font-size:12px; line-height:1.6; max-width:200px; }
+.dm-bubble.user-bubble { background:linear-gradient(135deg,#7c5cfc,#9f7dff); color:#fff; border-radius:12px 12px 12px 2px; box-shadow:0 2px 8px rgba(124,92,252,0.3); }
+.dm-bubble.merchant-bubble { background:#f5f6fc; color:#303460; border-radius:12px 12px 2px 12px; border:1px solid #eceef8; }
+.dm-input-area { padding:8px 12px; border-top:1px solid #eceef8; display:flex; gap:8px; }
+.dm-input { flex:1; background:#f5f6fc; border:1px solid #d8ddf0; border-radius:16px; padding:6px 12px; font-size:12px; font-family:inherit; outline:none; color:#303460; }
+.dm-send { padding:6px 14px; background:#e01a3a; border:none; border-radius:16px; color:#fff; font-size:12px; font-family:inherit; cursor:pointer; }
+
+/* 素材生成进度 */
+.gen-progress {
+  background: #fff;
+  border: 1px solid #e0e4f4;
+  border-radius: 9px;
+  padding: 12px 16px;
+  max-width: 380px;
+  box-shadow: 0 1px 4px rgba(60,70,140,0.06);
+}
+.gen-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 0;
+  font-size: 12px;
+  color: #303460;
+  opacity: 0.3;
+  transition: opacity 0.3s ease;
+}
+.gen-step.done { opacity: 1; color: #606890; text-decoration: line-through; }
+.gen-step.active { opacity: 1; color: #e01a3a; }
+.gen-step.pending { opacity: 0.3; }
+.gen-icon { font-size: 13px; width: 16px; text-align: center; }
+.spin { display: inline-block; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* 素材格子 */
+.material-grid {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  max-width: 380px;
+  flex-wrap: wrap;
+}
+.mat-cell {
+  width: 82px;
+  height: 82px;
+  border-radius: 8px;
+  border: 1px solid #e0e4f4;
+  background: #f8f9fc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.mat-cell.generating { animation: matPulse 1s ease-in-out infinite; }
+@keyframes matPulse {
+  0%,100% { background: #f8f9fc; border-color: #e0e4f4; }
+  50% { background: #fff5f6; border-color: #e01a3a; }
+}
+
+/* 完成 banner */
+.done-banner {
+  background: linear-gradient(135deg, #f0fff4, #e8f8f0);
+  border: 1px solid #b8e8c8;
+  border-radius: 9px;
+  padding: 11px 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #18a838;
+  box-shadow: 0 2px 8px rgba(24,168,56,0.1);
+  opacity: 0;
+  transform: translateY(-30px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+.done-banner.visible { opacity: 1; transform: translateY(0); }
+
+/* CTA 区 */
+.cta-bar {
+  margin: 16px 0 8px;
+  background: linear-gradient(135deg, #0a0e2a 0%, #1a1040 50%, #0e0a2a 100%);
+  border-radius: 18px;
+  padding: 28px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  max-width: 660px;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+  box-shadow: 0 12px 40px rgba(10,14,42,0.5);
+  position: relative;
+  overflow: hidden;
+}
+.cta-bar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 20% 50%, rgba(224,26,58,0.12) 0%, transparent 60%),
+              radial-gradient(ellipse at 80% 50%, rgba(124,92,252,0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+.cta-bar.visible { opacity: 1; transform: translateY(0); }
+.cta-left { }
+.cta-title { font-size: 19px; font-weight: 900; color: #fff; letter-spacing:-0.3px; }
+.cta-sub { font-size: 12px; color: rgba(255,255,255,0.5); margin-top: 6px; }
+.cta-btns { display: flex; gap: 8px; }
+.btn-copy-plan {
+  padding: 10px 16px;
+  background: rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.85);
+  font-family: inherit;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-copy-plan:hover { background: rgba(255,255,255,0.2); }
+.btn-go {
+  padding: 16px 36px;
+  background: linear-gradient(135deg, #e01a3a, #ff3060);
+  border: none;
+  border-radius: 14px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 16px;
+  cursor: pointer;
+  font-weight: 900;
+  white-space: nowrap;
+  box-shadow: 0 6px 24px rgba(224,26,58,0.55), 0 0 0 1px rgba(255,255,255,0.1) inset;
+  letter-spacing: -0.2px;
+  position: relative;
+  z-index: 1;
+  transition: all 0.2s ease;
+}
+.btn-go:hover { transform:translateY(-2px); box-shadow:0 10px 30px rgba(224,26,58,0.65); }
+
+/* ── 右侧面板 ── */
+.right-panel {
+  width: 180px;
+  background: #fff;
+  border-left: 1px solid #e0e4f0;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+.right-panel::-webkit-scrollbar { width: 3px; }
+.right-panel::-webkit-scrollbar-thumb { background: #d8ddf0; border-radius: 2px; }
+
+.panel-section {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f0f2f8;
+}
+.panel-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: #a0a8c8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+/* 进度步骤条 */
+.step-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 12px;
+  color: #606890;
+}
+.step-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #c0c8e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+.step-dot.idle { border-color: #c0c8e0; background: transparent; color: transparent; }
+.step-dot.active { border-color: #e01a3a; background: #fff5f6; animation: pulseDot 1s ease-in-out infinite; }
+.step-dot.done { border-color: #18a838; background: #18a838; color: #fff; font-size: 9px; }
+.step-name { font-size: 12px; color: #606890; }
+.step-name.active { color: #e01a3a; font-weight: 600; }
+.step-name.done { color: #18a838; }
+@keyframes pulseDot { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* 技能状态（旧，保留备用） */
+.skill-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  font-size: 12px;
+  color: #606890;
+  opacity: 0;
+  transform: translateX(10px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.skill-item.visible { opacity: 1; transform: translateX(0); }
+.skill-name { display: flex; align-items: center; gap: 7px; }
+.skill-status {
+  font-size: 13px;
+  transition: all 0.3s ease;
+}
+.skill-status.done { color: #18a838; }
+.skill-status.active { color: #e01a3a; animation: pulse 1s ease-in-out infinite; }
+.skill-status.idle { color: #c0c8e0; }
+
+/* 洞察汇总 */
+.insight-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 11px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.insight-row.visible { opacity: 1; }
+.insight-key { color: #606890; }
+.insight-val { color: #1e2040; font-weight: 600; }
+.insight-arrow { color: #a0a8c8; font-size: 10px; margin: 0 4px; }
+
+/* 内容方案计数 */
+.content-counter {
+  text-align: center;
+  padding: 8px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.content-counter.visible { opacity: 1; }
+.counter-num { font-size: 28px; font-weight: 700; color: #e01a3a; }
+.counter-label { font-size: 10px; color: #a0a8c8; margin-top: 2px; }
+
+/* 素材格子（右侧） */
+.right-mat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 6px;
+}
+.right-mat-cell {
+  aspect-ratio: 1;
+  background: #f8f9fc;
+  border: 1px solid #e0e4f4;
+  border-radius: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.right-mat-cell.visible { opacity: 1; }
+.right-mat-cell.pulse { animation: matPulse 1s ease-in-out infinite; }
+
+/* ── 动画 ── */
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.35} }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+@keyframes wave { 0%,100%{transform:scaleY(0.4)} 50%{transform:scaleY(1.0)} }
+@keyframes slideDown { from{transform:translateY(-40px);opacity:0} to{transform:translateY(0);opacity:1} }
+@keyframes dotJump { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-6px)} }
+
+/* 游标闪烁 */
+.cursor {
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  background: #e01a3a;
+  margin-left: 1px;
+  animation: blink 0.7s infinite;
+  vertical-align: text-bottom;
+}
+
+/* ── Step 引导卡片 ── */
+.step-intro-card {
+  background: linear-gradient(135deg, rgba(255,255,255,0.97), rgba(248,249,254,0.97));
+  border: 1px solid rgba(224,228,244,0.8);
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 2px 12px rgba(60,70,140,0.07);
+}
+.step-intro-label {
+  font-size: 10px;
+  color: #e01a3a;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.step-intro-label::before {
+  content: '';
+  display: inline-block;
+  width: 3px;
+  height: 10px;
+  background: #e01a3a;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+.step-intro-title {
+  font-size: 15px;
+  font-weight: 800;
+  color: #0d0f1e;
+  margin-bottom: 8px;
+  line-height: 1.35;
+  letter-spacing: -0.2px;
+}
+.step-intro-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 0;
+}
+.step-intro-col {
+  background: #f8f9fe;
+  border-radius: 8px;
+  padding: 8px 10px;
+  border: 1px solid #eceef8;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.step-intro-col-header { display:flex; align-items:center; gap:6px; margin-bottom:2px; }
+.step-intro-col-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: #1e2060;
+}
+.step-intro-col-badge {
+  display: inline-flex; align-items:center;
+  font-size: 9px;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-weight: 700;
+  flex-shrink:0;
+}
+.step-intro-col-badge.kob { background: #e3f2fd; color: #1565c0; border: 1px solid #bbdefb; }
+.step-intro-col-badge.kos { background: #e8f5e9; color: #2e7d32; border: 1px solid #c8e6c9; }
+.step-intro-col-desc { font-size: 11px; color: #7080a8; line-height: 1.45; }
+.step-intro-desc { font-size: 11px; color: #7080a8; line-height: 1.45; margin-bottom:6px; }
+
+/* ── 投放卡片组 ── */
+.deploy-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-width:660px; }
+.deploy-card { background:linear-gradient(160deg,#1a1d3a 0%,#252850 100%); border-radius:14px; padding:14px; border:1px solid rgba(255,255,255,0.08); box-shadow:0 4px 20px rgba(20,24,60,0.35); color:#fff; display:flex; flex-direction:column; gap:8px; transition:transform 0.2s ease,box-shadow 0.2s ease; }
+.deploy-card:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(20,24,60,0.45); }
+.deploy-card-top { display:flex; align-items:baseline; gap:5px; padding-bottom:8px; border-bottom:1px solid #f0f2fa; }
+.deploy-card-phase-days { font-size:28px; font-weight:800; color:#fff; line-height:1; }
+.deploy-card-phase-unit { font-size:11px; color:rgba(255,255,255,0.45); font-weight:600; }
+.deploy-card-phase-label { font-size:10px; font-weight:700; color:#ff8090; background:rgba(224,26,58,0.15); padding:2px 7px; border-radius:8px; border:1px solid rgba(224,26,58,0.25); margin-left:auto; }
+.deploy-card-type { font-size:11px; font-weight:500; color:rgba(255,255,255,0.65); }
+.deploy-card-tags { display:flex; flex-wrap:wrap; gap:4px; }
+.deploy-tag { font-size:9.5px; padding:2px 7px; border-radius:4px; background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.75); border:1px solid rgba(255,255,255,0.12); }
+.deploy-card-budget { font-size:10px; color:rgba(255,255,255,0.4); margin-bottom:4px; }
+.deploy-card-kpi { font-size:11px; font-weight:700; color:#7af0b0; padding-top:4px; border-top:1px dashed rgba(255,255,255,0.1); }
+
+/* ── 左侧进度步骤条 ── */
+.sidebar-steps { display:flex; flex-direction:column; gap:0; padding:0 8px; }
+.sidebar-step { display:flex; align-items:flex-start; gap:14px; padding:14px 0; position:relative; }
+.sidebar-step:not(:last-child)::after {
+  content:''; position:absolute; left:15px; top:44px;
+  width:2px; height:calc(100% - 32px);
+  background:linear-gradient(to bottom, #d0d8f0, transparent);
+}
+.sidebar-step-dot {
+  width:32px; height:32px; border-radius:50%; border:2px solid #d0d8f0;
+  background:#fff; flex-shrink:0; margin-top:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:12px; font-weight:700; transition:all 0.3s ease;
+  position:relative; z-index:1;
+}
+.sidebar-step-dot.idle { border-color:#d8ddf0; background:#f8f9fe; color:transparent; }
+.sidebar-step-dot.active { border-color:#e01a3a; background:#fff0f2; box-shadow:0 0 0 4px rgba(224,26,58,0.1); animation:pulseDot 1s ease-in-out infinite; }
+.sidebar-step-dot.done { border-color:#18a838; background:#18a838; color:#fff; }
+.sidebar-step-body { flex:1; padding-top:3px; }
+.sidebar-step-name { font-size:14px; font-weight:700; color:#303460; margin-bottom:3px; transition:color 0.3s; }
+.sidebar-step-name.active { color:#e01a3a; }
+.sidebar-step-name.done { color:#18a838; }
+.sidebar-step-desc { font-size:11px; color:#b0b8d8; line-height:1.4; }
+
+/* ── 私信三列平铺 ── */
+.dm-triptych { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; max-width:860px; }
+.dm-col { background:#fff; border:1px solid #e0e4f4; border-radius:10px; overflow:hidden; display:flex; flex-direction:column; }
+.dm-col-header { padding:8px 12px; border-bottom:1px solid #eceef8; display:flex; align-items:center; gap:6px; }
+.dm-col-emoji { font-size:14px; }
+.dm-col-title { font-size:11px; font-weight:700; color:#303460; }
+.dm-col-sub { font-size:10px; color:#b0b8d8; margin-top:1px; }
+.dm-col-profile { padding:8px 12px; background:#f8f9fe; border-bottom:1px solid #eceef8; }
+.dm-col-profile-row { display:flex; gap:4px; align-items:baseline; margin-bottom:3px; }
+.dm-col-profile-key { font-size:9px; color:#b0b8d8; flex-shrink:0; width:44px; }
+.dm-col-profile-val { font-size:10px; color:#606890; line-height:1.4; }
+.dm-col-messages { flex:1; padding:10px; display:flex; flex-direction:column; gap:7px; min-height:180px; }
+.dm-col-msg { display:flex; gap:5px; align-items:flex-end; }
+.dm-col-msg.m { flex-direction:row-reverse; }
+.dm-col-av { width:20px; height:20px; border-radius:50%; flex-shrink:0; font-size:10px; display:flex; align-items:center; justify-content:center; }
+.dm-col-av.u { background:#f0f2ff; border:1px solid #d0d8f8; }
+.dm-col-av.m { background:#fff0f0; border:1px solid #f0c0c8; }
+.dm-col-bbl { padding:6px 9px; border-radius:10px; font-size:11px; line-height:1.5; max-width:160px; }
+.dm-col-bbl.u { background:#f0f2ff; color:#3040a0; border-radius:10px 10px 10px 2px; }
+.dm-col-bbl.m { background:#fff0f0; color:#a02030; border-radius:10px 10px 2px 10px; }
+</style>
+</head>
+<body>
+
+<!-- 标题栏 -->
+<div class="titlebar">
+  <div class="dots">
+    <div class="dot d-r"></div>
+    <div class="dot d-y"></div>
+    <div class="dot d-g"></div>
+  </div>
+  <div class="title-center">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div style="width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,#e01a3a,#ff4060);display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 2px 10px rgba(224,26,58,0.45);flex-shrink:0;">⚡</div>
+      <span style="font-size:17px;font-weight:900;color:#1a1d3a;letter-spacing:-0.4px;">LinkClaw <span style="color:#e01a3a;">·</span> 小红书线索内容一体化</span>
+    </div>
+  </div>
+  <div class="titlebar-right">
+    <button class="btn-skip" id="btnSkip" onclick="skipCurrent()">⏭ 跳过</button>
+    <button class="btn-pause" id="btnPause" onclick="togglePause()">⏸ 暂停</button>
+    <button class="btn-replay" id="btnReplay" onclick="replayDemo()">↺ 重新演示</button>
+    <button class="btn-demo" id="btnDemo" onclick="startDemo()">▶ 开始演示</button>
+  </div>
+</div>
+
+<!-- 进度条 -->
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- Tab 导航（已隐藏，保留JS兼容） -->
+<div class="tabs" style="display:none;">
+  <div class="tab active" id="tab1">说需求</div>
+  <div class="tab" id="tab2">内容方案</div>
+  <div class="tab" id="tab3">素材预览</div>
+  <div class="tab" id="tab4">承接话术</div>
+</div>
+
+<!-- 主体 -->
+<div class="main-layout">
+
+  <!-- 左侧商家 sidebar -->
+  <div class="sidebar">
+
+    <div class="sidebar-header" style="display:flex;align-items:center;gap:8px;padding:10px 14px 8px;">
+      <span style="font-size:16px;">🚗</span>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#1e2060;">奔驰CLE官方</div>
+        <div style="font-size:10px;color:#b0b8d8;margin-top:1px;">轿跑车 · 品牌种草</div>
+      </div>
+    </div>
+    <hr class="sidebar-divider">
+    <div style="margin-bottom:12px;padding:0 14px;">
+      <span class="task-badge badge-wip" id="sidebarStatus">● 生成中...</span>
+    </div>
+    <hr class="sidebar-divider">
+    <div style="font-size:9px;color:#b0b8d8;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;padding:0 14px;">AGENT 进度</div>
+    <div class="sidebar-steps" style="padding:0 14px;">
+      <div class="sidebar-step" id="sidebarStep0">
+        <div class="sidebar-step-dot idle" id="stepDot0" style="color:#d0d8f0;font-size:10px;">1</div>
+        <div class="sidebar-step-body">
+          <div class="sidebar-step-name" id="stepName0">数据洞察</div>
+          <div class="sidebar-step-desc">分析用户决策路径</div>
+        </div>
+      </div>
+      <div class="sidebar-step" id="sidebarStep1">
+        <div class="sidebar-step-dot idle" id="stepDot1" style="color:#d0d8f0;font-size:10px;">2</div>
+        <div class="sidebar-step-body">
+          <div class="sidebar-step-name" id="stepName1">账号定位</div>
+          <div class="sidebar-step-desc">KOB / KOS 双账号</div>
+        </div>
+      </div>
+      <div class="sidebar-step" id="sidebarStep2">
+        <div class="sidebar-step-dot idle" id="stepDot2" style="color:#d0d8f0;font-size:10px;">3</div>
+        <div class="sidebar-step-body">
+          <div class="sidebar-step-name" id="stepName2">内容矩阵</div>
+          <div class="sidebar-step-desc">8条选题分层覆盖</div>
+        </div>
+      </div>
+      <div class="sidebar-step" id="sidebarStep3">
+        <div class="sidebar-step-dot idle" id="stepDot3" style="color:#d0d8f0;font-size:10px;">4</div>
+        <div class="sidebar-step-body">
+          <div class="sidebar-step-name" id="stepName3">投放策略</div>
+          <div class="sidebar-step-desc">三段节奏精细押注</div>
+        </div>
+      </div>
+      <div class="sidebar-step" id="sidebarStep4">
+        <div class="sidebar-step-dot idle" id="stepDot4" style="color:#d0d8f0;font-size:10px;">5</div>
+        <div class="sidebar-step-body">
+          <div class="sidebar-step-name" id="stepName4">承接话术</div>
+          <div class="sidebar-step-desc">按来源定制开场白</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 中间对话区 -->
+  <div class="chat-area">
+    <div class="chat-messages" id="chatMessages">
+      <!-- 消息动态注入 -->
+      <div style="text-align:center;color:#c0c8e0;font-size:11px;padding:30px 0;">
+        点击「▶ 开始演示」查看完整分析流程
+      </div>
+    </div>
+  </div>
+
+  <!-- 右侧面板已移除，进度步骤条已迁移至左侧 sidebar -->
+  <!-- 保留隐藏元素以兼容JS引用 -->
+  <div style="display:none;">
+    <div id="panelInsight"></div>
+    <div id="panelContent"></div>
+    <div id="panelMaterials"></div>
+    <div id="contentCounter"><div id="counterNum">0</div></div>
+    <div id="ins0"></div>
+    <div id="ins1"></div>
+    <div id="ins2"></div>
+    <div id="rmat0"></div>
+    <div id="rmat1"></div>
+    <div id="rmat2"></div>
+    <div id="rmat3"></div>
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════
+// 状态管理
+// ═══════════════════════════════════════════════════════
+let demoRunning = false;
+let demoPaused = false;
+let demoPhase = 0;
+let pauseResolve = null;
+let skipResolve = null;
+let activeTimers = [];
+
+function sleep(ms) {
+  return new Promise(resolve => {
+    if (skipResolve) {
+      // there's an active skip – resolve immediately (handled below)
+    }
+    const timer = setTimeout(resolve, ms);
+    activeTimers.push(timer);
+    // store resolve for pause & skip
+    pauseResolve = resolve;
+    skipResolve = () => { clearTimeout(timer); resolve(); };
+  });
+}
+
+function clearAllTimers() {
+  activeTimers.forEach(t => clearTimeout(t));
+  activeTimers = [];
+}
+
+// Pause support (simple flag-check loop)
+async function checkPause() {
+  while (demoPaused) {
+    await new Promise(r => setTimeout(r, 100));
+  }
+}
+
+async function sleepCheck(ms) {
+  const chunk = 100;
+  let elapsed = 0;
+  while (elapsed < ms) {
+    if (!demoRunning) return;
+    await new Promise(r => setTimeout(r, Math.min(chunk, ms - elapsed)));
+    while (demoPaused) await new Promise(r => setTimeout(r, 100));
+    elapsed += chunk;
+  }
+}
+
+function togglePause() {
+  demoPaused = !demoPaused;
+  document.getElementById('btnPause').textContent = demoPaused ? '▶ 继续' : '⏸ 暂停';
+}
+
+function skipCurrent() {
+  if (skipResolve) { skipResolve(); skipResolve = null; }
+}
+
+function setProgress(pct) {
+  document.getElementById('progressBar').style.width = pct + '%';
+}
+
+// ═══════════════════════════════════════════════════════
+// DOM 工具
+// ═══════════════════════════════════════════════════════
+const chat = document.getElementById('chatMessages');
+
+function scrollToBottom() {
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function clearChat() {
+  chat.innerHTML = '';
+}
+
+function addMsgRow(className, innerHTML) {
+  const row = document.createElement('div');
+  row.className = 'msg-row ' + className;
+  row.innerHTML = innerHTML;
+  chat.appendChild(row);
+  scrollToBottom();
+  return row;
+}
+
+function makeAgentAvatar() {
+  return `<div class="avatar agent-av">🦞</div>`;
+}
+function makeUserAvatar() {
+  return `<div class="avatar user-av">🚗</div>`;
+}
+
+async function showAgentBubble(html, instant = false) {
+  // step-intro-card 和 deploy-cards 不需要外层 bubble，直接渲染
+  const isCard = html.trim().startsWith('<div class="step-intro-card">') || html.trim().startsWith('<div class="deploy-cards">');
+  const inner = isCard
+    ? `<div style="max-width:620px;padding:0;">${html}</div>`
+    : `<div class="bubble agent">${html}</div>`;
+  const row = addMsgRow('msg-row', makeAgentAvatar() + inner);
+  if (!instant) await sleepCheck(100);
+  row.classList.add('visible');
+  scrollToBottom();
+  return row;
+}
+
+async function showUserBubble(html) {
+  const row = addMsgRow('msg-row user-row', makeUserAvatar() + `<div class="bubble user">${html}</div>`);
+  await sleepCheck(100);
+  row.classList.add('visible');
+  scrollToBottom();
+  return row;
+}
+
+// 打字机效果
+async function typewriterBubble(text, speedMs = 18) {
+  const row = addMsgRow('msg-row', makeAgentAvatar() + `<div class="bubble agent"><span id="tw-content"></span><span class="cursor"></span></div>`);
+  await sleepCheck(200);
+  row.classList.add('visible');
+  const el = document.getElementById('tw-content');
+  for (let i = 0; i <= text.length; i++) {
+    if (!demoRunning) return row;
+    while (demoPaused) await new Promise(r => setTimeout(r, 100));
+    el.textContent = text.slice(0, i);
+    scrollToBottom();
+    await new Promise(r => setTimeout(r, speedMs));
+  }
+  // 移除游标
+  const cursor = row.querySelector('.cursor');
+  if (cursor) cursor.remove();
+  return row;
+}
+
+// ═══════════════════════════════════════════════════════
+// 技能状态更新
+// ═══════════════════════════════════════════════════════
+function setSkillVisible(idx) {
+  // Steps are always visible; no-op kept for compatibility
+}
+
+function setSkillStatus(idx, state) {
+  // Also update step dot
+  const dot = document.getElementById('stepDot' + idx);
+  const name = document.getElementById('stepName' + idx);
+  const nums = ['1','2','3','4','5'];
+  if (dot) {
+    dot.className = 'sidebar-step-dot ' + state;
+    if (state === 'done') { dot.textContent = '✓'; dot.style.color = '#fff'; }
+    else if (state === 'active') { dot.textContent = nums[idx]; dot.style.color = '#e01a3a'; }
+    else { dot.textContent = nums[idx]; dot.style.color = '#d0d8f0'; }
+  }
+  if (name) {
+    name.className = 'sidebar-step-name ' + (state === 'idle' ? '' : state);
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// 主演示流程
+// ═══════════════════════════════════════════════════════
+async function startDemo() {
+  if (demoRunning) return;
+  demoRunning = true;
+  demoPaused = false;
+  demoPhase = 0;
+
+  document.getElementById('btnDemo').style.display = 'none';
+  document.getElementById('btnPause').style.display = 'inline-block';
+  document.getElementById('btnSkip').style.display = 'inline-block';
+  document.getElementById('btnReplay').style.display = 'none';
+
+  clearChat();
+  setProgress(0);
+
+  // 重置右侧面板
+  for (let i = 0; i < 5; i++) {
+    setSkillStatus(i, 'idle');
+  }
+  document.getElementById('panelInsight').style.display = 'none';
+  document.getElementById('panelContent').style.display = 'none';
+  document.getElementById('panelMaterials').style.display = 'none';
+  document.getElementById('counterNum').textContent = '0';
+  document.getElementById('contentCounter').classList.remove('visible');
+  ['ins0','ins1','ins2'].forEach(id => document.getElementById(id).classList.remove('visible'));
+  ['rmat0','rmat1','rmat2','rmat3'].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.remove('visible','pulse');
+  });
+
+  // ─── Phase 0：Agent 开场 ───
+  setProgress(5);
+  const openText = `你好，奔驰CLE 🚗
+
+告诉我你的生意目标，我帮你把内容、投放、承接三段打通，做大做强。`;
+
+  await typewriterBubble(openText, 16);
+
+  // 技能依次滑入
+  for (let i = 0; i < 5; i++) {
+    await sleepCheck(200);
+    setSkillVisible(i);
+  }
+
+  setProgress(12);
+  await sleepCheck(1200);
+
+  // ─── Phase 1：商家输入 ───
+  // 语音气泡
+  const voiceRow = addMsgRow('msg-row user-row', makeUserAvatar() + `
+    <div class="voice-bubble">
+      <div class="voice-waves">
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+        <div class="wave-bar"></div>
+      </div>
+      <div>
+        <div class="voice-timer" id="voiceTimer">0:12</div>
+        <div class="voice-label">语音输入中...</div>
+      </div>
+    </div>`);
+  await sleepCheck(150);
+  voiceRow.classList.add('visible');
+  scrollToBottom();
+
+  // 倒计时动画
+  for (let t = 12; t >= 0; t--) {
+    if (!demoRunning) return;
+    const el = document.getElementById('voiceTimer');
+    if (el) el.textContent = `0:${t < 10 ? '0' + t : t}`;
+    await sleepCheck(150);
+  }
+  // 移除语音气泡
+  voiceRow.remove();
+
+  // 用户文字
+  await showUserBubble(`「我们是奔驰CLE轿跑，目标用户是高净值年轻女性，想在小红书做品牌种草，提升线索质量」`);
+  setProgress(22);
+  await sleepCheck(800);
+
+  // ─── Phase 2：行业识别 ───
+  // loading
+  const loadRow = addMsgRow('msg-row', makeAgentAvatar() + `
+    <div class="bubble agent">
+      <div class="loading-dots" style="padding:4px 0;">
+        <span style="font-size:12px;color:#a0a8c8;margin-right:6px;">正在识别行业信息...</span>
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+        <div class="loading-dot"></div>
+      </div>
+    </div>`);
+  await sleepCheck(150);
+  loadRow.classList.add('visible');
+  scrollToBottom();
+  await sleepCheck(1600);
+
+  // 替换为识别结果卡片
+  loadRow.remove();
+
+  const identifyRow = addMsgRow('msg-row', makeAgentAvatar() + `
+    <div class="identify-card">
+      <div class="identify-title">✦ 识别完成</div>
+      <div class="identify-row" id="idr0">
+        <span class="identify-icon">✓</span>
+        <span class="identify-key">行业</span>
+        <span class="identify-val">豪华汽车</span>
+      </div>
+      <div class="identify-row" id="idr1">
+        <span class="identify-icon">✓</span>
+        <span class="identify-key">赛道</span>
+        <span class="identify-val">轿跑车</span>
+      </div>
+      <div class="identify-row" id="idr2">
+        <span class="identify-icon">✓</span>
+        <span class="identify-key">品类</span>
+        <span class="identify-val">奔驰CLE</span>
+      </div>
+      <div class="identify-row" id="idr3">
+        <span class="identify-icon">✓</span>
+        <span class="identify-key">目标</span>
+        <span class="identify-val">品牌种草 + 线索获取</span>
+      </div>
+    </div>`);
+  await sleepCheck(150);
+  identifyRow.classList.add('visible');
+  scrollToBottom();
+
+  // 4行依次亮起
+  for (let i = 0; i < 4; i++) {
+    await sleepCheck(280);
+    const r = document.getElementById('idr' + i);
+    if (r) r.classList.add('visible');
+  }
+
+  setSkillStatus(0, 'active');
+  setProgress(30);
+  await sleepCheck(900);
+
+  // ─── Phase 3：数据洞察（单气泡内动态更新）───
+  {
+    // 创建一个气泡，先显示 loading 点动画
+    const row = addMsgRow('msg-row', makeAgentAvatar() + `<div class="bubble agent" id="insightBubble" style="line-height:1.6;white-space:normal;"></div>`);
+    row.classList.add('visible');
+    scrollToBottom();
+    const bbl = document.getElementById('insightBubble');
+
+    // --- loading 阶段 ---
+    bbl.innerHTML = `<span style="color:#b0b8d8;font-size:12px;">正在调取站内数据</span><span id="insightDots" style="color:#b0b8d8;font-size:12px;">...</span>`;
+    // 3个点循环动效（用 interval）
+    let dotCount = 0;
+    const dotEl = document.getElementById('insightDots');
+    const dotTimer = setInterval(() => {
+      if (dotEl) { dotCount = (dotCount + 1) % 4; dotEl.textContent = '.'.repeat(dotCount || 1); }
+    }, 350);
+    await sleepCheck(2000);
+    clearInterval(dotTimer);
+
+    // --- 逐行显示分析结论 ---
+    bbl.innerHTML = '';
+    const lines = [
+      { text: '✓ 分析高点击笔记关键词', sub: '用户搜什么内容才点进来看', color: '#1a9038' },
+      { text: '✓ 分析高互动笔记关键词', sub: '哪类内容让用户停留细看', color: '#1a9038' },
+      { text: '✓ 分析笔记评论区高频词', sub: '用户最在意哪些问题没被解答', color: '#1a9038' },
+    ];
+    for (const line of lines) {
+      await sleepCheck(400);
+      const div = document.createElement('div');
+      div.style.cssText = 'opacity:0;transform:translateY(6px);transition:all 0.3s ease;margin-bottom:4px;';
+      div.innerHTML = `<span style="color:${line.color};font-weight:600;">${line.text}</span> <span style="color:#8090b8;font-size:11px;">→ ${line.sub}</span>`;
+      bbl.appendChild(div);
+      scrollToBottom();
+      await sleepCheck(50);
+      div.style.opacity = '1'; div.style.transform = 'translateY(0)';
+    }
+    await sleepCheck(600);
+    // 结论
+    const conclusion = document.createElement('div');
+    conclusion.style.cssText = 'margin-top:8px;margin-bottom:0;padding:7px 10px;background:#fff5f6;border-left:3px solid #e01a3a;border-radius:4px;opacity:0;transition:all 0.4s ease;';
+    conclusion.innerHTML = `<span style="color:#c02030;font-size:12px;font-weight:600;">结论：</span><span style="color:#303460;font-size:12px;">奔驰用户基数庞大，需要细拆用户希望获得什么信息——单一账号不能满足用户复杂信息需求。</span>`;
+    bbl.appendChild(conclusion);
+    scrollToBottom();
+    await sleepCheck(50);
+    conclusion.style.opacity = '1';
+    await sleepCheck(500);
+  }
+
+  // 词云洞察 — 追加到同一个 insightBubble 里，保持视觉连贯
+  {
+    const wordCloud = document.createElement('div');
+    wordCloud.style.cssText = 'margin-top:0;opacity:0;transition:opacity 0.4s ease;';
+    wordCloud.innerHTML = `
+      <div style="border-top:1px solid #eceef8;padding-top:6px;margin-bottom:6px;">
+        <div style="font-size:11px;color:#8090b8;margin-bottom:5px;">📊 平台数据显示，你的目标用户正在这样行动——</div>
+        <div style="display:flex;gap:6px;margin-bottom:4px;">
+          <div style="background:#fff5f6;border:1px solid #ffd0d8;border-radius:6px;padding:5px 10px;display:flex;align-items:center;gap:6px;">
+            <span style="font-size:15px;font-weight:900;color:#e01a3a;">120万+</span>
+            <span style="font-size:10px;color:#a0a8c8;">月均搜索量</span>
+          </div>
+          <div style="background:#f5f0ff;border:1px solid #d8c8fc;border-radius:6px;padding:5px 10px;display:flex;align-items:center;gap:6px;">
+            <span style="font-size:15px;font-weight:900;color:#7c5cfc;">8.4%</span>
+            <span style="font-size:10px;color:#a0a8c8;">评论互动率</span>
+          </div>
+          <div style="background:#f0fff4;border:1px solid #c0e8c8;border-radius:6px;padding:5px 10px;display:flex;align-items:center;gap:6px;">
+            <span style="font-size:15px;font-weight:900;color:#18a838;">34%</span>
+            <span style="font-size:10px;color:#a0a8c8;">高意向用户</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:0;">
+        <div style="background:#1a1a2e;border-radius:8px;padding:10px 11px;display:flex;flex-direction:column;">
+          <div style="font-size:10px;font-weight:700;color:#fff;letter-spacing:1px;">用户爱点击</div>
+          <div style="font-size:9px;color:#555;margin-bottom:6px;">CLE高点击笔记关键词</div>
+          <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:5px 7px;font-family:sans-serif;">
+            <span style="color:#e01a3a;font-size:17px;font-weight:900;line-height:1.2;">适合女生开</span>
+            <span style="color:#ff6080;font-size:13px;font-weight:700;">海边</span>
+            <span style="color:#ff6080;font-size:12px;font-weight:700;">高颜值</span>
+            <span style="color:#ff8090;font-size:13px;font-weight:700;">女生轿跑</span>
+            <span style="color:#e06070;font-size:11px;">女生</span>
+            <span style="color:#c08090;font-size:10px;">敞篷</span>
+            <span style="color:#c08090;font-size:10px;">轿跑</span>
+            <span style="color:#c08090;font-size:9px;">骑跑</span>
+            <span style="color:#c08090;font-size:9px;">海边自驾</span>
+            <span style="color:#c08090;font-size:9px;">颜值</span>
+          </div>
+        </div>
+        <div style="background:#1a1a2e;border-radius:8px;padding:10px 11px;display:flex;flex-direction:column;">
+          <div style="font-size:10px;font-weight:700;color:#fff;letter-spacing:1px;">用户爱细看</div>
+          <div style="font-size:9px;color:#555;margin-bottom:6px;">CLE高互动笔记关键词</div>
+          <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:5px 7px;font-family:sans-serif;">
+            <span style="color:#e01a3a;font-size:16px;font-weight:900;line-height:1.2;">敞篷</span>
+            <span style="color:#e01a3a;font-size:16px;font-weight:900;line-height:1.2;">动力</span>
+            <span style="color:#ff6080;font-size:12px;font-weight:700;">柏林之声</span>
+            <span style="color:#ff8090;font-size:12px;font-weight:700;">氛围灯</span>
+            <span style="color:#ff8090;font-size:11px;font-weight:700;">安全</span>
+            <span style="color:#c08090;font-size:10px;">显示屏</span>
+            <span style="color:#c08090;font-size:10px;">迎宾灯</span>
+            <span style="color:#c08090;font-size:9px;">内饰</span>
+            <span style="color:#c08090;font-size:9px;">驾驶感</span>
+            <span style="color:#c08090;font-size:9px;">全景天窗</span>
+          </div>
+        </div>
+        <div style="background:#1a1a2e;border-radius:8px;padding:10px 11px;display:flex;flex-direction:column;">
+          <div style="font-size:10px;font-weight:700;color:#fff;letter-spacing:1px;">用户爱疑问</div>
+          <div style="font-size:9px;color:#555;margin-bottom:6px;">CLE笔记下评论区</div>
+          <div style="display:flex;flex-wrap:wrap;align-items:baseline;gap:5px 7px;font-family:sans-serif;">
+            <span style="color:#e01a3a;font-size:17px;font-weight:900;line-height:1.2;">政策</span>
+            <span style="color:#ff6080;font-size:14px;font-weight:700;">价格</span>
+            <span style="color:#ff8090;font-size:12px;font-weight:700;">月薪</span>
+            <span style="color:#ff8090;font-size:11px;">落地价</span>
+            <span style="color:#c08090;font-size:10px;">油车</span>
+            <span style="color:#c08090;font-size:10px;">好看</span>
+            <span style="color:#c08090;font-size:10px;">月新</span>
+            <span style="color:#c08090;font-size:9px;">优秀</span>
+            <span style="color:#c08090;font-size:9px;">值不值</span>
+            <span style="color:#c08090;font-size:9px;">落地</span>
+          </div>
+        </div>
+      </div>`;
+    const bbl = document.getElementById('insightBubble');
+    if (bbl) {
+      bbl.appendChild(wordCloud);
+      scrollToBottom();
+      await sleepCheck(50);
+      wordCloud.style.opacity = '1';
+    }
+    await sleepCheck(600);
+  }
+
+  // 人群洞察卡片组
+  const crowdRow = addMsgRow('msg-row', makeAgentAvatar() + `
+    <div>
+      <div class="crowd-cards">
+        <div class="crowd-card" id="cc0">
+          <div class="card-label" style="background:#f0fff4;color:#18a838;">
+            <span class="card-label-text">颜值驱动型</span>
+            <span class="card-badge" style="background:#e8f8ee;color:#18a838;">48%</span>
+          </div>
+          <div class="note-cover" style="background:linear-gradient(135deg,#1a1a2e,#2d2d4e);">
+            <div class="note-comment">💬 312</div>
+            <div class="note-cover-title">种草层 🚗</div>
+          </div>
+          <div class="note-bottom">高净值年轻女性，被外观/场景种草</div>
+          <div class="card-desc" style="color:#e01a3a;">颜值驱动，被外观场景种草，决策早期</div>
+        </div>
+        <div class="crowd-card" id="cc1">
+          <div class="card-label" style="background:#f0f5ff;color:#2060d0;">
+            <span class="card-label-text">产品决策型</span>
+            <span class="card-badge" style="background:#dbeafe;color:#2060d0;">33%</span>
+          </div>
+          <div class="note-cover" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe);">
+            <div class="note-comment">💬 178</div>
+            <div class="note-cover-title" style="color:#1e3a8a;">筛选层 ⚡</div>
+          </div>
+          <div class="note-bottom">关注性能参数，对比竞品</div>
+          <div class="card-desc" style="color:#2060d0;">关注性能参数，对比竞品，理性决策</div>
+        </div>
+        <div class="crowd-card" id="cc2">
+          <div class="card-label" style="background:#fff8f0;color:#d08000;">
+            <span class="card-label-text">政策敏感型</span>
+            <span class="card-badge" style="background:#fef3c7;color:#d08000;">19%</span>
+          </div>
+          <div class="note-cover" style="background:linear-gradient(135deg,#fef3c7,#fde68a);">
+            <div class="note-comment">💬 256</div>
+            <div class="note-cover-title" style="color:#92400e;">转化层 💰</div>
+          </div>
+          <div class="note-bottom">关注落地价/政策，有购买意向</div>
+          <div class="card-desc" style="color:#d08000;">决策成熟，关注落地价与政策</div>
+        </div>
+      </div>
+      <div class="hot-words" id="hotWords">🔥 热搜词：奔驰CLE值得买吗 / 女生开CLE怎么样 / CLE落地价多少</div>
+    </div>`);
+  await sleepCheck(150);
+  crowdRow.classList.add('visible');
+  scrollToBottom();
+
+  // 三张卡片依次滑入
+  for (let i = 0; i < 3; i++) {
+    await sleepCheck(220);
+    const cc = document.getElementById('cc' + i);
+    if (cc) cc.classList.add('visible');
+  }
+  await sleepCheck(400);
+  const hw = document.getElementById('hotWords');
+  if (hw) hw.classList.add('visible');
+
+  // 右侧数据洞察汇总（已隐藏，简化右栏）
+  // document.getElementById('panelInsight').style.display = 'block';
+  for (let i = 0; i < 3; i++) {
+    await sleepCheck(250);
+    document.getElementById('ins' + i).classList.add('visible');
+  }
+  setSkillStatus(0, 'done');
+  setProgress(42);
+  await sleepCheck(1000);
+
+  // ─── Phase 4：账号定位 ───
+  setSkillStatus(1, 'active');
+  await showAgentBubble(`<div class="step-intro-card">
+  <div class="step-intro-label">STEP 1 · 账号定位</div>
+  <div class="step-intro-title">双人设KOS — 让用户在小红书看见专业、看见生活</div>
+  <div class="step-intro-cols">
+    <div class="step-intro-col">
+      <div class="step-intro-col-header">
+        <span class="step-intro-col-badge kob">官感账号</span>
+        <span class="step-intro-col-title">奔驰CLE风尚志</span>
+      </div>
+      <div class="step-intro-col-desc">
+        <div><span style="color:#a0a8c8;">核心TA</span>　垂直用户 · 产品决策型</div>
+        <div><span style="color:#a0a8c8;">内容策略</span>　痛点 × 人群 × 买点</div>
+        <div><span style="color:#a0a8c8;">核心笔记</span>　测评 / 参数 / 对比竞品</div>
+        <div style="background:#e8f0ff;border-radius:5px;padding:4px 8px;font-size:11px;font-weight:700;color:#1565c0;margin-top:4px;">🎯 让用户知道CLE是一辆强大的轿跑</div>
+      </div>
+    </div>
+    <div class="step-intro-col">
+      <div class="step-intro-col-header">
+        <span class="step-intro-col-badge kos">人感账号</span>
+        <span class="step-intro-col-title">她与奔驰CLE</span>
+      </div>
+      <div class="step-intro-col-desc">
+        <div><span style="color:#a0a8c8;">核心TA</span>　高净值精致女性</div>
+        <div><span style="color:#a0a8c8;">内容策略</span>　人群 × 场景 × 产品</div>
+        <div><span style="color:#a0a8c8;">核心笔记</span>　提车 / 自驾 / 生活方式</div>
+        <div style="background:#e8f5e9;border-radius:5px;padding:4px 8px;font-size:11px;font-weight:700;color:#2e7d32;margin-top:4px;">🌿 让用户感受CLE是一种美好生活方式</div>
+      </div>
+    </div>
+  </div>
+</div>`);
+  await sleepCheck(600);
+
+  // 双列账号卡片
+  const acctRow = addMsgRow('msg-row', makeAgentAvatar() + `
+    <div class="account-cards" id="accountCards">
+      <div class="account-card kob">
+        <span class="account-tag blue">官感账号</span>
+        <div class="account-name">奔驰CLE风尚志</div>
+        <div class="account-desc">核心TA：垂直用户（汽车爱好者）<br>官号重卖点：从用户关注的产品卖点出发（颜值、动力、内饰），转译为用户需要的功能：视听享受、驾驶体验</div>
+        <div class="account-example">「官号重卖点」</div>
+      </div>
+      <div class="account-card kos">
+        <span class="account-tag green">人感账号</span>
+        <div class="account-name">她与奔驰CLE</div>
+        <div class="account-desc">核心TA：高净值精致女性<br>人号重场景：从目标人群出发（年轻白富美），聚焦用户生活场景（通勤、自驾出游、兜风），将产品功能匹配进用户生活</div>
+        <div class="account-example">「人号重场景」</div>
+      </div>
+    </div>`);
+  await sleepCheck(150);
+  acctRow.classList.add('visible');
+  scrollToBottom();
+  await sleepCheck(300);
+  document.getElementById('accountCards').classList.add('visible');
+  setSkillStatus(1, 'done');
+  setProgress(54);
+  await sleepCheck(1000);
+
+  // ─── Phase 5：内容矩阵 ───
+  setSkillStatus(2, 'active');
+
+  // Tab ② 高亮
+  document.getElementById('tab2').classList.add('flash');
+  setTimeout(() => document.getElementById('tab2').classList.remove('flash'), 2000);
+
+  await showAgentBubble(`<div class="step-intro-card">
+  <div class="step-intro-label">STEP 2 · 内容矩阵</div>
+  <div class="step-intro-title">8条选题，覆盖用户决策全程</div>
+  <div class="step-intro-desc">种草层 → 筛选层 → 转化层，每条内容对应不同意图的用户</div>
+</div>`);
+  await sleepCheck(600);
+
+  // 内容矩阵表格
+  // ── 笔记卡片墙数据 ──
+  const noteCards = [
+    {
+      id: 'nc0',
+      coverImg: '',
+      coverGrad: 'linear-gradient(135deg,#2a0a1a,#6a2040)',
+      coverText: '🚗 提车记录',
+      layerCls: 'nc-seed', layerLabel: '种草层',
+      acctCls: 'nc-kos', acctLabel: 'KOS人感',
+      title: '《02年lo娘喜提人生第一辆车🚗》',
+      trait: '人群向 · 年轻女性 · 种草消耗¥15,769'
+    },
+    {
+      id: 'nc1',
+      coverImg: '',
+      coverGrad: 'linear-gradient(135deg,#1a0a2e,#3a1a5c)',
+      coverText: '🎂 人生里程碑',
+      layerCls: 'nc-seed', layerLabel: '种草层',
+      acctCls: 'nc-kos', acctLabel: 'KOS人感',
+      title: '《庆祝自己32岁，拥有了人生第一辆车》',
+      trait: '情感共鸣向 · 人生节点 · 种草消耗¥8,961'
+    },
+    {
+      id: 'nc2',
+      coverImg: '',
+      coverGrad: 'linear-gradient(135deg,#0a1a2e,#1a3050)',
+      coverText: '🔑 路试体验',
+      layerCls: 'nc-seed', layerLabel: '种草层',
+      acctCls: 'nc-kob', acctLabel: 'KOB官感',
+      title: '《路试梅赛德斯，很惊喜～》',
+      trait: '干货测评向 · 垂直用户 · 种草消耗¥16,055'
+    },
+    {
+      id: 'nc3',
+      coverImg: '',
+      coverGrad: 'linear-gradient(135deg,#1a1000,#3a2800)',
+      coverText: '⭐ 品牌种草',
+      layerCls: 'nc-filter', layerLabel: '筛选层',
+      acctCls: 'nc-kos', acctLabel: 'KOS人感',
+      title: '《帅，就一个字》',
+      trait: '颜值场景向 · 品牌感种草 · 种草消耗¥16,443'
+    },
+    {
+      id: 'nc4',
+      coverImg: '',
+      coverGrad: 'linear-gradient(135deg,#001a00,#003010)',
+      coverText: '🤝 经销商口碑',
+      layerCls: 'nc-filter', layerLabel: '筛选层',
+      acctCls: 'nc-kob', acctLabel: 'KOB官感',
+      title: '《三年同行，浙江之信见证的每一步》',
+      trait: '品牌背书向 · 经销商口碑 · 种草消耗¥18,174'
+    },
+    {
+      id: 'nc5',
+      coverImg: '',
+      coverGrad: 'linear-gradient(135deg,#1a2a1a,#2a4a2a)',
+      coverText: '📸 提车打卡',
+      layerCls: 'nc-filter', layerLabel: '筛选层',
+      acctCls: 'nc-ugc', acctLabel: 'UGC',
+      title: '《提车就要这么拍！最全提车拍照姿势》',
+      trait: 'UGC晒单向 · 社会认同 · 种草消耗¥8,492'
+    },
+    {
+      id: 'nc6',
+      coverImg: '',
+      coverGrad: 'linear-gradient(135deg,#2e1000,#5a2800)',
+      coverText: '🎯 提车决策',
+      layerCls: 'nc-convert', layerLabel: '转化层',
+      acctCls: 'nc-kob', acctLabel: 'KOB官感',
+      title: '《GLC300，深圳工作四年提车记录》',
+      trait: '政策转化向 · 高意向用户 · 种草消耗¥13,778'
+    },
+    {
+      id: 'nc7',
+      coverImg: '',
+      coverGrad: 'linear-gradient(135deg,#0a0a1e,#1a1a3e)',
+      coverText: '💎 豪华旗舰',
+      layerCls: 'nc-convert', layerLabel: '转化层',
+      acctCls: 'nc-kob', acctLabel: 'KOB官感',
+      title: '《奔驰迈巴赫s480，这才是真·豪华》',
+      trait: '豪华品牌向 · 高净值用户 · 种草消耗¥8,983'
+    },
+  ];
+
+  let cardWallHtml = `<div class="note-cards-wall" id="noteCardsWall">`;
+  noteCards.forEach(c => {
+    const coverInner = c.coverImg
+      ? `<img src="${c.coverImg}" alt="cover"><div class="note-card-cover-text"></div>`
+      : `<div class="note-card-cover-text">${c.coverText}</div>`;
+    const coverStyle = c.coverGrad ? `style="background:${c.coverGrad};"` : `style="background:#e0e4f4;"`;
+    cardWallHtml += `
+    <div class="note-card" id="${c.id}">
+      <div class="note-card-cover" ${coverStyle}>${coverInner}</div>
+      <div class="note-card-body">
+        <div class="note-card-badges">
+          <span class="nc-badge ${c.layerCls}">${c.layerLabel}</span>
+          <span class="nc-badge ${c.acctCls}">${c.acctLabel}</span>
+        </div>
+        <div class="note-card-title">${c.title}</div>
+        <div class="note-card-trait">${c.trait}</div>
+      </div>
+    </div>`;
+  });
+  cardWallHtml += `</div>`;
+
+  const matRow = addMsgRow('msg-row', makeAgentAvatar() + cardWallHtml);
+  await sleepCheck(150);
+  matRow.classList.add('visible');
+  scrollToBottom();
+  await sleepCheck(200);
+
+  // 逐张卡片出现（每张间隔 120ms）
+  for (let i = 0; i < noteCards.length; i++) {
+    await sleepCheck(120);
+    const card = document.getElementById(noteCards[i].id);
+    if (card) card.classList.add('visible');
+    if (i === 3) scrollToBottom(); // 第二行开始时滚动
+  }
+
+  // 右侧内容方案计数（已隐藏，简化右栏）
+  // document.getElementById('panelContent').style.display = 'block';
+  // document.getElementById('contentCounter').classList.add('visible');
+  let count = 0;
+  const interval = setInterval(() => {
+    count++;
+    document.getElementById('counterNum').textContent = count;
+    if (count >= 8) clearInterval(interval);
+  }, 120);
+
+  setSkillStatus(2, 'done');
+  setProgress(64);
+  await sleepCheck(1200);
+
+  // ─── Phase 6：投放建议 ───
+  setSkillStatus(3, 'active');
+  await showAgentBubble(`<div class="step-intro-card">
+  <div class="step-intro-label">STEP 3 · 投放策略</div>
+  <div class="step-intro-title">三段节奏，分阶段押注</div>
+  <div class="step-intro-desc">前14天曝光种草 → 前7天精准收割 → 前3天冲量转化</div>
+</div>`);
+  await sleepCheck(500);
+
+  await showAgentBubble(`<div class="deploy-cards">
+  <div class="deploy-card">
+    <div class="deploy-card-top">
+      <span class="deploy-card-phase-days">14</span><span class="deploy-card-phase-unit">天</span>
+      <span class="deploy-card-phase-label">曝光种草</span>
+    </div>
+    <div class="deploy-card-type">场景颜值 / 人群向笔记</div>
+    <div class="deploy-card-tags">
+      <span class="deploy-tag">高净值女性</span>
+      <span class="deploy-tag">场景词定向</span>
+      <span class="deploy-tag">预算30%</span>
+    </div>
+    <div class="deploy-card-budget">转化：笔记互动 / 主页访问</div>
+    <div class="deploy-card-kpi">↑ 品牌意向人群蓄水</div>
+  </div>
+  <div class="deploy-card">
+    <div class="deploy-card-top">
+      <span class="deploy-card-phase-days">7</span><span class="deploy-card-phase-unit">天</span>
+      <span class="deploy-card-phase-label">精准收割</span>
+    </div>
+    <div class="deploy-card-type">干货类 / 政策类笔记</div>
+    <div class="deploy-card-tags">
+      <span class="deploy-tag">品牌词/型号词</span>
+      <span class="deploy-tag">竞品人群</span>
+      <span class="deploy-tag">预算50%</span>
+    </div>
+    <div class="deploy-card-budget">转化：表单留资 / 私信开口</div>
+    <div class="deploy-card-kpi">↑ 有效客资量</div>
+  </div>
+  <div class="deploy-card">
+    <div class="deploy-card-top">
+      <span class="deploy-card-phase-days">3</span><span class="deploy-card-phase-unit">天</span>
+      <span class="deploy-card-phase-label">冲量转化</span>
+    </div>
+    <div class="deploy-card-type">政策类笔记 赛马出价</div>
+    <div class="deploy-card-tags">
+      <span class="deploy-tag">已互动未留资</span>
+      <span class="deploy-tag">高意向访客</span>
+      <span class="deploy-tag">出价+20%</span>
+    </div>
+    <div class="deploy-card-budget">转化：金融落地页 cvr 7.69%</div>
+    <div class="deploy-card-kpi">↓ 有效客资成本</div>
+  </div>
+</div>`);
+
+  setSkillStatus(3, 'done');
+  setProgress(74);
+  await sleepCheck(1000);
+
+  // ─── Phase 7：差异化私信话术 ───
+  setSkillStatus(4, 'active');
+  await showAgentBubble(`<div class="step-intro-card">
+  <div class="step-intro-label">STEP 3 · 后链路承接</div>
+  <div class="step-intro-title">双链路协调 — 高意向用户不流失</div>
+  <div class="step-intro-desc" style="margin-bottom:10px;">纯表单只能打捞高意向且有表单习惯的用户，私信习惯用户、深度兴趣用户大量流失</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+    <div style="background:#f0faf0;border-radius:8px;padding:10px;border:1px solid #c8e6c9;">
+      <div style="font-size:11px;font-weight:700;color:#1a7a30;margin-bottom:4px;">① 表单广告</div>
+      <div style="font-size:11px;color:#606890;">拦截超高意向用户<br>金融落地页 cvr 7.69%</div>
+    </div>
+    <div style="background:#fff5f0;border-radius:8px;padding:10px;border:1px solid #f0c8b8;">
+      <div style="font-size:11px;font-weight:700;color:#c04020;margin-bottom:4px;">② 私信通接入</div>
+      <div style="font-size:11px;color:#606890;">拦截高意向+深度兴趣用户<br><strong style="color:#c04020;">线索成本下降88%</strong></div>
+    </div>
+  </div>
+</div>`);
+  await sleepCheck(600);
+
+  // ── 私信三列平铺布局 ──
+  const dmTriptychHtml = `<div class="dm-triptych" id="dmTriptych">
+    <!-- 场景A：犹豫性客户 -->
+    <div class="dm-col">
+      <div class="dm-col-header">
+        <span class="dm-col-emoji">🤔</span>
+        <div>
+          <div class="dm-col-title">犹豫性客户</div>
+          <div class="dm-col-sub">带着疑问私信</div>
+        </div>
+      </div>
+      <div class="dm-col-profile">
+        <div class="dm-col-profile-row"><span class="dm-col-profile-key">用户特征</span><span class="dm-col-profile-val">有疑问，需解答后再决策</span></div>
+        <div class="dm-col-profile-row"><span class="dm-col-profile-key">决策阶段</span><span class="dm-col-profile-val">深度兴趣 / 犹豫中</span></div>
+        <div class="dm-col-profile-row"><span class="dm-col-profile-key">重点</span><span class="dm-col-profile-val">先回答疑问，再介绍政策</span></div>
+      </div>
+      <div class="dm-col-messages" id="dmColMsgA">
+        <div class="dm-col-msg" id="dmA0" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av u">👤</div>
+          <div class="dm-col-bbl u">CLE现在有什么政策？</div>
+        </div>
+        <div class="dm-col-msg m" id="dmA1" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av m">🚗</div>
+          <div class="dm-col-bbl m">你好！目前CLE有限时金融政策，首付30%月供轻松，还有置换补贴。你在哪个城市？我帮你查最近门店的具体政策～</div>
+        </div>
+        <div class="dm-col-msg" id="dmA2" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av u">👤</div>
+          <div class="dm-col-bbl u">上海，想了解分期</div>
+        </div>
+        <div class="dm-col-msg m" id="dmA3" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av m">🚗</div>
+          <div class="dm-col-bbl m">上海门店本月分期贴息力度还不错，落地价47W左右。需要帮你出一份详细方案吗？留个联系方式我让专员跟进你👇</div>
+        </div>
+      </div>
+    </div>
+    <!-- 场景B：高意向用户 -->
+    <div class="dm-col">
+      <div class="dm-col-header">
+        <span class="dm-col-emoji">🎯</span>
+        <div>
+          <div class="dm-col-title">高意向用户</div>
+          <div class="dm-col-sub">直接想了解政策</div>
+        </div>
+      </div>
+      <div class="dm-col-profile">
+        <div class="dm-col-profile-row"><span class="dm-col-profile-key">用户特征</span><span class="dm-col-profile-val">明确需求，直接询价</span></div>
+        <div class="dm-col-profile-row"><span class="dm-col-profile-key">决策阶段</span><span class="dm-col-profile-val">高意向，填表习惯</span></div>
+        <div class="dm-col-profile-row"><span class="dm-col-profile-key">重点</span><span class="dm-col-profile-val">欢迎语+探需+政策介绍</span></div>
+      </div>
+      <div class="dm-col-messages" id="dmColMsgB">
+        <div class="dm-col-msg" id="dmB0" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av u">👤</div>
+          <div class="dm-col-bbl u">你们CLE现在落地多少？</div>
+        </div>
+        <div class="dm-col-msg m" id="dmB1" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av m">🚗</div>
+          <div class="dm-col-bbl m">欢迎关注CLE！请问你在哪个城市？全款还是分期？喜欢哪款配色？方便的话告诉我，马上为你推荐最划算的方案🚗</div>
+        </div>
+        <div class="dm-col-msg" id="dmB2" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av u">👤</div>
+          <div class="dm-col-bbl u">北京，分期，玫瑰金</div>
+        </div>
+        <div class="dm-col-msg m" id="dmB3" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av m">🚗</div>
+          <div class="dm-col-bbl m">北京门店有现车！玫瑰金超美的。本月分期政策很好，两轮问题确认后给你出完整报价，留个手机号方便联系？</div>
+        </div>
+      </div>
+    </div>
+    <!-- 场景C：兴趣用户 -->
+    <div class="dm-col">
+      <div class="dm-col-header">
+        <span class="dm-col-emoji">✨</span>
+        <div>
+          <div class="dm-col-title">兴趣用户</div>
+          <div class="dm-col-sub">有点击互动行为</div>
+        </div>
+      </div>
+      <div class="dm-col-profile">
+        <div class="dm-col-profile-row"><span class="dm-col-profile-key">用户特征</span><span class="dm-col-profile-val">有互动行为，潜在兴趣</span></div>
+        <div class="dm-col-profile-row"><span class="dm-col-profile-key">决策阶段</span><span class="dm-col-profile-val">兴趣阶段，需主动触达</span></div>
+        <div class="dm-col-profile-row"><span class="dm-col-profile-key">重点</span><span class="dm-col-profile-val">主动招呼+自我介绍+引导提问</span></div>
+      </div>
+      <div class="dm-col-messages" id="dmColMsgC">
+        <div class="dm-col-msg m" id="dmC0" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av m">🚗</div>
+          <div class="dm-col-bbl m">姐姐好！看到你收藏了我们CLE的笔记～ 我是她与奔驰CLE的小编，有什么想了解的都可以问我哦🌟</div>
+        </div>
+        <div class="dm-col-msg" id="dmC1" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av u">👤</div>
+          <div class="dm-col-bbl u">哦哦，想了解一下这个车</div>
+        </div>
+        <div class="dm-col-msg m" id="dmC2" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av m">🚗</div>
+          <div class="dm-col-bbl m">CLE是奔驰专为年轻精致女性打造的轿跑，颜值超能打！你比较关注外观、性能还是政策？我给你发针对性的资料📱</div>
+        </div>
+        <div class="dm-col-msg" id="dmC3" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av u">👤</div>
+          <div class="dm-col-bbl u">外观和价格都想了解</div>
+        </div>
+        <div class="dm-col-msg m" id="dmC4" style="opacity:0;transition:opacity 0.3s ease;">
+          <div class="dm-col-av m">🚗</div>
+          <div class="dm-col-bbl m">这两个我都给你整理了！外观实拍+当前落地价一起发给你，留个微信方便吗？</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  const dmRow = addMsgRow('msg-row', makeAgentAvatar() + dmTriptychHtml);
+  await sleepCheck(150);
+  dmRow.classList.add('visible');
+  scrollToBottom();
+
+  // 三列气泡依次淡入（每条间隔300ms，三列同步；C列多一条）
+  const bubbleIds = [['dmA0','dmA1','dmA2','dmA3'],['dmB0','dmB1','dmB2','dmB3'],['dmC0','dmC1','dmC2','dmC3','dmC4']];
+  const maxSteps = Math.max(...bubbleIds.map(col => col.length));
+  for (let step = 0; step < maxSteps; step++) {
+    await sleepCheck(300);
+    for (const col of bubbleIds) {
+      if (step < col.length) {
+        const el = document.getElementById(col[step]);
+        if (el) el.style.opacity = '1';
+      }
+    }
+    scrollToBottom();
+  }
+
+  setSkillStatus(4, 'done');
+  setProgress(83);
+  await sleepCheck(1000);
+
+  // ─── Phase 9：完成 ───
+  setProgress(92);
+  await sleepCheck(600);
+
+  // CTA
+  const ctaRow = addMsgRow('msg-row', `
+    <div class="cta-bar" id="ctaBar">
+      <div class="cta-left">
+        <div class="cta-title">🚀 奔驰CLE方案已就绪，立即启动</div>
+        <div class="cta-sub">内容 × 8条 · 投放 × 3套 · 私信话术 × 3版</div>
+      </div>
+      <div class="cta-btns">
+        <button class="btn-go">⚡ 一键生意启动</button>
+      </div>
+    </div>`);
+  await sleepCheck(150);
+  ctaRow.classList.add('visible');
+  document.getElementById('ctaBar').classList.add('visible');
+  scrollToBottom();
+
+  setProgress(100);
+
+  // 更新侧边栏状态
+  const sb = document.getElementById('sidebarStatus');
+  if (sb) { sb.className = 'task-badge badge-done'; sb.textContent = '✓ 已完成'; }
+
+  // 按钮状态
+  document.getElementById('btnPause').style.display = 'none';
+  document.getElementById('btnSkip').style.display = 'none';
+  document.getElementById('btnReplay').style.display = 'inline-block';
+  demoRunning = false;
+}
+
+function replayDemo() {
+  demoRunning = false;
+  demoPaused = false;
+  clearAllTimers();
+
+  document.getElementById('btnReplay').style.display = 'none';
+  document.getElementById('btnDemo').style.display = 'inline-block';
+  document.getElementById('progressBar').style.width = '0%';
+
+  // 重置侧边栏状态
+  const sb = document.getElementById('sidebarStatus');
+  if (sb) { sb.className = 'task-badge badge-wip'; sb.textContent = '● 生成中...'; }
+
+  // 重置步骤
+  for (let i = 0; i < 5; i++) {
+    setSkillStatus(i, 'idle');
+  }
+  document.getElementById('panelInsight').style.display = 'none';
+  document.getElementById('panelContent').style.display = 'none';
+  document.getElementById('panelMaterials').style.display = 'none';
+
+  clearChat();
+  chat.innerHTML = `<div style="text-align:center;color:#c0c8e0;font-size:11px;padding:30px 0;">点击「▶ 开始演示」查看完整分析流程</div>`;
+}
+
+// 复制话术
+function copyDM(btn, text) {
+  navigator.clipboard.writeText(text).catch(() => {});
+  btn.textContent = '✅ 已复制';
+  btn.classList.add('copied');
+  setTimeout(() => {
+    btn.textContent = '📋 复制';
+    btn.classList.remove('copied');
+  }, 2000);
+}
+
+// 私信模拟器旧函数已移除（Tab切换改为三列平铺展示）
+</script>
+</body>
+<!-- v9 build: 2026-03-31T19:00 -->
+</html>

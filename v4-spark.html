@@ -21,13 +21,7 @@ body {
    LOGIN PAGE
 ══════════════════════════════════════════ */
 #loginPage {
-  position: fixed;
-  inset: 0;
-  background: #F7F7F9;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
+  display: none;
 }
 .login-card {
   width: 380px;
@@ -106,7 +100,7 @@ body {
    MAIN PAGE
 ══════════════════════════════════════════ */
 #mainPage {
-  display: none;
+  display: flex;
   flex-direction: column;
   align-items: stretch;
   height: 100vh;
@@ -597,6 +591,18 @@ body {
   padding: 6px 8px;
   margin: 8px 0;
   font-family: 'SF Mono', Monaco, monospace;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.summary-taskname:hover {
+  background: #E5E7EB;
+}
+.summary-taskname[contenteditable="true"] {
+  background: #FFF;
+  border: 1.5px solid #FF2442;
+  color: #13131F;
+  outline: none;
+  cursor: text;
 }
 .start-gen-btn {
   width: 100%;
@@ -2199,6 +2205,33 @@ const SELLING_POINTS = {
   '下载行业': ['免费使用', '操作简单', '功能强大', '省时省力', '全平台支持']
 };
 
+
+
+// 推荐图片数据（mock算法挖掘结果）—— 使用渐变色块代替真实图片
+const RECOMMENDED_IMAGES = {
+  '线索行业': [
+    { label: '课程封面', color: 'linear-gradient(135deg,#667eea,#764ba2)' },
+    { label: '名师照片', color: 'linear-gradient(135deg,#f093fb,#f5576c)' },
+    { label: '学员证书', color: 'linear-gradient(135deg,#4facfe,#00f2fe)' },
+  ],
+  '电商行业': [
+    { label: '商品正面', color: 'linear-gradient(135deg,#f093fb,#f5576c)' },
+    { label: '使用场景', color: 'linear-gradient(135deg,#43e97b,#38f9d7)' },
+    { label: '细节特写', color: 'linear-gradient(135deg,#fa8231,#f7b731)' },
+  ],
+  '下载行业': [
+    { label: 'App截图', color: 'linear-gradient(135deg,#667eea,#764ba2)' },
+    { label: '功能界面', color: 'linear-gradient(135deg,#43e97b,#38f9d7)' },
+    { label: '使用场景', color: 'linear-gradient(135deg,#4facfe,#00f2fe)' },
+  ],
+};
+// 推荐卖点数据（mock算法挖掘结果）
+const RECOMMENDED_SELLING_POINTS = {
+  '线索行业': ['功能超全，上手零门槛', '30天无理由退款保障', '同行业NO.1提分率', '真实学员案例佐证', '名师手把手批改作业'],
+  '电商行业': ['买家秀与官方图一致', '穿过洗100次不变形', '同款明星同款在穿', '限时买一送一', '7天无理由退换货'],
+  '下载行业': ['注册即送7天会员', '无广告清爽体验', 'iOS/Android双端互通', '数据云端自动同步', '隐私加密零泄露'],
+};
+
 const RESULT_CARDS = {
   '线索行业': [
     { grad: 'linear-gradient(135deg, #FF6B6B, #FF2442)', title: '📋 5大班型横向对比｜雅思口语哪家强？', preview: '花了一周时间对比了市面上主流的5大雅思口语冲刺班，从价格、师资、课时到真实提分效果，全面评测！' },
@@ -2241,8 +2274,12 @@ function doLogin() {
 
 // Allow Enter key on login
 document.addEventListener('DOMContentLoaded', () => {
+  // 自动启动（跳过登录）
+  startChat();
+
   ['loginUser','loginPass'].forEach(id => {
-    document.getElementById(id).addEventListener('keydown', e => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('keydown', e => {
       if (e.key === 'Enter') doLogin();
     });
   });
@@ -2451,7 +2488,7 @@ function startChat() {
 
   // Small delay then type greeting
   setTimeout(() => {
-    addAIBubble('你好！我是生花 AI 助手 🌸 先告诉我，你是做哪个行业的推广？', () => {
+    addAIBubble('今天有什么好点子啊？🌸 先告诉我，你是做哪个行业的推广～', () => {
       buildIndustryInChat();
     });
   }, 300);
@@ -2528,23 +2565,23 @@ const SPU_DATA = [
 
 // 电商 SPU mock 卡片数据
 const ECOM_SPU_CARDS = [
-  { id: 'E001', name: '雅诗兰黛小棕瓶精华 30ml', sub: '护肤/抗衰', icon: '✨', grad: 'linear-gradient(135deg,#f093fb,#f5576c)' },
-  { id: 'E002', name: 'lululemon Align 瑜伽裤', sub: '运动/女装', icon: '🧘', grad: 'linear-gradient(135deg,#4facfe,#00f2fe)' },
-  { id: 'E003', name: '戴森 V15 吸尘器', sub: '家电/清洁', icon: '🌀', grad: 'linear-gradient(135deg,#43e97b,#38f9d7)' },
-  { id: 'E004', name: '可复美胶原棒', sub: '护肤/修复', icon: '💎', grad: 'linear-gradient(135deg,#fa8231,#f7b731)' },
-  { id: 'E005', name: '苹果 iPhone 16 Pro', sub: '数码/手机', icon: '📱', grad: 'linear-gradient(135deg,#667eea,#764ba2)' },
-  { id: 'E006', name: '花西子蜜粉饼', sub: '彩妆/定妆', icon: '🌸', grad: 'linear-gradient(135deg,#fd79a8,#e84393)' },
-  { id: 'E007', name: '奥乐齐有机燕麦片', sub: '食品/健康', icon: '🌾', grad: 'linear-gradient(135deg,#11998e,#38ef7d)' },
-  { id: 'E008', name: 'SK-II 神仙水 230ml', sub: '护肤/精华', icon: '🫧', grad: 'linear-gradient(135deg,#6c5ce7,#a29bfe)' },
+  { id: 'E001', spuId: '1801792', name: '雅诗兰黛小棕瓶精华 30ml', sub: '护肤/抗衰', icon: '✨', grad: 'linear-gradient(135deg,#f093fb,#f5576c)' },
+  { id: 'E002', spuId: '1823451', name: 'lululemon Align 瑜伽裤', sub: '运动/女装', icon: '🧘', grad: 'linear-gradient(135deg,#4facfe,#00f2fe)' },
+  { id: 'E003', spuId: '1856234', name: '戴森 V15 吸尘器', sub: '家电/清洁', icon: '🌀', grad: 'linear-gradient(135deg,#43e97b,#38f9d7)' },
+  { id: 'E004', spuId: '1834912', name: '可复美胶原棒', sub: '护肤/修复', icon: '💎', grad: 'linear-gradient(135deg,#fa8231,#f7b731)' },
+  { id: 'E005', spuId: '1867341', name: '苹果 iPhone 16 Pro', sub: '数码/手机', icon: '📱', grad: 'linear-gradient(135deg,#667eea,#764ba2)' },
+  { id: 'E006', spuId: '1812088', name: '花西子蜜粉饼', sub: '彩妆/定妆', icon: '🌸', grad: 'linear-gradient(135deg,#fd79a8,#e84393)' },
+  { id: 'E007', spuId: '1891234', name: '奥乐齐有机燕麦片', sub: '食品/健康', icon: '🌾', grad: 'linear-gradient(135deg,#11998e,#38ef7d)' },
+  { id: 'E008', spuId: '1878456', name: 'SK-II 神仙水 230ml', sub: '护肤/精华', icon: '🫧', grad: 'linear-gradient(135deg,#6c5ce7,#a29bfe)' },
 ];
 
 // 线索 SPU mock 卡片数据
 const LEAD_SPU_CARDS = [
-  { id: 'L001', name: '雅思口语冲刺班', sub: '语言培训/备考', icon: '🎤', grad: 'linear-gradient(135deg,#667eea,#764ba2)' },
-  { id: 'L002', name: '公务员笔试特训营', sub: '职业教育/考公', icon: '📋', grad: 'linear-gradient(135deg,#f093fb,#f5576c)' },
-  { id: 'L003', name: 'MBA 备考系列课', sub: '学历教育/提升', icon: '🎓', grad: 'linear-gradient(135deg,#4facfe,#00f2fe)' },
-  { id: 'L004', name: 'CPA 全科精讲班', sub: '财会考试/备考', icon: '📊', grad: 'linear-gradient(135deg,#43e97b,#38f9d7)' },
-  { id: 'L005', name: '少儿编程启蒙课', sub: '素质教育/少儿', icon: '💻', grad: 'linear-gradient(135deg,#fa8231,#f7b731)' },
+  { id: 'L001', spuId: '1801792', name: '雅思口语冲刺班', sub: '语言培训/备考', icon: '🎤', grad: 'linear-gradient(135deg,#667eea,#764ba2)' },
+  { id: 'L002', spuId: '1823451', name: '公务员笔试特训营', sub: '职业教育/考公', icon: '📋', grad: 'linear-gradient(135deg,#f093fb,#f5576c)' },
+  { id: 'L003', spuId: '1856234', name: 'MBA 备考系列课', sub: '学历教育/提升', icon: '🎓', grad: 'linear-gradient(135deg,#4facfe,#00f2fe)' },
+  { id: 'L004', spuId: '1834912', name: 'CPA 全科精讲班', sub: '财会考试/备考', icon: '📊', grad: 'linear-gradient(135deg,#43e97b,#38f9d7)' },
+  { id: 'L005', spuId: '1867341', name: '少儿编程启蒙课', sub: '素质教育/少儿', icon: '💻', grad: 'linear-gradient(135deg,#fa8231,#f7b731)' },
 ];
 
 function buildSPUList(query) {
@@ -3015,7 +3052,7 @@ function buildLeadInputInChat() {
       <div class="spu-card-check">✓</div>
       <div class="spu-card-icon" style="background:${spu.grad};">${spu.icon}</div>
       <div class="spu-card-name">${spu.name}</div>
-      <div class="spu-card-sub">${spu.sub}</div>
+      <div class="spu-card-sub" style="font-size:10.5px;color:#B0B3C1;">SPUID: ${spu.spuId || spu.id}</div>
     </div>
   `).join('');
 
@@ -3129,7 +3166,7 @@ function buildSpuInChat() {
       <div class="spu-card-check">✓</div>
       <div class="spu-card-icon" style="background:${spu.grad};">${spu.icon}</div>
       <div class="spu-card-name">${spu.name}</div>
-      <div class="spu-card-sub">${spu.sub}</div>
+      <div class="spu-card-sub" style="font-size:10.5px;color:#B0B3C1;">SPUID: ${spu.spuId || spu.id}</div>
     </div>
   `).join('');
 
@@ -3261,6 +3298,17 @@ function buildUploadInChat() {
         <div style="font-size:13px;color:#6B7280;">${isLead ? '📷 上传商品素材图（可选）' : '📷 请上传商品素材图（必填）'}</div>
         <button onclick="openMaterialOverlay('img','uploadGrid')" style="font-size:12px;color:#FF2442;background:none;border:none;cursor:pointer;font-family:inherit;padding:0;white-space:nowrap;">📦 从原料库选图</button>
       </div>
+      ${(RECOMMENDED_IMAGES[state.industry]||[]).length ? `
+      <div id="recImgArea" style="margin-bottom:10px;">
+        <div style="font-size:11.5px;color:#F59E0B;font-weight:500;margin-bottom:6px;">🌟 推荐图片（算法挖掘，点击选用）</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          ${(RECOMMENDED_IMAGES[state.industry]||[]).map((img,i) => `
+            <div onclick="selectRecommendedImage(${i})" id="recImg_${i}" style="width:72px;height:72px;border-radius:8px;background:${img.color};cursor:pointer;position:relative;border:2px solid transparent;transition:all 0.15s;display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;" onmouseover="this.style.borderColor='#FF2442'" onmouseout="if(!this.dataset.selected)this.style.borderColor='transparent'">
+              <span style="font-size:10px;color:rgba(255,255,255,0.9);background:rgba(0,0,0,0.3);border-radius:4px;padding:1px 4px;">${img.label}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>` : ''}
       <div class="upload-grid" id="uploadGridChat" style="margin-bottom:10px;"></div>
       <input type="file" id="fileInputChat" accept="image/*" multiple style="display:none" onchange="handleFileUploadChat(this)" />
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
@@ -3273,6 +3321,35 @@ function buildUploadInChat() {
   document.getElementById('chatArea').appendChild(wrap);
   scrollChat();
   buildUploadGridChat();
+  buildRecImgArea();
+}
+
+function buildRecImgArea() {
+  const area = document.getElementById('recImgArea');
+  if (!area) return;
+  const imgs = RECOMMENDED_IMAGES[state.industry] || [];
+  if (!imgs.length) { area.style.display = 'none'; return; }
+  area.innerHTML = '';
+  const label = document.createElement('div');
+  label.style.cssText = 'font-size:11.5px;color:#F59E0B;font-weight:500;margin-bottom:6px;';
+  label.textContent = '🌟 推荐图片（算法挖掘，点击选用）';
+  area.appendChild(label);
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;gap:8px;flex-wrap:wrap;';
+  imgs.forEach(function(img, i) {
+    const el = document.createElement('div');
+    el.id = 'recImg_' + i;
+    el.style.cssText = 'width:72px;height:72px;border-radius:8px;background:' + img.color + ';cursor:pointer;border:2px solid transparent;transition:all 0.15s;display:flex;align-items:flex-end;justify-content:center;padding-bottom:4px;';
+    el.onclick = function() { selectRecommendedImage(i); };
+    el.onmouseover = function() { if (!this.dataset.selected) this.style.borderColor = '#FF2442'; };
+    el.onmouseout  = function() { if (!this.dataset.selected) this.style.borderColor = 'transparent'; };
+    const lbl = document.createElement('span');
+    lbl.style.cssText = 'font-size:10px;color:rgba(255,255,255,0.9);background:rgba(0,0,0,0.3);border-radius:4px;padding:1px 4px;';
+    lbl.textContent = img.label;
+    el.appendChild(lbl);
+    row.appendChild(el);
+  });
+  area.appendChild(row);
 }
 
 function buildUploadGridChat() {
@@ -3401,16 +3478,42 @@ function buildSellingChipsInChat() {
         style="width:100%;padding:10px 12px;border:1.5px solid #E5E7EB;border-radius:10px;font-size:13px;color:#13131F;outline:none;font-family:inherit;background:#F9FAFB;resize:none;line-height:1.6;box-sizing:border-box;"
         onfocus="this.style.borderColor='#FF2442'" onblur="this.style.borderColor='#E5E7EB'"
         oninput="updateCharCount('sellingInputChat','sellingCharCount',200)"></textarea>
-      <div style="display:flex;align-items:center;justify-content:space-between;margin:4px 0 10px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin:4px 0 8px;">
         <div style="font-size:11.5px;color:#9CA3AF;">💡 灵感参考（无需点选，自由描述就好）：${points.slice(0,5).join(' · ')}</div>
         <div id="sellingCharCount" style="font-size:11px;color:#9CA3AF;white-space:nowrap;margin-left:8px;">0 / 200</div>
       </div>
+      <div id="recPtArea" style="margin-bottom:10px;"></div>
       <button class="confirm-btn" style="width:100%;" onclick="confirmSellingPoints()">已选好，继续 →</button>
     </div>
   `;
   document.getElementById('chatArea').appendChild(wrap);
   scrollChat();
+  buildRecPtArea();
   setTimeout(() => document.getElementById('sellingInputChat')?.focus(), 100);
+}
+
+function buildRecPtArea() {
+  const area = document.getElementById('recPtArea');
+  if (!area) return;
+  const pts = RECOMMENDED_SELLING_POINTS[state.industry] || [];
+  if (!pts.length) { area.style.display = 'none'; return; }
+  const btns = pts.map(function(pt) {
+    const btn = document.createElement('button');
+    btn.textContent = pt;
+    btn.style.cssText = 'padding:5px 10px;background:#FFFBEB;border:1px solid #F59E0B;border-radius:16px;font-size:12px;color:#92400E;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all 0.15s;';
+    btn.onmouseover = function(){this.style.background='#FEF3C7';};
+    btn.onmouseout  = function(){this.style.background='#FFFBEB';};
+    btn.onclick = function(){ appendSellingPoint(pt); };
+    return btn;
+  });
+  const row = document.createElement('div');
+  row.style.cssText = 'display:flex;flex-wrap:wrap;gap:6px;';
+  btns.forEach(function(b){ row.appendChild(b); });
+  const label = document.createElement('div');
+  label.style.cssText = 'font-size:11.5px;color:#F59E0B;font-weight:500;margin-bottom:6px;';
+  label.textContent = '🌟 推荐卖点（点击填入）';
+  area.appendChild(label);
+  area.appendChild(row);
 }
 
 function addCustomSellingChat() { /* 兼容保留，不再使用 */ }
@@ -3566,6 +3669,54 @@ function toggleSellingPoint(chip, value) {
   }
 }
 
+
+// 推荐卖点点击追加到输入框
+function appendSellingPoint(pt) {
+  const ta = document.getElementById('sellingInputChat');
+  if (!ta) return;
+  const cur = ta.value.trim();
+  ta.value = cur ? cur + '、' + pt : pt;
+  updateCharCount('sellingInputChat', 'sellingCharCount', 200);
+  ta.style.borderColor = '#FF2442';
+  setTimeout(function(){ ta.style.borderColor = '#E5E7EB'; }, 600);
+}
+
+// 推荐图片点击选用（mock：用颜色块代替真实图片dataURL）
+function selectRecommendedImage(idx) {
+  const imgs = RECOMMENDED_IMAGES[state.industry] || [];
+  if (idx >= imgs.length) return;
+  const imgData = imgs[idx];
+  const el = document.getElementById('recImg_' + idx);
+  
+  // 切换选中状态
+  if (el && el.dataset.selected) {
+    // 取消选中
+    delete el.dataset.selected;
+    el.style.borderColor = 'transparent';
+    el.style.opacity = '1';
+    // 从选中列表移除
+    const removeIdx = state.recommendedSelected ? state.recommendedSelected.indexOf(idx) : -1;
+    if (removeIdx > -1) state.recommendedSelected.splice(removeIdx, 1);
+  } else {
+    // 选中
+    if (el) { el.dataset.selected = '1'; el.style.borderColor = '#FF2442'; }
+    if (!state.recommendedSelected) state.recommendedSelected = [];
+    state.recommendedSelected.push(idx);
+    // 显示确认上传按钮
+    const btn = document.getElementById('confirmUploadChatBtn');
+    if (btn) btn.style.display = 'flex';
+    showToast('已选用推荐图片「' + imgData.label + '」', 'success');
+  }
+}
+function appendSellingPoint(pt) {
+  const ta = document.getElementById('sellingInputChat');
+  if (!ta) return;
+  const cur = ta.value.trim();
+  ta.value = cur ? cur + '、' + pt : pt;
+  updateCharCount('sellingInputChat', 'sellingCharCount', 200);
+  ta.style.borderColor = '#FF2442';
+  setTimeout(() => { ta.style.borderColor = '#E5E7EB'; }, 600);
+}
 function confirmSellingPoints() {
   // 基础校验
   const textarea = document.getElementById('sellingInputChat');
@@ -3678,7 +3829,7 @@ function goToSummary() {
               <span class="summary-edit" onclick="editSummaryField('style')">修改</span>
             </div>
             <div class="summary-divider"></div>
-            <div class="summary-taskname">📁 ${taskName}</div>
+            <div class="summary-taskname" id="taskNameDisplay" title="点击可修改任务名" onclick="this.contentEditable='true';this.focus();var sel=window.getSelection();var range=document.createRange();range.selectNodeContents(this);sel.removeAllRanges();sel.addRange(range);" onblur="this.contentEditable='false';" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">📁 ${taskName}</div>
             <button class="start-gen-btn" onclick="startGeneration()">✨ 开始生成</button>
           </div>
         `;
@@ -4047,7 +4198,7 @@ function _appendNewSummaryCard() {
         <span class="summary-edit" onclick="editSummaryField('style')">修改</span>
       </div>
       <div class="summary-divider"></div>
-      <div class="summary-taskname">📁 ${taskName}</div>
+      <div class="summary-taskname" id="taskNameDisplay" title="点击可修改任务名" onclick="this.contentEditable='true';this.focus();var sel=window.getSelection();var range=document.createRange();range.selectNodeContents(this);sel.removeAllRanges();sel.addRange(range);" onblur="this.contentEditable='false';" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}">📁 ${taskName}</div>
       <button class="start-gen-btn" onclick="startGeneration()">✨ 开始生成</button>
     </div>
   `;
